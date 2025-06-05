@@ -11,8 +11,11 @@ import axios from "axios";
 // Define the type for a category item
 export interface CategoryType {
   _id: string;
-  categoryName: string;
-  module: string;
+  name: string;
+  module: {
+    _id: string;
+    name: string;
+  };
   createdAt?: string;
   updatedAt?: string;
   [key: string]: any; // For any other dynamic fields

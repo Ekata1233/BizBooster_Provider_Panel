@@ -6,10 +6,14 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Image from "next/image";
+import { useAuth } from "@/app/context/AuthContext";
 
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const { providerDetails } = useAuth();
+   console.log("Provider details", providerDetails);
+
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");

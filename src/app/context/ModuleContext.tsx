@@ -7,8 +7,6 @@ export interface ModuleType {
     name: string;
 }
 
-
-
 interface ModuleContextType {
     modules: ModuleType[];
     loadingModules: boolean;

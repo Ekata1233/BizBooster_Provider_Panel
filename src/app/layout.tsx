@@ -7,6 +7,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ModuleProvider } from './context/ModuleContext';
 import { CategoryProvider } from './context/CategoryContext';
 import { SubcategoryProvider } from './context/SubCategoryContext';
+import { ServiceProvider } from './context/ServiceContext';
+import { SubscribeProvider } from './context/SubscribeContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -26,7 +28,11 @@ export default function RootLayout({
               <ModuleProvider>
                 <CategoryProvider>
                   <SubcategoryProvider>
-                    {children}
+                    <ServiceProvider>
+                      <SubscribeProvider>
+                        {children}
+                      </SubscribeProvider>
+                    </ServiceProvider>
                   </SubcategoryProvider>
                 </CategoryProvider>
               </ModuleProvider>
