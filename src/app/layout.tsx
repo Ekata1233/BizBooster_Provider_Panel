@@ -4,6 +4,9 @@ import './globals.css';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { ModuleProvider } from './context/ModuleContext';
+import { CategoryProvider } from './context/CategoryContext';
+import { SubcategoryProvider } from './context/SubCategoryContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -20,7 +23,13 @@ export default function RootLayout({
         <ThemeProvider>
           <SidebarProvider>
             <AuthProvider>
-            {children}
+              <ModuleProvider>
+                <CategoryProvider>
+                  <SubcategoryProvider>
+                    {children}
+                  </SubcategoryProvider>
+                </CategoryProvider>
+              </ModuleProvider>
             </AuthProvider>
           </SidebarProvider>
         </ThemeProvider>
