@@ -18,7 +18,7 @@ export interface SubcategoryType {
   };
   createdAt?: string;
   updatedAt?: string;
-  [key: string]: any; // For dynamic props if needed
+  [key: string]: any; 
 }
 
 // Define the shape of the context
