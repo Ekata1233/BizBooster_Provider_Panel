@@ -32,7 +32,7 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src="/images/user/owner.jpg"
+            src={providerDetails?.data?.storeInfo?.logo || "/images/default-logo.png"}
             alt="User"
           />
         </span>

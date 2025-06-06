@@ -70,13 +70,44 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
+import mongoose from "mongoose";
+type KYC = {
+  aadhaarCard: string[];
+  panCard: string[];
+  storeDocument: string[];
+  GST: string[];
+  other: string[];
+};
 // Basic login provider info
+type StoreInfo = {
+  storeName: string;
+  storePhone: string;
+  storeEmail: string;
+  module: mongoose.Types.ObjectId;
+  zone: mongoose.Types.ObjectId;
+  logo?: string;
+  cover?: string;
+  tax: string;
+  location: Location;
+  address: string;
+  officeNo: string;
+  city: string;
+  state: string;
+  country: string;
+};
 type Provider = {
   _id: string;
+  fullName: string;
+  phoneNo: string;
   email: string;
+  password?: string;
+  referredBy?: string;
+  companyLogo?: string;
+  companyName?: string;
+  storeInfo?: StoreInfo;
+  kyc?: KYC;
 };
-
+// 
 // Full provider details from API
 type ProviderDetails = {
   _id: string;
@@ -87,6 +118,7 @@ type ProviderDetails = {
   referredBy?: string;
   companyLogo?: string;
   companyName?: string;
+   data: Provider;
   // Add any other fields returned from API
 };
 
@@ -102,7 +134,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
+const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {

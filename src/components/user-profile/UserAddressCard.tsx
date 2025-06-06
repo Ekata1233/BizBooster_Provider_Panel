@@ -5,9 +5,12 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useAuth } from "@/app/context/AuthContext";
+import Image from "next/image";
 
 export default function UserAddressCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const { providerDetails } = useAuth();
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -19,45 +22,175 @@ export default function UserAddressCard() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-              Address
+              Store Information
             </h4>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32">
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Name
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.storeName}
+                </p>
+              </div>
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Email
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.storeEmail}
+                </p>
+              </div><div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Phone
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.storePhone}
+                </p>
+              </div>
+            </div>
+
+            {/* Address div as full row */}
+            <div className="w-full mt-4 mb-6">
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Address
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {providerDetails?.data?.storeInfo?.address}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  City
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.city}
+                </p>
+              </div>
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                   Country
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  United States
+                  {providerDetails?.data?.storeInfo?.country}
                 </p>
               </div>
-
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  City/State
+                  State
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  Phoenix, Arizona, United States.
+                  {providerDetails?.data?.storeInfo?.state}
                 </p>
               </div>
+            </div>
 
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Postal Code
+                  Office No
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  ERT 2489
+                  {providerDetails?.data?.storeInfo?.officeNo}
                 </p>
               </div>
-
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  TAX ID
+                  Tax
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  AS4568384
+                  {providerDetails?.data?.storeInfo?.tax}
                 </p>
               </div>
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Zone
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.zone}
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Location Type
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.location?.type}
+                </p>
+              </div>
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Longitude
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.location?.coordinates[0]}
+                </p>
+              </div>
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Latitude
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {providerDetails?.data?.storeInfo?.location?.coordinates[1]}
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 lg:mb-6">
+              {/* Store Logo */}
+              <div>
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Store Logo
+                </p>
+                <div className="overflow-hidden w-[170px] h-[170px]">
+                  <Image
+                    width={120}
+                    height={120}
+                    src={providerDetails?.data?.storeInfo?.logo || "/images/default-logo.png"}
+                    alt="Store Logo"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+
+              {/* Store Cover Image */}
+              <div className="w-full">
+                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                  Store Cover Image
+                </p>
+                <div className="rounded-lg overflow-hidden w-full h-[150px]">
+                  <Image
+                    width={800}
+                    height={150}
+                    src={providerDetails?.data?.storeInfo?.cover || "/images/default-logo.png"}
+                    alt="Store Cover"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
+              {Object.entries(providerDetails?.data?.kyc ?? {}).map(
+                ([docType, files]) =>
+                  (files as string[])?.map((url, idx) => (
+                    <div key={`${docType}-${idx}`}>
+                      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                        {docType.toUpperCase()} {files.length > 1 ? idx + 1 : ""}
+                      </p>
+                      <img
+                        src={url}
+                        alt={`${docType}-${idx}`}
+                        className="w-full rounded-md border object-contain max-h-48"
+                      />
+                    </div>
+                  ))
+              )}
             </div>
           </div>
 
