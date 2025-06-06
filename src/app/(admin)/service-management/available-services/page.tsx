@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/context/AuthContext";
 import { useCategory } from "@/app/context/CategoryContext";
 import { ModuleType, useModule } from "@/app/context/ModuleContext";
 import { useService } from "@/app/context/ServiceContext";
@@ -9,7 +10,9 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import { ChevronDownIcon } from "@/icons";
+import AllServices from "@/components/service/AllServices";
+import Button from "@/components/ui/button/Button";
+import { ChevronDownIcon, PencilIcon } from "@/icons";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo } from "react";
 
@@ -30,7 +33,9 @@ const Page = () => {
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
     const { services, loadingServices, errorServices, fetchSingleService } = useService();
+    const { providerDetails, token } = useAuth();
 
+    console.log("Provider : ", providerDetails)
     // 🔹 Module Options
     const modulesOptions: OptionType[] = modules.map((mod: ModuleType) => ({
         value: mod._id,
@@ -164,7 +169,7 @@ const Page = () => {
                 </ComponentCard>
             </div>
 
-            <div className="space-y-6 my-3">
+            {/* <div className="space-y-6 my-3">
                 <ComponentCard title="All Services">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredServices.length === 0 && (
@@ -203,36 +208,73 @@ const Page = () => {
                                             {service.category?.name}
                                         </p>
 
-                                        <p className="mt-2 font-bold text-indigo-600">
-                                            ₹{service.discountedPrice ?? service.price}
-                                        </p>
+                                        <div className="mt-2 flex items-center justify-between">
+                                            <div>
+                                                <span className="text-gray-400 line-through mr-2 text-sm">
+                                                    ₹{service.price ?? "0"}
+                                                </span>
+                                                <span className="font-bold text-indigo-600 text-base">
+                                                    ₹{service.discountedPrice ?? "0"}
+                                                </span>
+                                            </div>
+                                            <PencilIcon className="w-5 h-5 text-gray-500 hover:text-indigo-600" />
+                                        </div>
+
+
                                     </div>
 
-                                    <button
-                                        onClick={() => handleSubscribeClick(service._id)}
-                                        disabled={state.loading || state.success}
-                                        className={`w-full mt-3 font-semibold py-2 rounded
-                    ${state.success
-                                                ? "bg-green-600 cursor-not-allowed"
-                                                : "bg-indigo-600 hover:bg-indigo-700 text-white"
-                                            }
-                    ${state.loading ? "opacity-60 cursor-wait" : ""}
-                  `}
-                                    >
-                                        {state.loading
-                                            ? "Subscribing..."
-                                            : state.success
-                                                ? "Subscribed"
-                                                : "Subscribe"}
-                                    </button>
                                     
+                                   
+                                    {(() => {
+                                        const isAlreadySubscribed = providerDetails?.data?.subscribedServices?.includes(service._id);
+                                        const debugInfo = {
+                                            serviceId: service._id,
+                                            serviceName: service.serviceName,
+                                            isAlreadySubscribed,
+                                            state,
+                                        };
+                                        console.log("🔍 DEBUG - Service Button Render Info:", debugInfo);
+
+                                        return (
+                                            <button
+                                                onClick={() => handleSubscribeClick(service._id)}
+                                                disabled={state.loading || state.success || isAlreadySubscribed}
+                                                className={`w-full mt-3 font-semibold py-2 rounded
+        ${isAlreadySubscribed
+                                                        ? "bg-red-400 cursor-not-allowed"
+                                                        : state.success
+                                                            ? "bg-green-600 cursor-not-allowed"
+                                                            : "bg-indigo-600 hover:bg-indigo-700 text-white"}
+        ${state.loading ? "opacity-60 cursor-wait" : ""}
+      `}
+                                            >
+                                                {isAlreadySubscribed
+                                                    ? "Subscribed "
+                                                    : state.loading
+                                                        ? "Subscribing..."
+                                                        : state.success
+                                                            ? "Subscribed"
+                                                            : "Subscribe"}
+                                            </button>
+                                        );
+                                    })()}
+
+
                                 </div>
                             )
                         })}
 
                     </div>
                 </ComponentCard>
-            </div>
+            </div> */}
+
+            <AllServices
+                services={filteredServices}
+                subscribeStates={subscribeStates}
+                providerSubscribedIds={providerDetails?.data?.subscribedServices || []}
+                onSubscribe={handleSubscribeClick}
+                onView={handleClick}
+            />
 
         </div>
     );
