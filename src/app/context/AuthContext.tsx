@@ -69,7 +69,7 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 
 // Basic login provider info
 type Provider = {
@@ -87,6 +87,7 @@ type ProviderDetails = {
   referredBy?: string;
   companyLogo?: string;
   companyName?: string;
+  subscribedServices?: string[];
   // Add any other fields returned from API
 };
 
@@ -146,9 +147,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         console.log("provider details from providerDetailsData : ", providerDetailsData);
 
-        if (providerRes.ok && providerDetailsData) {
-          setProviderDetails(providerDetailsData);
-          localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData));
+        if (providerRes.ok && providerDetailsData.success) {
+          setProviderDetails(providerDetailsData.data);
+          localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData.data));
         } else {
           throw new Error("Failed to fetch provider details");
         }
@@ -161,7 +162,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const refreshProviderDetails = async () => {
+ const refreshProviderDetails = useCallback(async () => {
     if (!provider?._id) return;
 
     try {
@@ -173,15 +174,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setProviderDetails(data);
-        localStorage.setItem("providerDetails", JSON.stringify(data));
+        setProviderDetails(data.data);
+        localStorage.setItem("providerDetails", JSON.stringify(data.data));
       } else {
         console.error("Failed to refresh provider details");
       }
     } catch (error) {
       console.error("Error refreshing provider details:", error);
     }
-  };
+  }, [provider?._id, token]);
 
 
   const logout = () => {

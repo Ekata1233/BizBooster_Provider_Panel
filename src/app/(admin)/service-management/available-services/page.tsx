@@ -14,7 +14,7 @@ import AllServices from "@/components/service/AllServices";
 import Button from "@/components/ui/button/Button";
 import { ChevronDownIcon, PencilIcon } from "@/icons";
 import { useRouter } from "next/navigation";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
 interface OptionType {
     value: string;
@@ -33,9 +33,9 @@ const Page = () => {
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
     const { services, loadingServices, errorServices, fetchSingleService } = useService();
-    const { providerDetails, token } = useAuth();
+    const { providerDetails, token,refreshProviderDetails  } = useAuth();
 
-    console.log("Provider : ", providerDetails)
+    console.log("Provider details : ", providerDetails)
     // 🔹 Module Options
     const modulesOptions: OptionType[] = modules.map((mod: ModuleType) => ({
         value: mod._id,
@@ -103,6 +103,12 @@ const Page = () => {
             alert(`Subscription failed: ${error.message || error}`);
         }
     };
+
+      useEffect(() => {
+    refreshProviderDetails();
+  }, [refreshProviderDetails]);
+
+  if (!providerDetails) return <div>Loading...</div>;
 
     if (loadingModules || loadingCategories || loadingSubcategories || loadingServices) return <p>Loading...</p>;
     if (errorModules) return <p>{errorModules}</p>;
@@ -271,7 +277,7 @@ const Page = () => {
             <AllServices
                 services={filteredServices}
                 subscribeStates={subscribeStates}
-                providerSubscribedIds={providerDetails?.data?.subscribedServices || []}
+                providerSubscribedIds={providerDetails?.subscribedServices || []}
                 onSubscribe={handleSubscribeClick}
                 onView={handleClick}
             />

@@ -39,7 +39,7 @@ export default function UserDropdown() {
 
         {/* Show provider name from context */}
         <span className="block mr-1 font-medium text-theme-sm">
-          {providerDetails?.data.fullName || "User"}
+          {providerDetails?.fullName || "User"}
         </span>
 
         <svg
@@ -69,10 +69,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {providerDetails?.data.fullName || "User Name"}
+            {providerDetails?.fullName || "User Name"}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {providerDetails?.data.email || "user@example.com"}
+            {providerDetails?.email || "user@example.com"}
           </span>
         </div>
 
