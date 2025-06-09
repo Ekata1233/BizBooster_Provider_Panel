@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  console.log("provider details from providerDetails : ", providerDetails);
+  // console.log("provider details from providerDetails : ", providerDetails);
   useEffect(() => {
     const savedToken = localStorage.getItem("providerToken");
     const savedProvider = localStorage.getItem("providerData");
@@ -95,7 +95,7 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
         const providerId = data.data.provider._id;
         const token = data.data.token;
 
-        console.log("provider id : ", providerId);
+        // console.log("provider id : ", providerId);
 
         setToken(token);
         setProvider(data.data.provider);
@@ -106,9 +106,9 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
         const providerRes = await fetch(`https://biz-booster.vercel.app/api/provider/${providerId}`);
         const providerDetailsData = await providerRes.json();
 
-        console.log("provider details from providerRes : ", providerRes);
+        // console.log("provider details from providerRes : ", providerRes);
 
-        console.log("provider details from providerDetailsData : ", providerDetailsData);
+        // console.log("provider details from providerDetailsData : ", providerDetailsData);
 
         if (providerRes.ok && providerDetailsData.success) {
           setProviderDetails(providerDetailsData.data);

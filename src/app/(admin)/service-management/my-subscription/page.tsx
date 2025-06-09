@@ -73,7 +73,7 @@ const MySubscriptionPage = () => {
     },
     {
       header: 'Provider Price',
-      accessor: 'providerPrices',
+      accessor: 'providerPrice',
       cell: (row: any) =>
         row?.providerPrices?.[0]?.providerPrice != null
           ? `₹${row.providerPrices[0].providerPrice}`
