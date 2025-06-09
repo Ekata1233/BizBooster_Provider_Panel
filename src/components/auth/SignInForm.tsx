@@ -26,8 +26,9 @@ export default function SignInForm() {
       await login(email, password);
       router.push("/"); // Change to your actual dashboard route
     } catch (err) {
-      alert("Login failed. Please check your credentials.");
-    } finally {
+  console.error(err);
+  alert("Login failed. Please check your credentials.");
+} finally {
       setLoading(false);
     }
   };

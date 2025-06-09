@@ -20,8 +20,9 @@ interface BasicTableOneProps<T> {
 }
 
 // Helper function to access nested properties like 'category.name'
-const get = (obj: any, path: string) =>
-  path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+const get = (obj: unknown, path: string): unknown =>
+  path.split('.').reduce((acc, key) => (acc && typeof acc === 'object' ? (acc as Record<string, unknown>)[key] : undefined), obj);
+
 
 export default function BasicTableOne<T>({ columns, data }: BasicTableOneProps<T>) {
   return (
@@ -54,12 +55,13 @@ export default function BasicTableOne<T>({ columns, data }: BasicTableOneProps<T
                     if (column.render) {
                       content = column.render(row, rowIndex);
                     } else {
-                      const value = get(row, column.accessor as string);
-                      content =
-                        React.isValidElement(value) || typeof value !== "object"
-                          ? value
-                          : JSON.stringify(value); // Fallback
-                    }
+  const value = get(row, column.accessor as string) as React.ReactNode;
+  content =
+    React.isValidElement(value) || typeof value !== "object"
+      ? value
+      : JSON.stringify(value); // Fallback
+}
+
 
                     return (
                       <TableCell

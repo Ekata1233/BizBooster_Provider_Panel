@@ -29,7 +29,7 @@ export default function UserInfoCard() {
                 Full Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                          {providerDetails?.data.fullName || "User"}
+                          {providerDetails?.fullName || "User"}
 
               </p>
             </div>
@@ -39,7 +39,7 @@ export default function UserInfoCard() {
                 Emai address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {providerDetails?.data.email || "User"}
+                {providerDetails?.email || "User"}
               </p>
             </div>
 
@@ -50,7 +50,7 @@ export default function UserInfoCard() {
                 Phone
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {providerDetails?.data.phoneNo || "User"}
+                {providerDetails?.phoneNo || "User"}
               </p>
             </div>
           </div>

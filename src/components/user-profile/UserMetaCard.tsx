@@ -8,10 +8,22 @@ import Label from "../form/Label";
 import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
 
+interface StoreInfo {
+  logo?: string;
+  state?: string;
+  // Add other storeInfo properties here if needed
+}
+
+interface ProviderDetails {
+  fullName?: string;
+  email?: string;
+  storeInfo?: StoreInfo;
+  // Add other providerDetails properties here if needed
+}
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { providerDetails } = useAuth();
+  const { providerDetails } = useAuth() as { providerDetails?: ProviderDetails };
   console.log("Provider details", providerDetails);
 
   const handleSave = () => {
@@ -29,28 +41,25 @@ export default function UserMetaCard() {
                 <Image
                   width={80}
                   height={80}
-                  src={(providerDetails as any)?.data?.storeInfo?.logo || "/images/default-logo.png"}
+                  src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
                   alt="user"
                 />
               </div>
-
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                {(providerDetails as any)?.data.fullName || "User"}
-
+                {providerDetails?.fullName || "User"}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {providerDetails?.data.email || "User"}
+                  {providerDetails?.email || "User"}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {providerDetails?.data?.storeInfo?.state}
+                  {providerDetails?.storeInfo?.state}
                 </p>
               </div>
             </div>
-
           </div>
           <button
             onClick={openModal}
