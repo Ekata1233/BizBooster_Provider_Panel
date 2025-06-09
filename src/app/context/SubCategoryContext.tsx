@@ -18,7 +18,7 @@ export interface SubcategoryType {
   };
   createdAt?: string;
   updatedAt?: string;
-  [key: string]: any; 
+  [key: string]: unknown; 
 }
 
 // Define the shape of the context

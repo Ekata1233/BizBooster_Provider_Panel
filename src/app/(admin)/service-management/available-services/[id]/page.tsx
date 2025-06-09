@@ -7,7 +7,12 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Image from "next/image";
 import ComponentCard from "@/components/common/ComponentCard";
 import { ChevronDownIcon } from "@/icons";
-
+type WhyChooseItem = {
+  _id?: string;
+  title: string;
+  description: string;
+  image?: string;
+};
 const ServiceDetailsPage = () => {
   const { id } = useParams();
   const { fetchSingleService, singleService, loadingSingleService, errorSingleService } = useService();
@@ -51,23 +56,6 @@ const ServiceDetailsPage = () => {
         </div>
 
       </div>
-
-      {/* <div className="flex items-center gap-6">
-        <div>
-          <p className="text-gray-600">Cover Images</p>
-        </div>
-        {singleService.bannerImages.map((bannerUrl, index) => (
-          <Image
-            key={index}
-            src={bannerUrl}
-            alt={`${singleService.serviceName} Banner ${index + 1}`}
-            width={150}
-            height={100}
-            className="rounded shadow"
-          />
-        ))}
-      </div> */}
-
       {/* Tabs */}
       <div className="border-b border-gray-300 mb-4">
         <button
@@ -110,7 +98,8 @@ const ServiceDetailsPage = () => {
             <SectionCard title="How It Works" isHtml content={singleService.serviceDetails.howItWorks} />
             <SectionCard title="Terms and Conditions" isHtml content={singleService.serviceDetails.termsAndConditions} />
             <SectionCard title="Document" isHtml content={singleService.serviceDetails.document} />
-            {(singleService.serviceDetails.whyChoose as any[]).map((item: any, idx: number) => (
+            {(singleService.serviceDetails.whyChoose as WhyChooseItem[]).map((item, idx) => (
+
               <SectionCard key={item._id || idx} title="Highlight">
                 <p>{item.title}</p>
                 <p>{item.description}</p>

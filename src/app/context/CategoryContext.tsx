@@ -18,7 +18,7 @@ export interface CategoryType {
   };
   createdAt?: string;
   updatedAt?: string;
-  [key: string]: any; // For any other dynamic fields
+  [key: string]: unknown; // For any other dynamic fields
 }
 
 // Define the shape of the context
