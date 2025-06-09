@@ -10,7 +10,7 @@ import BasicTableOne from '@/components/tables/BasicTableOne';
 
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();
-  const { providerDetails} = useAuth();
+  const { providerDetails } = useAuth();
   console.log("service details", services);
 
 
@@ -50,7 +50,7 @@ const MySubscriptionPage = () => {
 
       return haystack.includes(search);
     });
-  }, [search, subscribedServices, providerDetails]); 
+  }, [search, subscribedServices, providerDetails]);
 
   /* ---------- table columns (unchanged) ---------- */
   const columns = [
@@ -73,15 +73,12 @@ const MySubscriptionPage = () => {
     },
     {
       header: 'Provider Price',
-      accessor: 'providerPrice',
-      cell: ({ row }: any) => {
-        const entry = row.original.providerPrices?.find(
-          (pp: any) => pp.provider?.toString?.() === providerDetails?._id
-        );
-        return entry ? `₹${entry.providerPrice}` : '—';
-      },
+      accessor: 'providerPrices',
+      cell: (row: any) =>
+        row?.providerPrices?.[0]?.providerPrice != null
+          ? `₹${row.providerPrices[0].providerPrice}`
+          : '—',
     },
-
     {
       header: 'Status',
       accessor: 'status',
@@ -97,7 +94,7 @@ const MySubscriptionPage = () => {
   ];
 
   /* ---------- loading / error guards (unchanged) ---------- */
-  if (loadingServices ) {
+  if (loadingServices) {
     return <p className="py-10 text-center text-sm text-gray-500">Loading…</p>;
   }
   if (errorServices) {
