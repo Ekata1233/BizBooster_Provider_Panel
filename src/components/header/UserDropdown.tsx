@@ -11,8 +11,6 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { providerDetails } = useAuth();
 
-  console.log("Provider details in the user dropdown : ", providerDetails);
-
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
     setIsOpen((prev) => !prev);
@@ -32,14 +30,14 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src={providerDetails?.data?.storeInfo?.logo || "/images/default-logo.png"}
+            src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
             alt="User"
           />
         </span>
 
         {/* Show provider name from context */}
         <span className="block mr-1 font-medium text-theme-sm">
-          {providerDetails?.data.fullName || "User"}
+          {providerDetails?.fullName || "User"}
         </span>
 
         <svg
@@ -69,10 +67,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {providerDetails?.data.fullName || "User Name"}
+            {providerDetails?.fullName || "User Name"}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {providerDetails?.data.email || "user@example.com"}
+            {providerDetails?.email || "user@example.com"}
           </span>
         </div>
 

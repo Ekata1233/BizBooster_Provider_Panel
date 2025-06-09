@@ -73,6 +73,8 @@ interface ServiceContextType {
     loadingSingleService: boolean;
     errorSingleService: string | null;
     fetchSingleService: (id: string) => Promise<void>;
+
+    updateProviderPrice: (id: string, data: any) => Promise<boolean>;
 }
 
 const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
@@ -118,6 +120,22 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
         }
     };
 
+    const updateProviderPrice = async (id: string, data: any): Promise<boolean> => {
+        try {
+            const res = await axios.put(`https://biz-booster.vercel.app/api/service/provider-price/${id}`, data, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            console.log("Update success:", res.data);
+            return true;
+        } catch (err) {
+            console.error("Error updating provider price:", err);
+            return false;
+        }
+    };
+
+
     useEffect(() => {
         fetchServices();
     }, []);
@@ -133,6 +151,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
                 loadingSingleService,
                 errorSingleService,
                 fetchSingleService,
+                updateProviderPrice,
             }}
         >
             {children}

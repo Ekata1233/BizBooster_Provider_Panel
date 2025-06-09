@@ -1,83 +1,15 @@
-// // src/app/context/AuthContext.tsx
-// "use client";
-
-// import React, { createContext, useContext, useState, ReactNode } from "react";
-
-// type Provider = {
-//   _id: string;
-//   email: string;
-// };
-
-// type AuthContextType = {
-//   provider: Provider | null;
-//   token: string | null;
-//   login: (email: string, password: string) => Promise<void>;
-//   logout: () => void;
-// };
-
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// export const AuthProvider = ({ children }: { children: ReactNode }) => {
-//   const [provider, setProvider] = useState<Provider | null>(null);
-//   const [token, setToken] = useState<string | null>(null);
-
-//   const login = async (email: string, password: string) => {
-//     try {
-//       const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ email, password }),
-//       });
-
-//       const data = await res.json();
-//       if (data.success) {
-//         setToken(data.data.token);
-//         setProvider(data.data.provider);
-//         localStorage.setItem("providerToken", data.data.token);
-//         localStorage.setItem("providerData", JSON.stringify(data.data.provider));
-//       } else {
-//         throw new Error("Login failed");
-//       }
-//     } catch (err) {
-//       console.error("Login error:", err);
-//       throw err;
-//     }
-//   };
-
-//   const logout = () => {
-//     setProvider(null);
-//     setToken(null);
-//     localStorage.removeItem("providerToken");
-//     localStorage.removeItem("providerData");
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ provider, token, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (!context) throw new Error("useAuth must be used within AuthProvider");
-//   return context;
-// };
-
 
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import mongoose from "mongoose";
-type KYC = {
+type KYC= {
   aadhaarCard: string[];
   panCard: string[];
   storeDocument: string[];
   GST: string[];
   other: string[];
-};
+}
 // Basic login provider info
 type StoreInfo = {
   storeName: string;
@@ -118,7 +50,7 @@ type ProviderDetails = {
   referredBy?: string;
   companyLogo?: string;
   companyName?: string;
-   data: Provider;
+  subscribedServices?: string[];
   // Add any other fields returned from API
 };
 
@@ -178,9 +110,9 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
 
         console.log("provider details from providerDetailsData : ", providerDetailsData);
 
-        if (providerRes.ok && providerDetailsData) {
-          setProviderDetails(providerDetailsData);
-          localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData));
+        if (providerRes.ok && providerDetailsData.success) {
+          setProviderDetails(providerDetailsData.data);
+          localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData.data));
         } else {
           throw new Error("Failed to fetch provider details");
         }
@@ -193,7 +125,7 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
     }
   };
 
-  const refreshProviderDetails = async () => {
+ const refreshProviderDetails = useCallback(async () => {
     if (!provider?._id) return;
 
     try {
@@ -205,15 +137,15 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setProviderDetails(data);
-        localStorage.setItem("providerDetails", JSON.stringify(data));
+        setProviderDetails(data.data);
+        localStorage.setItem("providerDetails", JSON.stringify(data.data));
       } else {
         console.error("Failed to refresh provider details");
       }
     } catch (error) {
       console.error("Error refreshing provider details:", error);
     }
-  };
+  }, [provider?._id, token]);
 
 
   const logout = () => {

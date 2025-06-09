@@ -10,7 +10,7 @@ import BasicTableOne from '@/components/tables/BasicTableOne';
 
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();
-  const { providerDetails, loading: loadingProvider } = useAuth();
+  const { providerDetails} = useAuth();
   console.log("service details", services);
 
 
@@ -21,10 +21,10 @@ const MySubscriptionPage = () => {
 
   /* ---------- existing: find subscribed services ---------- */
   const subscribedServices = useMemo(() => {
-    if (!services || !providerDetails?.data?.subscribedServices?.length) {
+    if (!services || !providerDetails?.subscribedServices?.length) {
       return [];
     }
-    const idSet = new Set<string>(providerDetails.data.subscribedServices);
+    const idSet = new Set<string>(providerDetails.subscribedServices);
     return services.filter((srv) => idSet.has(srv._id));
   }, [services, providerDetails]);
 
@@ -33,7 +33,7 @@ const MySubscriptionPage = () => {
     if (!search) return subscribedServices;
     return subscribedServices.filter((srv) => {
       const providerEntry = srv.providerPrices?.find(
-        (pp: any) => pp.provider?.toString?.() === providerDetails?.data?._id
+        (pp: any) => pp.provider?.toString?.() === providerDetails?._id
       );
 
       // Build one big string to search across every required field
@@ -50,7 +50,7 @@ const MySubscriptionPage = () => {
 
       return haystack.includes(search);
     });
-  }, [search, subscribedServices, providerDetails]);                     // 🔍
+  }, [search, subscribedServices, providerDetails]); 
 
   /* ---------- table columns (unchanged) ---------- */
   const columns = [
@@ -76,7 +76,7 @@ const MySubscriptionPage = () => {
       accessor: 'providerPrice',
       cell: ({ row }: any) => {
         const entry = row.original.providerPrices?.find(
-          (pp: any) => pp.provider?.toString?.() === providerDetails?.data?._id
+          (pp: any) => pp.provider?.toString?.() === providerDetails?._id
         );
         return entry ? `₹${entry.providerPrice}` : '—';
       },
@@ -97,7 +97,7 @@ const MySubscriptionPage = () => {
   ];
 
   /* ---------- loading / error guards (unchanged) ---------- */
-  if (loadingServices || loadingProvider) {
+  if (loadingServices ) {
     return <p className="py-10 text-center text-sm text-gray-500">Loading…</p>;
   }
   if (errorServices) {
