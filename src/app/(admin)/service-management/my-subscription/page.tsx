@@ -17,6 +17,11 @@ interface TableData {
   status: string;
 }
 
+interface ProviderPrice {
+  provider?: { _id: string };
+  providerPrice: number;
+  // …other fields you actually use can stay optional
+}
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();
   const { providerDetails } = useAuth();
@@ -34,13 +39,14 @@ const MySubscriptionPage = () => {
 
     const idSet = new Set<string>(providerDetails.subscribedServices);
 
-    const flattened = services
-      .filter((srv) => idSet.has(srv._id))
-      .map((srv) => {
-        // find the providerPrice entry for this provider
-        const providerEntry = srv.providerPrices?.find(
-          (pp: any) => pp.provider?._id === providerDetails?._id
-        );
+   const flattened = services
+  .filter((srv) => idSet.has(srv._id))
+  .map((srv) => {
+    const providerPrices = (srv as { providerPrices?: ProviderPrice[] }).providerPrices;
+
+    const providerEntry = providerPrices?.find(
+      (pp) => pp.provider?._id === providerDetails?._id
+    );
 
         return {
           id: srv._id,
@@ -48,7 +54,7 @@ const MySubscriptionPage = () => {
           categoryName: srv.category?.name || '—',
           subCategoryName: srv.subcategory?.name || '—',
           discountedPrice: srv.discountedPrice ?? null,
-          providerPrice: providerEntry?.providerPrice ?? null,
+         providerPrice: providerEntry?.providerPrice ?? null,
           status: 'Subscribed',
         };
       });
@@ -92,15 +98,17 @@ const MySubscriptionPage = () => {
     {
       header: 'Price',
       accessor: 'discountedPrice',
-      cell: (row: any) =>
+      cell: (row: { discountedPrice: number | null }) =>
         row.discountedPrice != null ? `₹${row.discountedPrice}` : '—',
     },
+
     {
       header: 'Provider Price',
       accessor: 'providerPrice',
-      cell: (row: any) =>
+      cell: (row: { providerPrice: number | null }) =>
         row.providerPrice != null ? `₹${row.providerPrice}` : '—',
     },
+
     {
       header: 'Status',
       accessor: 'status',
