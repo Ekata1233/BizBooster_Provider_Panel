@@ -32,11 +32,8 @@ const Page = () => {
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
     const { services, loadingServices, errorServices, fetchSingleService } = useService();
-<<<<<<< HEAD
-    const { providerDetails } = useAuth();
-=======
-    const { providerDetails, token,refreshProviderDetails  } = useAuth();
->>>>>>> c31c36e0dbe15a6be6c5b16378071157247baa18
+  
+    const { providerDetails,refreshProviderDetails  } = useAuth();
 
     console.log("Provider details : ", providerDetails)
     // 🔹 Module Options
