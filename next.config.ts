@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+   images: {
+    domains: ['ik.imagekit.io'],
+  },
 };
 
 export default nextConfig;

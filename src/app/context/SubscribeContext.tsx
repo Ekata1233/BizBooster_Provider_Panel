@@ -21,7 +21,7 @@ interface SubscribeProviderProps {
 }
 
 export const SubscribeProvider: React.FC<SubscribeProviderProps> = ({ children }) => {
-    const { provider, token } = useAuth();
+    const { provider, token, refreshProviderDetails } = useAuth();
 
     const [subscribeStates, setSubscribeStates] = useState<Record<string, SubscribeState>>({});
 
@@ -54,6 +54,8 @@ export const SubscribeProvider: React.FC<SubscribeProviderProps> = ({ children }
                 },
                 { headers }
             );
+
+            await refreshProviderDetails();
 
             setSubscribeStates((prev) => ({
                 ...prev,

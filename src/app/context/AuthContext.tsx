@@ -128,6 +128,7 @@ type AuthContextType = {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshProviderDetails: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -137,6 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  console.log("provider details from providerDetails : ", providerDetails);
   useEffect(() => {
     const savedToken = localStorage.getItem("providerToken");
     const savedProvider = localStorage.getItem("providerData");
@@ -172,6 +174,10 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
         const providerRes = await fetch(`https://biz-booster.vercel.app/api/provider/${providerId}`);
         const providerDetailsData = await providerRes.json();
 
+        console.log("provider details from providerRes : ", providerRes);
+
+        console.log("provider details from providerDetailsData : ", providerDetailsData);
+
         if (providerRes.ok && providerDetailsData) {
           setProviderDetails(providerDetailsData);
           localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData));
@@ -187,6 +193,29 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
     }
   };
 
+  const refreshProviderDetails = async () => {
+    if (!provider?._id) return;
+
+    try {
+      const res = await fetch(`https://biz-booster.vercel.app/api/provider/${provider._id}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setProviderDetails(data);
+        localStorage.setItem("providerDetails", JSON.stringify(data));
+      } else {
+        console.error("Failed to refresh provider details");
+      }
+    } catch (error) {
+      console.error("Error refreshing provider details:", error);
+    }
+  };
+
+
   const logout = () => {
     setProvider(null);
     setProviderDetails(null);
@@ -197,7 +226,7 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
   };
 
   return (
-    <AuthContext.Provider value={{ provider, providerDetails, token, login, logout }}>
+    <AuthContext.Provider value={{ provider, providerDetails, token, login, logout,refreshProviderDetails }}>
       {children}
     </AuthContext.Provider>
   );

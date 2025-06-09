@@ -11,7 +11,7 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { providerDetails } = useAuth();
 
-  // console.log("Provider details", providerDetails);
+  console.log("Provider details in the user dropdown : ", providerDetails);
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
