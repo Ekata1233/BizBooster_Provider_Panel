@@ -11,8 +11,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import AllServices from "@/components/service/AllServices";
-import Button from "@/components/ui/button/Button";
-import { ChevronDownIcon, PencilIcon } from "@/icons";
+import { ChevronDownIcon } from "@/icons";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 
@@ -32,7 +31,8 @@ const Page = () => {
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
     const { services, loadingServices, errorServices, fetchSingleService } = useService();
-    const { providerDetails, token,refreshProviderDetails  } = useAuth();
+  
+    const { providerDetails,refreshProviderDetails  } = useAuth();
 
     console.log("Provider details : ", providerDetails)
     // 🔹 Module Options
@@ -98,9 +98,13 @@ const Page = () => {
         try {
             await subscribeToService(serviceId);
             alert("Subscribed successfully!");
-        } catch (error: any) {
-            alert(`Subscription failed: ${error.message || error}`);
-        }
+        } catch (error: unknown) {
+    if (error instanceof Error) {
+        alert(`Subscription failed: ${error.message}`);
+    } else {
+        alert(`Subscription failed: ${String(error)}`);
+    }
+}
     };
 
       useEffect(() => {

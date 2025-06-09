@@ -61,22 +61,30 @@ export const SubscribeProvider: React.FC<SubscribeProviderProps> = ({ children }
                 ...prev,
                 [serviceId]: { loading: false, error: null, success: true },
             }));
-        } catch (error: any) {
-            const errorMessage =
-                error.response?.data?.message || error.message || "Error occurred";
+        } // 
+catch (error: unknown) {
+  // narrow the unknown value to the shape you actually use
+  const err = error as {
+    response?: { data?: { message?: string } };
+    message?: string;
+  };
 
-            setSubscribeStates((prev) => ({
-                ...prev,
-                [serviceId]: {
-                    loading: false,
-                    error: errorMessage,
-                    success: false,
-                },
-            }));
+  const errorMessage =
+    err.response?.data?.message ?? err.message ?? 'Error occurred';
 
-            // 🔥 THROW the error so it can be caught in the component
-            throw new Error(errorMessage);
-        }
+  setSubscribeStates(prev => ({
+    ...prev,
+    [serviceId]: {
+      loading: false,
+      error: errorMessage,
+      success: false,
+    },
+  }));
+
+  // 🔥 re-throw so callers can handle it
+  throw new Error(errorMessage);
+}
+
     };
 
     return (
