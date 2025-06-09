@@ -1,82 +1,45 @@
-// // src/app/context/AuthContext.tsx
-// "use client";
-
-// import React, { createContext, useContext, useState, ReactNode } from "react";
-
-// type Provider = {
-//   _id: string;
-//   email: string;
-// };
-
-// type AuthContextType = {
-//   provider: Provider | null;
-//   token: string | null;
-//   login: (email: string, password: string) => Promise<void>;
-//   logout: () => void;
-// };
-
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// export const AuthProvider = ({ children }: { children: ReactNode }) => {
-//   const [provider, setProvider] = useState<Provider | null>(null);
-//   const [token, setToken] = useState<string | null>(null);
-
-//   const login = async (email: string, password: string) => {
-//     try {
-//       const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ email, password }),
-//       });
-
-//       const data = await res.json();
-//       if (data.success) {
-//         setToken(data.data.token);
-//         setProvider(data.data.provider);
-//         localStorage.setItem("providerToken", data.data.token);
-//         localStorage.setItem("providerData", JSON.stringify(data.data.provider));
-//       } else {
-//         throw new Error("Login failed");
-//       }
-//     } catch (err) {
-//       console.error("Login error:", err);
-//       throw err;
-//     }
-//   };
-
-//   const logout = () => {
-//     setProvider(null);
-//     setToken(null);
-//     localStorage.removeItem("providerToken");
-//     localStorage.removeItem("providerData");
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ provider, token, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (!context) throw new Error("useAuth must be used within AuthProvider");
-//   return context;
-// };
-
 
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-
+import mongoose from "mongoose";
+type KYC= {
+  aadhaarCard: string[];
+  panCard: string[];
+  storeDocument: string[];
+  GST: string[];
+  other: string[];
+}
 // Basic login provider info
+type StoreInfo = {
+  storeName: string;
+  storePhone: string;
+  storeEmail: string;
+  module: mongoose.Types.ObjectId;
+  zone: mongoose.Types.ObjectId;
+  logo?: string;
+  cover?: string;
+  tax: string;
+  location: Location;
+  address: string;
+  officeNo: string;
+  city: string;
+  state: string;
+  country: string;
+};
 type Provider = {
   _id: string;
+  fullName: string;
+  phoneNo: string;
   email: string;
+  password?: string;
+  referredBy?: string;
+  companyLogo?: string;
+  companyName?: string;
+  storeInfo?: StoreInfo;
+  kyc?: KYC;
 };
-
+// 
 // Full provider details from API
 type ProviderDetails = {
   _id: string;
@@ -104,7 +67,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
+const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   console.log("provider details from providerDetails : ", providerDetails);

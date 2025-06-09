@@ -11,8 +11,6 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { providerDetails } = useAuth();
 
-  console.log("Provider details in the user dropdown : ", providerDetails);
-
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
     setIsOpen((prev) => !prev);
@@ -32,7 +30,7 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src="/images/user/owner.jpg"
+            src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
             alt="User"
           />
         </span>
