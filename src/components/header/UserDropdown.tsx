@@ -6,11 +6,7 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-type ProviderDetails = {
-  storeInfo?: {
-    logo?: string;
-  };
-};
+
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { providerDetails } = useAuth();
