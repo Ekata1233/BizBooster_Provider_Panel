@@ -24,7 +24,7 @@ interface Service {
     category?: { name: string };
     price?: number;
     discountedPrice?: number;
-    subcategory?: any;
+    subcategory?: unknown;
     providerPrices?: ProviderPrice[];
 }
 
@@ -297,7 +297,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                 <Button size="sm" variant="outline" onClick={closeModal}>
                                     Close
                                 </Button>
-                                <Button size="sm" onClick={handleUpdateData} disabled={isSubmitting}>
+                                <Button size="sm" onClick={(e) => handleUpdateData(e)} disabled={isSubmitting}>
                                     {isSubmitting ? "Updating..." : "Update & Subscribe"}
                                 </Button>
 
