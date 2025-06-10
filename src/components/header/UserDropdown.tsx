@@ -30,12 +30,12 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
+            src={(providerDetails as { storeInfo?: { logo?: string } })?.storeInfo?.logo || "/images/default-logo.png"}
+
             alt="User"
           />
         </span>
 
-        {/* Show provider name from context */}
         <span className="block mr-1 font-medium text-theme-sm">
           {providerDetails?.fullName || "User"}
         </span>

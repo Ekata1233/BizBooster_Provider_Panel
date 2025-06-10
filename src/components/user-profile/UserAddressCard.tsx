@@ -8,9 +8,35 @@ import Label from "../form/Label";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 
+interface Location {
+  type: string;
+  coordinates: [number, number];
+}
+
+interface StoreInfo {
+  storeName?: string;
+  storeEmail?: string;
+  storePhone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  state?: string;
+  officeNo?: string;
+  tax?: string;
+  zone?: string;
+  location?: Location;
+  logo?: string;
+  cover?: string;
+}
+
+interface ProviderDetails {
+  storeInfo?: StoreInfo;
+  kyc?: Record<string, string[]>;
+}
+
 export default function UserAddressCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { providerDetails } = useAuth();
+  const { providerDetails } = useAuth() as { providerDetails?: ProviderDetails };
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -31,7 +57,7 @@ export default function UserAddressCard() {
                   Name
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.storeName}
+                  {providerDetails?.storeInfo?.storeName}
                 </p>
               </div>
               <div>
@@ -39,14 +65,14 @@ export default function UserAddressCard() {
                   Email
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.storeEmail}
+                  {providerDetails?.storeInfo?.storeEmail}
                 </p>
               </div><div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                   Phone
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.storePhone}
+                  {providerDetails?.storeInfo?.storePhone}
                 </p>
               </div>
             </div>
@@ -57,7 +83,7 @@ export default function UserAddressCard() {
                 Address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {providerDetails?.data?.storeInfo?.address}
+                {providerDetails?.storeInfo?.address}
               </p>
             </div>
 
@@ -67,7 +93,7 @@ export default function UserAddressCard() {
                   City
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.city}
+                  {providerDetails?.storeInfo?.city}
                 </p>
               </div>
               <div>
@@ -75,7 +101,7 @@ export default function UserAddressCard() {
                   Country
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.country}
+                  {providerDetails?.storeInfo?.country}
                 </p>
               </div>
               <div>
@@ -83,7 +109,7 @@ export default function UserAddressCard() {
                   State
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.state}
+                  {providerDetails?.storeInfo?.state}
                 </p>
               </div>
             </div>
@@ -95,7 +121,7 @@ export default function UserAddressCard() {
                   Office No
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.officeNo}
+                  {providerDetails?.storeInfo?.officeNo}
                 </p>
               </div>
               <div>
@@ -103,7 +129,7 @@ export default function UserAddressCard() {
                   Tax
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.tax}
+                  {providerDetails?.storeInfo?.tax}
                 </p>
               </div>
               <div>
@@ -111,7 +137,7 @@ export default function UserAddressCard() {
                   Zone
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.zone}
+                  {providerDetails?.storeInfo?.zone}
                 </p>
               </div>
             </div>
@@ -121,7 +147,7 @@ export default function UserAddressCard() {
                   Location Type
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.location?.type}
+                  {providerDetails?.storeInfo?.location?.type}
                 </p>
               </div>
               <div>
@@ -129,7 +155,7 @@ export default function UserAddressCard() {
                   Longitude
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.location?.coordinates[0]}
+                  {providerDetails?.storeInfo?.location?.coordinates[0]}
                 </p>
               </div>
               <div>
@@ -137,7 +163,7 @@ export default function UserAddressCard() {
                   Latitude
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.data?.storeInfo?.location?.coordinates[1]}
+                  {providerDetails?.storeInfo?.location?.coordinates[1]}
                 </p>
               </div>
             </div>
@@ -151,7 +177,7 @@ export default function UserAddressCard() {
                   <Image
                     width={120}
                     height={120}
-                    src={providerDetails?.data?.storeInfo?.logo || "/images/default-logo.png"}
+                    src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
                     alt="Store Logo"
                     className="object-cover w-full h-full"
                   />
@@ -167,7 +193,7 @@ export default function UserAddressCard() {
                   <Image
                     width={800}
                     height={150}
-                    src={providerDetails?.data?.storeInfo?.cover || "/images/default-logo.png"}
+                    src={providerDetails?.storeInfo?.cover || "/images/default-logo.png"}
                     alt="Store Cover"
                     className="object-cover w-full h-full"
                   />
@@ -176,7 +202,7 @@ export default function UserAddressCard() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
-              {Object.entries(providerDetails?.data?.kyc ?? {}).map(
+              {Object.entries(providerDetails?.kyc ?? {}).map(
                 ([docType, files]) =>
                   (files as string[])?.map((url, idx) => (
                     <div key={`${docType}-${idx}`}>

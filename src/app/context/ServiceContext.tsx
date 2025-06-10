@@ -74,7 +74,7 @@ interface ServiceContextType {
     errorSingleService: string | null;
     fetchSingleService: (id: string) => Promise<void>;
 
-    updateProviderPrice: (id: string, data: any) => Promise<boolean>;
+    updateProviderPrice: (id: string, data: unknown) => Promise<boolean>;
 }
 
 const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
@@ -120,7 +120,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
         }
     };
 
-    const updateProviderPrice = async (id: string, data: any): Promise<boolean> => {
+    const updateProviderPrice = async (id: string, data: unknown): Promise<boolean> => {
         try {
             const res = await axios.put(`https://biz-booster.vercel.app/api/service/provider-price/${id}`, data, {
                 headers: {
