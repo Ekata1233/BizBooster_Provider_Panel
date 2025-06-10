@@ -6,7 +6,11 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-
+type ProviderDetails = {
+  storeInfo?: {
+    logo?: string;
+  };
+};
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { providerDetails } = useAuth();
@@ -30,7 +34,8 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
+            src={(providerDetails as { storeInfo?: { logo?: string } })?.storeInfo?.logo || "/images/default-logo.png"}
+
             alt="User"
           />
         </span>
