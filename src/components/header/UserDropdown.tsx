@@ -35,7 +35,6 @@ export default function UserDropdown() {
           />
         </span>
 
-        {/* Show provider name from context */}
         <span className="block mr-1 font-medium text-theme-sm">
           {providerDetails?.fullName || "User"}
         </span>
