@@ -210,9 +210,15 @@ const AllServices: React.FC<AllServicesProps> = ({
                                 <Button size="sm" variant="outline" onClick={closeModal}>
                                     Close
                                 </Button>
-                                <Button size="sm" onClick={(e) => handleUpdateData(e)} disabled={isSubmitting}>
-                                    {isSubmitting ? "Updating..." : "Update & Subscribe"}
-                                </Button>
+                               <Button
+  size="sm"
+  onClick={() => void handleUpdateData({} as React.MouseEvent<HTMLButtonElement>)}
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "Updating..." : "Update & Subscribe"}
+</Button>
+
+
 
                             </div>
                         </form>
