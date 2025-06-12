@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import mongoose from "mongoose";
-type KYC= {
+type KYC = {
   aadhaarCard: string[];
   panCard: string[];
   storeDocument: string[];
@@ -67,10 +67,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
-const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
+  const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // console.log("provider details from providerDetails : ", providerDetails);
+  console.log("provider details from providerDetails : ", provider);
   useEffect(() => {
     const savedToken = localStorage.getItem("providerToken");
     const savedProvider = localStorage.getItem("providerData");
@@ -81,43 +81,84 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
     if (savedDetails) setProviderDetails(JSON.parse(savedDetails));
   }, []);
 
+  // const login = async (email: string, password: string) => {
+  //   try {
+  //     const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (data.success) {
+  //       const providerId = data.data.provider._id;
+  //       const token = data.data.token;
+
+  //       // console.log("provider id : ", providerId);
+
+  //       setToken(token);
+  //       setProvider(data.data.provider);
+  //       localStorage.setItem("providerToken", token);
+  //       localStorage.setItem("providerData", JSON.stringify(data.data.provider));
+
+  //       // Fetch full provider details
+  //       const providerRes = await fetch(`https://biz-booster.vercel.app/api/provider/${providerId}`);
+  //       const providerDetailsData = await providerRes.json();
+
+  //       // console.log("provider details from providerRes : ", providerRes);
+
+  //       // console.log("provider details from providerDetailsData : ", providerDetailsData);
+
+  //       if (providerRes.ok && providerDetailsData.success) {
+  //         setProviderDetails(providerDetailsData.data);
+  //         localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData.data));
+  //       } else {
+  //         throw new Error("Failed to fetch provider details");
+  //       }
+  //     } else {
+  //       throw new Error("Login failed");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     throw err;
+  //   }
+  // };
+
+
   const login = async (email: string, password: string) => {
     try {
       const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include", // ✅ Required for cookies
       });
 
       const data = await res.json();
 
-      if (data.success) {
-        const providerId = data.data.provider._id;
-        const token = data.data.token;
+      if (!res.ok) {
+        console.error("Login failed response:", data);
+        throw new Error(data.message || "Login failed");
+      }
 
-        // console.log("provider id : ", providerId);
+      const provider = data.provider; // ✅ Based on your API's response
+      const providerId = provider._id;
 
-        setToken(token);
-        setProvider(data.data.provider);
-        localStorage.setItem("providerToken", token);
-        localStorage.setItem("providerData", JSON.stringify(data.data.provider));
+      setProvider(provider);
+      localStorage.setItem("providerData", JSON.stringify(provider));
 
-        // Fetch full provider details
-        const providerRes = await fetch(`https://biz-booster.vercel.app/api/provider/${providerId}`);
-        const providerDetailsData = await providerRes.json();
+      // Fetch full provider details
+      const providerRes = await fetch(`https://biz-booster.vercel.app/api/provider/${providerId}`, {
+        credentials: "include", // ✅ Also include cookies here
+      });
+      const providerDetailsData = await providerRes.json();
 
-        // console.log("provider details from providerRes : ", providerRes);
-
-        // console.log("provider details from providerDetailsData : ", providerDetailsData);
-
-        if (providerRes.ok && providerDetailsData.success) {
-          setProviderDetails(providerDetailsData.data);
-          localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData.data));
-        } else {
-          throw new Error("Failed to fetch provider details");
-        }
+      if (providerRes.ok && providerDetailsData.success) {
+        setProviderDetails(providerDetailsData.data);
+        localStorage.setItem("providerDetails", JSON.stringify(providerDetailsData.data));
       } else {
-        throw new Error("Login failed");
+        throw new Error("Failed to fetch provider details");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -125,14 +166,37 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
     }
   };
 
- const refreshProviderDetails = useCallback(async () => {
+
+  //  const refreshProviderDetails = useCallback(async () => {
+  //     if (!provider?._id) return;
+
+  //     try {
+  //       const res = await fetch(`https://biz-booster.vercel.app/api/provider/${provider._id}`, {
+  //         headers: {
+  //           Authorization: token ? `Bearer ${token}` : "",
+  //         },
+  //       });
+  //       const data = await res.json();
+
+  //       if (res.ok && data.success) {
+  //         setProviderDetails(data.data);
+  //         localStorage.setItem("providerDetails", JSON.stringify(data.data));
+  //       } else {
+  //         console.error("Failed to refresh provider details");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error refreshing provider details:", error);
+  //     }
+  //   }, [provider?._id, token]);
+
+
+
+  const refreshProviderDetails = useCallback(async () => {
     if (!provider?._id) return;
 
     try {
       const res = await fetch(`https://biz-booster.vercel.app/api/provider/${provider._id}`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
+        credentials: "include", // ✅ Required for cookie auth
       });
       const data = await res.json();
 
@@ -145,8 +209,7 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
     } catch (error) {
       console.error("Error refreshing provider details:", error);
     }
-  }, [provider?._id, token]);
-
+  }, [provider?._id]);
 
   const logout = () => {
     setProvider(null);
@@ -158,7 +221,7 @@ const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(n
   };
 
   return (
-    <AuthContext.Provider value={{ provider, providerDetails, token, login, logout,refreshProviderDetails }}>
+    <AuthContext.Provider value={{ provider, providerDetails, token, login, logout, refreshProviderDetails }}>
       {children}
     </AuthContext.Provider>
   );

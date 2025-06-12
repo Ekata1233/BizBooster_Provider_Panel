@@ -55,43 +55,70 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [price, setPrice] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+
+    const [localServices, setLocalServices] = useState<Service[]>(services);
     console.log("services data : ", services)
-    const handleEdit = (id: string) => {
-        const selectedPrice = services.find(item => item._id === id);
-        setSelectedServiceId(id);
-        if (selectedPrice) {
-            setPrice(String(selectedPrice?.discountedPrice ?? ''));
-            openModal();
-        }
+
+const handleEdit = (id: string) => {
+    const selectedPrice = localServices.find(item => item._id === id);
+    setSelectedServiceId(id);
+    if (selectedPrice) {
+        setPrice(String(selectedPrice?.discountedPrice ?? ''));
+        openModal();
+    }
+};
+
+
+const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!selectedServiceId || !provider?._id) return;
+
+    setIsSubmitting(true);
+
+    const updatedData = {
+        providerPrices: [
+            {
+                provider: provider._id,
+                providerPrice: parseFloat(price),
+            },
+        ],
     };
 
-    const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        if (!selectedServiceId || !provider?._id) return;
+    const success = await updateProviderPrice(selectedServiceId, updatedData);
+    
+    if (success) {
+        alert("Provider Price updated successfully");
 
-        setIsSubmitting(true);
-        const updatedData = {
-            providerPrices: [
-                {
-                    provider: provider._id,
-                    providerPrice: parseFloat(price),
-                },
-            ],
-        };
+        // Update local state immediately
+        setLocalServices(prev =>
+            prev.map(service =>
+                service._id === selectedServiceId
+                    ? {
+                          ...service,
+                          providerPrices: [
+                              ...(service.providerPrices || []).filter(
+                                  p => p.provider._id !== provider._id
+                              ),
+                              {
+                                  provider: { _id: provider._id },
+                                  providerPrice: parseFloat(price),
+                                  status: "pending",
+                              },
+                          ],
+                      }
+                    : service
+            )
+        );
 
+        await refreshProviderDetails();
+        closeModal();
+    } else {
+        alert("Failed to update price. Please try again.");
+    }
 
+    setIsSubmitting(false);
+};
 
-        const success = await updateProviderPrice(selectedServiceId, updatedData);
-
-        if (success) {
-            alert("Provider Price updated successfully");
-            closeModal();
-        } else {
-            alert("Failed to update price. Please try again.");
-        }
-
-        setIsSubmitting(false);
-    };
 
     useEffect(() => {
         refreshProviderDetails();
@@ -109,7 +136,8 @@ const AllServices: React.FC<AllServicesProps> = ({
                         </p>
                     )}
 
-                    {services.map((service) => {
+                   {localServices.map((service) => {
+
                         const state = subscribeStates[service._id] || {
                             loading: false,
                             error: null,
@@ -146,23 +174,6 @@ const AllServices: React.FC<AllServicesProps> = ({
                                     <p className="text-sm text-gray-600 mt-1 truncate" title={service.category?.name}>
                                         {service.category?.name}
                                     </p>
-
-                                    {/* <div className="mt-2 flex items-center justify-between">
-                                        <div>
-                                            <span className="text-gray-400 line-through mr-2 text-sm">
-                                                ₹{service.price ?? "0"}
-                                            </span>
-                                            <span className="font-bold text-indigo-600 text-base">
-                                                ₹{service.discountedPrice ?? "0"}
-                                            </span>
-                                        </div>
-                                        <PencilIcon
-                                            onClick={(e: React.MouseEvent<SVGSVGElement>) => {
-                                                e.stopPropagation(); // ✨ Prevents onView from firing
-                                                handleEdit(service._id);
-                                            }}
-                                            className="w-5 h-5 text-gray-500 hover:text-indigo-600" />
-                                    </div> */}
 
                                     <div className="mt-2 flex items-center justify-between">
                                         <div>
@@ -202,28 +213,6 @@ const AllServices: React.FC<AllServicesProps> = ({
                                     </div>
 
                                 </div>
-
-                                {/* <button
-                                    onClick={() => onSubscribe(service._id)}
-                                    disabled={state.loading || state.success || isAlreadySubscribed}
-                                    className={`w-full mt-3 font-semibold py-2 rounded
-                  ${isAlreadySubscribed
-                                            ? "bg-red-400 cursor-not-allowed"
-                                            : state.success
-                                                ? "bg-green-600 cursor-not-allowed"
-                                                : "bg-indigo-600 hover:bg-indigo-700 text-white"
-                                        }
-                  ${state.loading ? "opacity-60 cursor-wait" : ""}
-                `}
-                                >
-                                    {isAlreadySubscribed
-                                        ? "Subscribed"
-                                        : state.loading
-                                            ? "Subscribing..."
-                                            : state.success
-                                                ? "Subscribed"
-                                                : "Subscribe"}
-                                </button> */}
 
                                 <button
                                     onClick={() => onSubscribe(service._id)}
