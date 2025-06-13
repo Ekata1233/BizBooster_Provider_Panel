@@ -1,12 +1,8 @@
 "use client";
+
 import React from "react";
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
+import { useAuth } from "@/app/context/AuthContext";
 
 interface Location {
   type: string;
@@ -34,260 +30,103 @@ interface ProviderDetails {
   kyc?: Record<string, string[]>;
 }
 
-export default function UserAddressCard() {
-  const { isOpen, openModal, closeModal } = useModal();
-  const { providerDetails } = useAuth() as { providerDetails?: ProviderDetails };
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
-  };
+function renderLocation(location?: Location) {
+  if (!location) return "-";
   return (
     <>
-      <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-              Store Information
-            </h4>
+      <p>Type: {location.type}</p>
+      <p>Longitude: {location.coordinates[0]}</p>
+      <p>Latitude: {location.coordinates[1]}</p>
+    </>
+  );
+}
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32">
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Name
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.storeName}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Email
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.storeEmail}
-                </p>
-              </div><div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Phone
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.storePhone}
-                </p>
-              </div>
-            </div>
+function renderImageArray(data?: string[]) {
+  if (!data || data.length === 0) return <p className="text-sm text-gray-400">No files</p>;
+  return data.map((url, index) => (
+    <Image
+      key={index}
+      src={url}
+      alt={`Document ${index + 1}`}
+      width={100}
+      height={100}
+      className="rounded border border-gray-200 object-contain max-h-24"
+    />
+  ));
+}
 
-            {/* Address div as full row */}
-            <div className="w-full mt-4 mb-6">
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Address
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {providerDetails?.storeInfo?.address}
-              </p>
-            </div>
+export default function UserAddressCard() {
+  const { providerDetails: provider } = useAuth() as { providerDetails?: ProviderDetails };
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  City
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.city}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Country
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.country}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  State
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.state}
-                </p>
-              </div>
+  return (
+    <div className="grid grid-cols-1 gap-6">
+      {/* Store Information Section */}
+      <div className="border rounded-lg p-6 shadow-sm bg-gradient-to-br  to-white">
+        <h2 className="text-xl font-semibold mb-4 pb-2 border-b">
+          Store Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { label: "Store Name", value: provider?.storeInfo?.storeName },
+            { label: "Address", value: provider?.storeInfo?.address },
+            { label: "City", value: provider?.storeInfo?.city },
+            { label: "State", value: provider?.storeInfo?.state },
+            { label: "Country", value: provider?.storeInfo?.country },
+            { label: "Office Number", value: provider?.storeInfo?.officeNo },
+            { label: "Store Email", value: provider?.storeInfo?.storeEmail },
+            { label: "Store Phone", value: provider?.storeInfo?.storePhone },
+            { label: "Tax", value: provider?.storeInfo?.tax },
+            { label: "Zone", value: provider?.storeInfo?.zone },
+          ].map((item, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <p className="text-sm text-gray-500 whitespace-nowrap">{item.label}:</p>
+              <p className="font-medium">{item.value || "-"}</p>
             </div>
+          ))}
 
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Office No
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.officeNo}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Tax
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.tax}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Zone
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.zone}
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Location Type
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.location?.type}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Longitude
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.location?.coordinates[0]}
-                </p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Latitude
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {providerDetails?.storeInfo?.location?.coordinates[1]}
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 lg:mb-6">
-              {/* Store Logo */}
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Store Logo
-                </p>
-                <div className="overflow-hidden w-[170px] h-[170px]">
-                  <Image
-                    width={120}
-                    height={120}
-                    src={providerDetails?.storeInfo?.logo || "/images/default-logo.png"}
-                    alt="Store Logo"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              </div>
-
-              {/* Store Cover Image */}
-              <div className="w-full">
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Store Cover Image
-                </p>
-                <div className="rounded-lg overflow-hidden w-full h-[150px]">
-                  <Image
-                    width={800}
-                    height={150}
-                    src={providerDetails?.storeInfo?.cover || "/images/default-logo.png"}
-                    alt="Store Cover"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 lg:mb-6">
-              {Object.entries(providerDetails?.kyc ?? {}).map(
-                ([docType, files]) =>
-                  (files as string[])?.map((url, idx) => (
-                    <div key={`${docType}-${idx}`}>
-                      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                        {docType.toUpperCase()} {files.length > 1 ? idx + 1 : ""}
-                      </p>
-                      <img
-                        src={url}
-                        alt={`${docType}-${idx}`}
-                        className="w-full rounded-md border object-contain max-h-48"
-                      />
-                    </div>
-                  ))
-              )}
-            </div>
+          {/* Location */}
+          <div className="flex items-start gap-2">
+            <p className="text-sm text-gray-500 whitespace-nowrap">Location:</p>
+            <div className="font-medium">{renderLocation(provider?.storeInfo?.location)}</div>
           </div>
+        </div>
 
-          <button
-            onClick={openModal}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
-          >
-            <svg
-              className="fill-current"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
-                fill=""
-              />
-            </svg>
-            Edit
-          </button>
+        {provider?.storeInfo?.cover && (
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">Store Cover Image</p>
+            <Image
+              src={provider.storeInfo.cover}
+              alt="Store Cover"
+              width={250}
+              height={140}
+              className="rounded border border-gray-200"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* KYC Documents Section */}
+      <div className="border rounded-lg p-6 shadow-sm bg-gradient-to-br to-white">
+        <h2 className="text-xl font-semibold mb-4 pb-2 border-b">
+          KYC Documents
+        </h2>
+        <div className="space-y-4">
+          {[
+            { label: "GST Documents", data: provider?.kyc?.GST },
+            { label: "Aadhaar Card", data: provider?.kyc?.aadhaarCard },
+            { label: "PAN Card", data: provider?.kyc?.panCard },
+            { label: "Other Documents", data: provider?.kyc?.other },
+            { label: "Store Documents", data: provider?.kyc?.storeDocument },
+          ].map((item, index) => (
+            <div key={index} className="flex items-center space-x-4">
+              <p className="text-sm text-gray-500 font-semibold w-40">{item.label}</p>
+              <div className="flex-1 flex flex-wrap items-center gap-2">
+                {renderImageArray(item.data)}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Address
-            </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
-          </div>
-          <form className="flex flex-col">
-            <div className="px-2 overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Country</Label>
-                  <Input type="text" defaultValue="United States" />
-                </div>
-
-                <div>
-                  <Label>City/State</Label>
-                  <Input type="text" defaultValue="Arizona, United States." />
-                </div>
-
-                <div>
-                  <Label>Postal Code</Label>
-                  <Input type="text" defaultValue="ERT 2489" />
-                </div>
-
-                <div>
-                  <Label>TAX ID</Label>
-                  <Input type="text" defaultValue="AS4568384" />
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Modal>
-    </>
+    </div>
   );
 }
