@@ -34,7 +34,7 @@ const Page = () => {
   
     const { providerDetails,refreshProviderDetails  } = useAuth();
 
-    console.log("Provider details : ", providerDetails)
+    // console.log("Provider details : ", providerDetails)
     // 🔹 Module Options
     const modulesOptions: OptionType[] = modules.map((mod: ModuleType) => ({
         value: mod._id,

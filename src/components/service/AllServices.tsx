@@ -11,6 +11,12 @@ import { useModal } from "@/hooks/useModal";
 import { useService } from "@/app/context/ServiceContext";
 import { useAuth } from "@/app/context/AuthContext";
 
+interface ProviderPrice {
+    provider: { _id: string };      // adjust if you store more fields
+    providerPrice: number;
+    status: "approved" | "pending"; // add other statuses if you use them
+}
+
 interface Service {
     _id: string;
     serviceName: string;
@@ -19,6 +25,7 @@ interface Service {
     price?: number;
     discountedPrice?: number;
     subcategory?: unknown;
+    providerPrices?: ProviderPrice[];
 }
 
 interface SubscribeState {
@@ -43,12 +50,12 @@ const AllServices: React.FC<AllServicesProps> = ({
     onView,
 }) => {
     const { updateProviderPrice } = useService();
-    const { provider,refreshProviderDetails  } = useAuth();
+    const { provider, refreshProviderDetails } = useAuth();
     const { isOpen, openModal, closeModal } = useModal();
     const [price, setPrice] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-
+    console.log("services data : ", services)
     const handleEdit = (id: string) => {
         const selectedPrice = services.find(item => item._id === id);
         setSelectedServiceId(id);
@@ -72,7 +79,7 @@ const AllServices: React.FC<AllServicesProps> = ({
             ],
         };
 
-        console.log("updated data : ", updatedData)
+
 
         const success = await updateProviderPrice(selectedServiceId, updatedData);
 
@@ -86,11 +93,11 @@ const AllServices: React.FC<AllServicesProps> = ({
         setIsSubmitting(false);
     };
 
-      useEffect(() => {
-    refreshProviderDetails();
-  }, [refreshProviderDetails]);
+    useEffect(() => {
+        refreshProviderDetails();
+    }, [refreshProviderDetails]);
 
-//   if (!providerDetails) return <div>Loading...</div>;
+    //   if (!providerDetails) return <div>Loading...</div>;
     return (
         <div className="space-y-6 my-3">
             <div className="border p-4 rounded shadow">
@@ -110,6 +117,15 @@ const AllServices: React.FC<AllServicesProps> = ({
                         };
 
                         const isAlreadySubscribed = providerSubscribedIds.includes(service._id);
+                        // ---- new per-row provider-price logic --------------------------
+                        const providerEntry = service.providerPrices?.find(
+                            pp => pp.provider?._id === provider?._id
+                        );
+                        const providerPrice = providerEntry?.providerPrice ?? null;
+                        const providerStatus = providerEntry?.status ?? null;
+                        console.log("provdider status : ", providerStatus)
+                        const isPendingStatus = providerPrice != null && providerStatus === "pending";
+                        // ----------------------------------------------------------------
 
                         return (
                             <div
@@ -131,7 +147,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                         {service.category?.name}
                                     </p>
 
-                                    <div className="mt-2 flex items-center justify-between">
+                                    {/* <div className="mt-2 flex items-center justify-between">
                                         <div>
                                             <span className="text-gray-400 line-through mr-2 text-sm">
                                                 ₹{service.price ?? "0"}
@@ -146,10 +162,48 @@ const AllServices: React.FC<AllServicesProps> = ({
                                                 handleEdit(service._id);
                                             }}
                                             className="w-5 h-5 text-gray-500 hover:text-indigo-600" />
+                                    </div> */}
+
+                                    <div className="mt-2 flex items-center justify-between">
+                                        <div>
+                                            {providerPrice != null ? (
+
+                                                <>
+                                                    <span className="text-gray-400 line-through mr-2 text-sm">
+                                                        ₹{service.price ?? "0"}
+                                                    </span>
+                                                    <span className="text-gray-400 line-through mr-2 text-sm">
+                                                        ₹{service.discountedPrice ?? "0"}
+                                                    </span>
+                                                    <span className="font-bold text-indigo-600 text-base">
+                                                        ₹{providerPrice}
+                                                    </span>
+                                                </>
+                                            ) : (
+
+                                                <>
+                                                    <span className="text-gray-400 line-through mr-2 text-sm">
+                                                        ₹{service.price ?? "0"}
+                                                    </span>
+                                                    <span className="font-bold text-indigo-600 text-base">
+                                                        ₹{service.discountedPrice ?? "0"}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        <PencilIcon
+                                            onClick={(e: React.MouseEvent<SVGSVGElement>) => {
+                                                e.stopPropagation();
+                                                handleEdit(service._id);
+                                            }}
+                                            className="w-5 h-5 text-gray-500 hover:text-indigo-600"
+                                        />
                                     </div>
+
                                 </div>
 
-                                <button
+                                {/* <button
                                     onClick={() => onSubscribe(service._id)}
                                     disabled={state.loading || state.success || isAlreadySubscribed}
                                     className={`w-full mt-3 font-semibold py-2 rounded
@@ -169,7 +223,40 @@ const AllServices: React.FC<AllServicesProps> = ({
                                             : state.success
                                                 ? "Subscribed"
                                                 : "Subscribe"}
+                                </button> */}
+
+                                <button
+                                    onClick={() => onSubscribe(service._id)}
+                                    disabled={
+                                        state.loading ||
+                                        state.success ||
+                                        isAlreadySubscribed ||
+                                        isPendingStatus
+                                    }
+                                    className={`
+    w-full mt-3 font-semibold py-2 rounded
+    ${isAlreadySubscribed
+                                            ? "bg-red-400 cursor-not-allowed"
+                                            : state.success
+                                                ? "bg-green-600 cursor-not-allowed"
+                                                : isPendingStatus
+                                                    ? "bg-yellow-500 cursor-not-allowed"
+                                                    : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                                        }
+    ${state.loading ? "opacity-60 cursor-wait" : ""}
+  `}
+                                >
+                                    {isAlreadySubscribed
+                                        ? "Subscribed"
+                                        : isPendingStatus
+                                            ? "Pending"
+                                            : state.loading
+                                                ? "Subscribing..."
+                                                : state.success
+                                                    ? "Subscribed"
+                                                    : "Subscribe"}
                                 </button>
+
                             </div>
                         );
                     })}
@@ -210,9 +297,23 @@ const AllServices: React.FC<AllServicesProps> = ({
                                 <Button size="sm" variant="outline" onClick={closeModal}>
                                     Close
                                 </Button>
-                                <Button size="sm" onClick={(e) => handleUpdateData(e)} disabled={isSubmitting}>
+                                <button
+                                    type="button"
+                                    onClick={handleUpdateData}
+                                    disabled={isSubmitting}
+                                    style={{
+                                        padding: "0.5rem 1rem",
+                                        fontSize: "14px",
+                                        borderRadius: "4px",
+                                        backgroundColor: "#007BFF",
+                                        color: "#fff",
+                                        border: "none",
+                                        cursor: isSubmitting ? "not-allowed" : "pointer",
+                                        opacity: isSubmitting ? 0.6 : 1,
+                                    }}
+                                >
                                     {isSubmitting ? "Updating..." : "Update & Subscribe"}
-                                </Button>
+                                </button>
 
                             </div>
                         </form>

@@ -20,18 +20,19 @@ export default function SignInForm() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      await login(email, password);
-      router.push("/"); // Change to your actual dashboard route
-    } catch (err) {
-  console.error(err);
-  alert("Login failed. Please check your credentials.");
-} finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  try {
+    setLoading(true);
+    await login(email, password);
+    router.push("/");
+  } catch (err: any) {
+    console.error("Login failed:", err);
+    alert(err.message || "Login failed. Please check your credentials.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -54,78 +55,72 @@ export default function SignInForm() {
               Enter your email and password to sign in!
             </p>
           </div>
-          <div>
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <div>
-                  <Label>
-                    Email <span className="text-error-500">*</span>{" "}
-                  </Label>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              <div>
+                <Label>Email <span className="text-error-500">*</span></Label>
+                <Input
+                  placeholder="info@gmail.com"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label>Password <span className="text-error-500">*</span></Label>
+                <div className="relative">
                   <Input
-                    placeholder="info@gmail.com"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-                </div>
-                <div>
-                  <Label>
-                    Password <span className="text-error-500">*</span>{" "}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <span
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                    >
-                      {showPassword ? (
-                        <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-                      ) : (
-                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
-                      )}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
-                    </span>
-                  </div>
-                  <Link
-                    href="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                   >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div>
-                  <Button className="w-full" size="sm" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign in"}
-                  </Button>
+                    {showPassword ? (
+                      <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                    ) : (
+                      <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                    )}
+                  </span>
                 </div>
               </div>
-            </form>
-
-            <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account?{" "}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox checked={isChecked} onChange={setIsChecked} />
+                  <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                    Keep me logged in
+                  </span>
+                </div>
                 <Link
-                  href="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  href="/reset-password"
+                  className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Sign Up
+                  Forgot password?
                 </Link>
-              </p>
+              </div>
+              <div>
+                <Button className="w-full" size="sm" disabled={loading}>
+                  {loading ? "Signing in..." : "Sign in"}
+                </Button>
+              </div>
             </div>
+          </form>
+
+          <div className="mt-5">
+            <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/signup"
+                className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+              >
+                Sign Up
+              </Link>
+            </p>
           </div>
         </div>
       </div>
