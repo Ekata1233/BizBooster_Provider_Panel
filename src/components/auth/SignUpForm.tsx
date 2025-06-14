@@ -7,7 +7,7 @@ import { useProvider } from '@/context/ProviderContext';
 import { CheckCircleIcon, ChevronLeftIcon } from '@/icons';
 import Link from 'next/link';
 import { Check, ArrowRightIcon, Clock } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/app/context/AuthContext';
 
@@ -77,7 +77,7 @@ export default function ProviderOnboardingPage() {
     updateKycInfo,
   } = useProvider();
   const [isChecked, setIsChecked] = useState(false);
-
+  const router = useRouter();
   const { providerDetails } = useAuth();
 
   console.log("provider in steps : ", providerDetails);
@@ -129,7 +129,7 @@ export default function ProviderOnboardingPage() {
     Object.entries(data).forEach(([k, v]) => fd.append(k, v as string));
     await registerProvider(fd);
     regForm.reset();
-     setActiveStep(2);
+    setActiveStep(2);
   };
 
   const
@@ -158,6 +158,10 @@ export default function ProviderOnboardingPage() {
     });
     await updateKycInfo(fd);
     kycForm.reset();
+
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
   };
 
   const storeDone = !!provider?.storeInfoCompleted;
