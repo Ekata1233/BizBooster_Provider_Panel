@@ -10,6 +10,7 @@ import { SubcategoryProvider } from './context/SubCategoryContext';
 import { ServiceProvider } from './context/ServiceContext';
 import { SubscribeProvider } from './context/SubscribeContext';
 import { ProviderContextProvider } from '@/context/ProviderContext';
+import { CheckoutProvider } from './context/CheckoutContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -32,7 +33,9 @@ export default function RootLayout({
                     <ServiceProvider>
                       <SubscribeProvider>
                         <ProviderContextProvider>
-                          {children}
+                          <CheckoutProvider>
+                            {children}
+                          </CheckoutProvider>
                         </ProviderContextProvider>
                       </SubscribeProvider>
                     </ServiceProvider>
