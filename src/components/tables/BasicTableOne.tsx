@@ -26,7 +26,7 @@ const get = (obj: unknown, path: string): unknown =>
 
 export default function BasicTableOne<T>({ columns, data }: BasicTableOneProps<T>) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+    <div className="rounded-lg border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[800px]">
           <Table>

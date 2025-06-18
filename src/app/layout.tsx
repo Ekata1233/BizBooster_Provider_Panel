@@ -10,6 +10,7 @@ import { SubcategoryProvider } from './context/SubCategoryContext';
 import { ServiceProvider } from './context/ServiceContext';
 import { SubscribeProvider } from './context/SubscribeContext';
 import { ProviderContextProvider } from '@/context/ProviderContext';
+import { CheckoutProvider } from './context/CheckoutContext';
 import { ServiceManProvider } from './context/ServiceManContext';
 
 const outfit = Outfit({
@@ -33,9 +34,11 @@ export default function RootLayout({
                     <ServiceProvider>
                       <SubscribeProvider>
                         <ProviderContextProvider>
-                          <ServiceManProvider>
-                          {children}
-                          </ServiceManProvider>
+                          <CheckoutProvider>
+                            <ServiceManProvider>
+                            {children}
+                            </ServiceManProvider>
+                          </CheckoutProvider>
                         </ProviderContextProvider>
                       </SubscribeProvider>
                     </ServiceProvider>
