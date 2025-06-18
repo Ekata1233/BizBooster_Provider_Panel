@@ -50,6 +50,11 @@ interface CheckoutContextType {
   loadingCheckouts: boolean;
   errorCheckouts: string | null;
   fetchCheckoutsByProviderId: (providerId: string) => Promise<void>;
+
+  checkoutDetails: CheckoutType[];
+  loadingCheckoutDetails: boolean;
+  errorCheckoutDetails: string | null;
+  fetchCheckoutsDetailsById: (providerId: string) => Promise<void>;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(
@@ -67,6 +72,10 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   const [loadingCheckouts, setLoadingCheckouts] = useState<boolean>(false);
   const [errorCheckouts, setErrorCheckouts] = useState<string | null>(null);
 
+  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutType[]>([]);
+  const [loadingCheckoutDetails, setLoadingCheckoutDetails] = useState<boolean>(false);
+  const [errorCheckoutDetails, setErrorCheckoutDetails] = useState<string | null>(null);
+
   const fetchCheckoutsByProviderId = async (providerId: string) => {
     setLoadingCheckouts(true);
     try {
@@ -83,6 +92,22 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     }
   };
 
+  const fetchCheckoutsDetailsById = async (id: string) => {
+    setLoadingCheckoutDetails(true);
+    try {
+      const res = await axios.get(
+        `https://biz-booster.vercel.app/api/checkout/details/${id}`
+      );
+      setCheckoutDetails(res.data?.data || []);
+      setErrorCheckoutDetails(null);
+    } catch (err) {
+      console.error("Error fetching checkouts:", err);
+      setErrorCheckoutDetails("Failed to fetch checkouts.");
+    } finally {
+      setLoadingCheckoutDetails(false);
+    }
+  };
+
   return (
     <CheckoutContext.Provider
       value={{
@@ -90,6 +115,11 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
         loadingCheckouts,
         errorCheckouts,
         fetchCheckoutsByProviderId,
+
+        checkoutDetails,
+        loadingCheckoutDetails,
+        errorCheckoutDetails,
+        fetchCheckoutsDetailsById,
       }}
     >
       {children}

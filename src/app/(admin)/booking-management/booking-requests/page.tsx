@@ -8,6 +8,7 @@ import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import Link from 'next/link';
 
 const BookingRequests = () => {
   const { provider } = useAuth();
@@ -120,29 +121,32 @@ const BookingRequests = () => {
     {
       header: 'Action',
       accessor: 'action',
-      render: (row: any) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => alert(`Viewing booking ID: ${row.bookingId}`)}
-            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
-          >
-            <EyeIcon />
-          </button>
-          <button
-            onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
-            className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
-          >
-            <PencilIcon />
-          </button>
-          <button
-            onClick={() => alert(`Deleting booking ID: ${row.bookingId}`)}
-            className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
-          >
-            <TrashBinIcon />
-          </button>
-        </div>
-      ),
-    },
+      render: (row: any) => {
+        console.log('Row data:', row); // 👈 This logs the entire row
+
+        return (
+          <div className="flex gap-2">
+            <Link href={`/booking-management/booking-requests/${row._id}`} passHref>
+              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+                <EyeIcon />
+              </button>
+            </Link>
+            <button
+              onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
+              className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
+            >
+              <PencilIcon />
+            </button>
+            <button
+              onClick={() => alert(`Deleting booking ID: ${row.bookingId}`)}
+              className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
+            >
+              <TrashBinIcon />
+            </button>
+          </div>
+        );
+      },
+    }
   ];
 
   const data = checkouts.map((checkout: any) => ({
@@ -153,6 +157,7 @@ const BookingRequests = () => {
     scheduleDate: checkout.createdAt, // Replace if you have it
     bookingDate: checkout.createdAt,
     orderStatus: checkout.orderStatus,
+    _id: checkout._id,
   }));
 
 
@@ -162,7 +167,7 @@ const BookingRequests = () => {
       <PageBreadcrumb pageTitle="Booking Requests" />
       <div className="space-y-6">
         <ComponentCard title="Booking Requests">
-         <div className="mb-4">
+          <div className="mb-4">
             <Input
               type="text"
               placeholder="Search by Booking ID…"

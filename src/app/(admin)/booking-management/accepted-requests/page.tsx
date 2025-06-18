@@ -8,6 +8,7 @@ import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import Link from 'next/link';
 
 const AcceptedRequests = () => {
   const { provider } = useAuth();
@@ -122,12 +123,17 @@ const AcceptedRequests = () => {
       accessor: 'action',
       render: (row: any) => (
         <div className="flex gap-2">
-          <button
+          <Link href={`/customer-management/user/user-list/${row.id}`} passHref>
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
+          {/* <button
             onClick={() => alert(`Viewing booking ID: ${row.bookingId}`)}
             className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
           >
             <EyeIcon />
-          </button>
+          </button> */}
           <button
             onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
