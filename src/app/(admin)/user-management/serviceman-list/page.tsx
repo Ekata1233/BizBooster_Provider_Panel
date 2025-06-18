@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Input from '@/components/form/input/InputField';
 import Link from 'next/link';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import { useAuth } from '@/app/context/AuthContext';
 interface ServiceManTableData {
   id: string;
   name: string;
@@ -19,16 +20,23 @@ interface ServiceManTableData {
 }
 
 const ServicemanListPage = () => {
-  const { serviceMen, loading, error, deleteServiceMan } = useServiceMan();
+  const {provider} = useAuth();
+  const { serviceMenByProvider,fetchServiceMenByProvider, loading, error, deleteServiceMan } = useServiceMan();
   const [tableData, setTableData] = useState<ServiceManTableData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState<ServiceManTableData[]>([]);
   const [activeTab, setActiveTab] = useState('all');
   const router = useRouter();
 
+    useEffect(() => {
+      if (provider?._id) {
+        fetchServiceMenByProvider(provider._id);
+      }
+    }, [provider]);
+
   useEffect(() => {
-    if (serviceMen && serviceMen.length > 0) {
-      const formatted = serviceMen.map((man: any) => ({
+    if (serviceMenByProvider && serviceMenByProvider.length > 0) {
+      const formatted = serviceMenByProvider.map((man: any) => ({
         id: man._id,
         name: man.name || '—',
         lastName: man.lastName || '—',
@@ -38,7 +46,7 @@ const ServicemanListPage = () => {
       }));
       setTableData(formatted);
     }
-  }, [serviceMen]);
+  }, [serviceMenByProvider]);
 
   useEffect(() => {
     const lowerSearch = searchQuery.toLowerCase();

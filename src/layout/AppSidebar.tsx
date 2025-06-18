@@ -56,8 +56,8 @@ const userItems: NavItem[] = [
     icon: <PlugInIcon />,
     name: "Service Man",
     subItems: [
-      { name: "Serviceman List", path: "/user-management/serviceman-list", pro: false },
       { name: "Add Serviceman", path: "/user-management/add-serviceman", pro: false },
+      { name: "Serviceman List", path: "/user-management/serviceman-list", pro: false },
       
     ],
   },

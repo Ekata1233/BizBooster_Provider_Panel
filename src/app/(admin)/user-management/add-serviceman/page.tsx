@@ -5,6 +5,7 @@ import { useServiceMan } from "@/app/context/ServiceManContext";
 import Input from "@/components/form/input/InputField";
 import Button from "@/components/ui/button/Button";
 import FileInput from "@/components/form/input/FileInput";
+import { useAuth } from "@/app/context/AuthContext";
 
 const identityOptions = [
   { value: "passport", label: "Passport" },
@@ -14,6 +15,9 @@ const identityOptions = [
 ];
 
 export default function AddServiceManPage() {
+  const { provider } = useAuth();
+  console.log("provider details : ", provider)
+  const providerId = provider?._id;
   const { addServiceMan, loading, error } = useServiceMan();
 
   const [formState, setFormState] = useState({
@@ -49,7 +53,12 @@ export default function AddServiceManPage() {
     e.preventDefault();
 
     const formData = new FormData();
-    Object.entries(formState).forEach(([key, value]) => {
+    const completeFormState = {
+      ...formState,
+      provider: provider?._id || "",
+    };
+
+    Object.entries(completeFormState).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
@@ -71,8 +80,6 @@ export default function AddServiceManPage() {
     });
     setGeneralImageFile(null);
     setIdentityImageFile(null);
-    (document.getElementById("generalImage") as HTMLInputElement).value = "";
-    (document.getElementById("identityImage") as HTMLInputElement).value = "";
   };
 
   return (
@@ -113,10 +120,8 @@ export default function AddServiceManPage() {
               className="border px-3 py-2 rounded w-full"
             />
             <FileInput
-              
               onChange={handleGeneralImageChange}
-              
-              className="custom-class" 
+              className="custom-class"
             />
           </div>
         </div>
@@ -149,10 +154,8 @@ export default function AddServiceManPage() {
               className="border px-3 py-2 rounded w-full"
             />
             <FileInput
-              
               onChange={handleIdentityImageChange}
-              
-              className="custom-class" 
+              className="custom-class"
             />
           </div>
         </div>
@@ -192,7 +195,7 @@ export default function AddServiceManPage() {
         </div>
 
         <Button
-          
+
           variant="primary"
           className="w-full"
           disabled={loading}

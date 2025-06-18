@@ -23,7 +23,9 @@ export interface ServiceMan {
 
 interface ServiceManContextType {
   serviceMen: ServiceMan[];
+  serviceMenByProvider: ServiceMan[];
   fetchServiceMen: () => void;
+  fetchServiceMenByProvider: (providerId: string) => void;
   addServiceMan: (formData: FormData) => Promise<void>;
   updateServiceMan: (id: string, formData: FormData) => Promise<void>;
   deleteServiceMan: (id: string) => Promise<void>;
@@ -37,6 +39,7 @@ const API_BASE = "https://biz-booster.vercel.app/api/serviceman";
 
 export const ServiceManProvider = ({ children }: { children: React.ReactNode }) => {
   const [serviceMen, setServiceMen] = useState<ServiceMan[]>([]);
+  const [serviceMenByProvider, setServiceMenByProvider] = useState<ServiceMan[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +52,21 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       setServiceMen(data);
     } catch (err: any) {
       setError(err.message || "Failed to fetch servicemen");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchServiceMenByProvider = async (providerId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/filterByProvider/${providerId}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch by provider");
+      setServiceMenByProvider(data.data || []);
+    } catch (err: any) {
+      setError(err.message || "Fetch by provider failed");
     } finally {
       setLoading(false);
     }
@@ -119,7 +137,9 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
     <ServiceManContext.Provider
       value={{
         serviceMen,
+        serviceMenByProvider,
         fetchServiceMen,
+        fetchServiceMenByProvider,
         addServiceMan,
         updateServiceMan,
         deleteServiceMan,
