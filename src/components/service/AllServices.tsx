@@ -59,65 +59,71 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [localServices, setLocalServices] = useState<Service[]>(services);
     console.log("services data : ", services)
 
-const handleEdit = (id: string) => {
-    const selectedPrice = localServices.find(item => item._id === id);
-    setSelectedServiceId(id);
-    if (selectedPrice) {
-        setPrice(String(selectedPrice?.discountedPrice ?? ''));
-        openModal();
-    }
-};
+    console.log("providerSubscribedIds data : ", providerSubscribedIds)
+
+    useEffect(() => {
+        setLocalServices(services);
+    }, [services]);
 
 
-const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!selectedServiceId || !provider?._id) return;
-
-    setIsSubmitting(true);
-
-    const updatedData = {
-        providerPrices: [
-            {
-                provider: provider._id,
-                providerPrice: parseFloat(price),
-            },
-        ],
+    const handleEdit = (id: string) => {
+        const selectedPrice = localServices.find(item => item._id === id);
+        setSelectedServiceId(id);
+        if (selectedPrice) {
+            setPrice(String(selectedPrice?.discountedPrice ?? ''));
+            openModal();
+        }
     };
 
-    const success = await updateProviderPrice(selectedServiceId, updatedData);
-    
-    if (success) {
-        alert("Provider Price updated successfully");
 
-        // Update local state immediately
-        setLocalServices(prev =>
-            prev.map(service =>
-                service._id === selectedServiceId
-                    ? {
-                          ...service,
-                          providerPrices: [
-                              ...(service.providerPrices || []).filter(
-                                  p => p.provider._id !== provider._id
-                              ),
-                              {
-                                  provider: { _id: provider._id },
-                                  providerPrice: parseFloat(price),
-                                  status: "pending",
-                              },
-                          ],
-                      }
-                    : service
-            )
-        );
+    const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>, selectedServiceId?: string,) => {
+  
+        e.preventDefault();
+        if (!selectedServiceId || !provider?._id) return;
 
-        await refreshProviderDetails();
-        closeModal();
-    } else {
-        alert("Failed to update price. Please try again.");
-    }
+        setIsSubmitting(true);
 
-    setIsSubmitting(false);
-};
+        const updatedData = {
+            providerPrices: [
+                {
+                    provider: provider._id,
+                    providerPrice: price ? parseFloat(price) : null,
+                },
+            ],
+        };
+
+        const success = await updateProviderPrice(selectedServiceId, updatedData);
+
+        if (success) {
+            alert("Provider Price updated successfully");
+
+            // Update local state immediately
+            setLocalServices(prev =>
+                prev.map(service =>
+                    service._id === selectedServiceId
+                        ? {
+                            ...service,
+                            providerPrices: [
+                                ...(service.providerPrices || []).filter(p => p?.provider?._id !== provider._id),
+                                {
+                                    provider: { _id: provider._id },
+                                    providerPrice: parseFloat(price),
+                                    status: "pending",
+                                },
+                            ],
+                        }
+                        : service
+                )
+            );
+
+            await refreshProviderDetails();
+            closeModal();
+        } else {
+            alert("Failed to update price. Please try again.");
+        }
+
+        setIsSubmitting(false);
+    };
 
 
     useEffect(() => {
@@ -136,7 +142,7 @@ const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>) => {
                         </p>
                     )}
 
-                   {localServices.map((service) => {
+                    {localServices.map((service) => {
 
                         const state = subscribeStates[service._id] || {
                             loading: false,
@@ -144,14 +150,21 @@ const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>) => {
                             success: false,
                         };
 
-                        const isAlreadySubscribed = providerSubscribedIds.includes(service._id);
+                        console.log("service Id : ", service._id)
+                        console.log("providerSubscribedIds : ", providerSubscribedIds)
+                        const isAlreadySubscribed = providerSubscribedIds.some(
+                            (subscribedService) => subscribedService._id === service._id
+                        );
+
+
+                        console.log("is alredy subscribed : ", isAlreadySubscribed)
                         // ---- new per-row provider-price logic --------------------------
                         const providerEntry = service.providerPrices?.find(
                             pp => pp.provider?._id === provider?._id
                         );
                         const providerPrice = providerEntry?.providerPrice ?? null;
                         const providerStatus = providerEntry?.status ?? null;
-                        console.log("provdider status : ", providerStatus)
+                        // console.log("provdider status : ", providerStatus)
                         const isPendingStatus = providerPrice != null && providerStatus === "pending";
                         // ----------------------------------------------------------------
 
@@ -215,7 +228,11 @@ const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>) => {
                                 </div>
 
                                 <button
-                                    onClick={() => onSubscribe(service._id)}
+                                    onClick={(e) => {
+                                        onSubscribe(service._id);
+                                        handleUpdateData(e, service._id);
+                                    }}
+
                                     disabled={
                                         state.loading ||
                                         state.success ||

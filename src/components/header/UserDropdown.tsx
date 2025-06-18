@@ -6,10 +6,12 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { useRouter } from "next/navigation";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const { providerDetails } = useAuth();
+  const { providerDetails, logout } = useAuth();
+  const router = useRouter();
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -19,6 +21,12 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  const handleLogout = () => {
+    logout();
+    closeDropdown();
+    router.push("/signin"); // Redirect to signin page after logout
+  };
 
   return (
     <div className="relative">
@@ -31,7 +39,6 @@ export default function UserDropdown() {
             width={44}
             height={44}
             src={(providerDetails as { storeInfo?: { logo?: string } })?.storeInfo?.logo || "/images/default-logo.png"}
-
             alt="User"
           />
         </span>
@@ -97,7 +104,7 @@ export default function UserDropdown() {
                   fill=""
                 />
               </svg>
-              Edit profile
+              My profile
             </DropdownItem>
           </li>
           <li>
@@ -151,8 +158,8 @@ export default function UserDropdown() {
             </DropdownItem>
           </li>
         </ul>
-        <Link
-          href="/signin"
+        <button
+          onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <svg
@@ -171,7 +178,7 @@ export default function UserDropdown() {
             />
           </svg>
           Sign out
-        </Link>
+        </button>
       </Dropdown>
     </div>
   );

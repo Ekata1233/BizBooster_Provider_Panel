@@ -10,6 +10,7 @@ import { useAuth } from "@/app/context/AuthContext";
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
   const { providerDetails } = useAuth();
+  console.log("provider detials in to the user info : ", providerDetails)
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");

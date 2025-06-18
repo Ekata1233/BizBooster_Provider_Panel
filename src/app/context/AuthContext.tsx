@@ -165,10 +165,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
+      console.log("repsonse of provider details : ", res);
+
       const data = await res.json();
-      if (res.ok && data.success) {
-        setProviderDetails(data.data);
-        localStorage.setItem("providerDetails", JSON.stringify(data.data));
+
+      console.log("data of provider details : ", data);
+      if (res.ok) {
+        setProviderDetails(data);
+        localStorage.setItem("providerDetails", JSON.stringify(data));
       }
     } catch (error) {
       console.error("🔁 Error refreshing provider details:", error);
@@ -177,14 +181,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ✅ Logout Function
   const logout = () => {
+    // Clear state
     setProvider(null);
     setProviderDetails(null);
     setToken(null);
+
+    // Clear localStorage
     localStorage.removeItem("providerToken");
     localStorage.removeItem("providerData");
     localStorage.removeItem("providerDetails");
-    console.log("🚪 Logged out and cleared localStorage");
+    localStorage.removeItem("token");        
+    localStorage.removeItem("theme"); 
+
+    console.log("🚪 Logged out and cleared all relevant localStorage items");
   };
+
 
   return (
     <AuthContext.Provider

@@ -25,6 +25,7 @@ interface ProviderPrice {
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();
   const { providerDetails } = useAuth();
+  console.log("proivder details: ", providerDetails)
 
   const [tableData, setTableData] = useState<TableData[]>([]);
   const [search, setSearch] = useState('');
@@ -37,16 +38,16 @@ const MySubscriptionPage = () => {
       return;
     }
 
-    const idSet = new Set<string>(providerDetails.subscribedServices);
+    const idSet = new Set<string>(providerDetails.subscribedServices.map((s: any) => s._id));
 
-   const flattened = services
-  .filter((srv) => idSet.has(srv._id))
-  .map((srv) => {
-    const providerPrices = (srv as { providerPrices?: ProviderPrice[] }).providerPrices;
+    const flattened = services
+      .filter((srv) => idSet.has(srv._id))
+      .map((srv) => {
+        const providerPrices = (srv as { providerPrices?: ProviderPrice[] }).providerPrices;
 
-    const providerEntry = providerPrices?.find(
-      (pp) => pp.provider?._id === providerDetails?._id
-    );
+        const providerEntry = providerPrices?.find(
+          (pp) => pp.provider?._id === providerDetails?._id
+        );
 
         return {
           id: srv._id,
@@ -54,7 +55,7 @@ const MySubscriptionPage = () => {
           categoryName: srv.category?.name || '—',
           subCategoryName: srv.subcategory?.name || '—',
           discountedPrice: srv.discountedPrice ?? null,
-         providerPrice: providerEntry?.providerPrice ?? null,
+          providerPrice: providerEntry?.providerPrice ?? null,
           status: 'Subscribed',
         };
       });
@@ -105,7 +106,7 @@ const MySubscriptionPage = () => {
     {
       header: 'Provider Price',
       accessor: 'providerPrice',
-       cell: (row: { providerPrice: number | null }) =>
+      cell: (row: { providerPrice: number | null }) =>
         row.providerPrice != null ? `₹${row.providerPrice}` : '—',
     },
 
