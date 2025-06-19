@@ -108,7 +108,8 @@ const BookingRequestDetails = () => {
         {activeTab === 'details' && (
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="w-full lg:w-2/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Details</h3>
+              <h3 className="text-lg font-semibold text-blue-800 mb-4">Payment Details</h3>
+               <hr className="my-4 border-gray-300 dark:border-gray-700" />
               <div className="flex flex-col md:flex-row justify-between gap-6">
                 {/* Left Side */}
                 <div className="flex-1 space-y-2">
@@ -122,20 +123,30 @@ const BookingRequestDetails = () => {
 
                 {/* Right Side */}
                 <div className="flex-1 space-y-2">
-                  <p className="text-gray-700">
-                    <strong>Payment Status:</strong> {checkoutDetails.paymentStatus}
-                  </p>
-                  <p className="text-gray-700">
-                    <strong>Schedule Date:</strong>{' '}
-                    {checkoutDetails.createdAt
-                      ? format(new Date(checkoutDetails.createdAt), 'dd MMMM yy hh:mm a')
-                      : 'N/A'}
-                  </p>
+  <p className="text-gray-700">
+    <strong>Payment Status:</strong>{' '}
+    <span
+      className={
+        checkoutDetails.paymentStatus === 'pending'
+          ? 'text-blue-500'
+          : checkoutDetails.paymentStatus === 'fail'
+          ? 'text-red-500'
+          : checkoutDetails.paymentStatus === 'paid'
+          ? 'text-green-500'
+          : ''
+      }
+    >
+      {checkoutDetails.paymentStatus}
+    </span>
+  </p>
+  <p className="text-gray-700">
+    <strong>Schedule Date:</strong>{' '}
+    {checkoutDetails.createdAt
+      ? format(new Date(checkoutDetails.createdAt), 'dd MMMM yy hh:mm a')
+      : 'N/A'}
+  </p>
+</div>
 
-
-
-
-                </div>
               </div>
 
               {/* Booking Summary Table */}
@@ -201,7 +212,7 @@ const BookingRequestDetails = () => {
 
 
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              <h3 className="p-8">Details Booking Details (1/3)</h3>
+             
 
               {/* Customer Information Section */}
               <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
