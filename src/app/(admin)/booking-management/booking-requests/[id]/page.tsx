@@ -6,6 +6,9 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useParams } from 'next/navigation';
 import { format } from 'date-fns';
+import { useServiceCustomer } from '@/app/context/ServiceCustomerContext';
+import { useServiceMan } from '@/app/context/ServiceManContext';
+import { useAuth } from '@/app/context/AuthContext';
 
 const serviceMen = [
   {
@@ -28,9 +31,9 @@ const serviceMen = [
   },
 ];
 const BookingRequestDetails = () => {
-   const [showAll, setShowAll] = useState(false);
-
-  // Show only first 2 unless showAll is true
+  const [showAll, setShowAll] = useState(false);
+  const { provider } = useAuth();
+  const { serviceMenByProvider, fetchServiceMenByProvider, deleteServiceMan } = useServiceMan();
   const visibleServiceMen = showAll ? serviceMen : serviceMen.slice(0, 2);
   const params = useParams();
   const id = params?.id as string;
@@ -40,7 +43,7 @@ const BookingRequestDetails = () => {
     errorCheckoutDetails,
     fetchCheckoutsDetailsById,
   } = useCheckout();
-
+  const { fetchServiceCustomer, serviceCustomer, loading, error } = useServiceCustomer();
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
 
   useEffect(() => {
@@ -48,6 +51,27 @@ const BookingRequestDetails = () => {
       fetchCheckoutsDetailsById(id);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (checkoutDetails?.serviceCustomer) {
+      console.log("checkout details for UI : ", checkoutDetails);
+      fetchServiceCustomer(checkoutDetails.serviceCustomer);
+    }
+  }, [checkoutDetails]);
+
+  useEffect(() => {
+    if (serviceCustomer) {
+      console.log("Fetched Service Customer Details:", serviceCustomer);
+    }
+  }, [serviceCustomer]);
+
+  useEffect(() => {
+    if (provider?._id) {
+      fetchServiceMenByProvider(provider._id);
+    }
+  }, [provider]);
+
+  console.log("service man details : ", serviceMenByProvider);
 
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
@@ -59,14 +83,16 @@ const BookingRequestDetails = () => {
     return 'Pending';
   };
 
-  console.log("checkout details : ", checkoutDetails)
+  console.log("checkout details for UI : ", checkoutDetails)
+
+
 
   return (
     <div>
       <PageBreadcrumb pageTitle="Booking Request Details" />
       <div className="space-y-6">
         <ComponentCard title="Booking Details">
-          <div className="flex justify-between items-start p-4">
+          <div className="flex justify-between items-start">
             {/* Left Info */}
             <div>
               <h2 className="text-lg font-semibold">
@@ -201,54 +227,63 @@ const BookingRequestDetails = () => {
 
 
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              <h3 className="p-8">Details Booking Details (1/3)</h3>
 
               {/* Customer Information Section */}
               <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
-  <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Customer Information</h4>
-  <hr className="my-4 border-gray-300 dark:border-gray-700" />
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Customer Information</h4>
+                <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
-  <div className="flex items-center gap-5">
-    <img
-      src="/path/to/profile.jpg" // Replace with actual image path or dynamic src
-      alt="Profile"
-      className="w-16 h-16 rounded-full object-cover border border-gray-300"
-    />
-    <div className="space-y-1">
-      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Name:</strong> John Doe</p>
-      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Phone:</strong> +91 9876543210</p>
-      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Address:</strong> 123 Street, City, State</p>
-    </div>
-  </div>
-</div>
-  <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
-      <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Service Man Information</h4>
-      <hr className="my-4 border-gray-300 dark:border-gray-700" />
+                {loading && <p className="text-sm text-gray-600 dark:text-gray-400">Loading customer info...</p>}
+                {error && <p className="text-sm text-red-600 dark:text-red-400">Error: {error}</p>}
 
-      {visibleServiceMen.map((man, index) => (
-        <div key={index} className="flex items-center gap-5 mb-6">
-          <img
-            src={man.image}
-            alt={man.name}
-            className="w-16 h-16 rounded-full object-cover border border-gray-300"
-          />
-          <div className="space-y-1">
-            <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Name:</strong> {man.name}</p>
-            <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Phone:</strong> {man.phone}</p>
-            <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Address:</strong> {man.address}</p>
-          </div>
-        </div>
-      ))}
+                {serviceCustomer && (
+                  <div className="flex items-center gap-5">
 
-      {!showAll && serviceMen.length > 2 && (
-        <button
-          onClick={() => setShowAll(true)}
-          className="text-blue-600 hover:underline text-sm mt-2"
-        >
-          Show More
-        </button>
-      )}
-    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        <strong>Name:</strong> {serviceCustomer.fullName}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        <strong>Phone:</strong> {serviceCustomer.phone}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        <strong>Address:</strong> {serviceCustomer.address}, {serviceCustomer.city}, {serviceCustomer.state}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+
+
+              <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Service Man Information</h4>
+                <hr className="my-4 border-gray-300 dark:border-gray-700" />
+
+                {visibleServiceMen.map((man, index) => (
+                  <div key={index} className="flex items-center gap-5 mb-6">
+                    <img
+                      src={man.image}
+                      alt={man.name}
+                      className="w-16 h-16 rounded-full object-cover border border-gray-300"
+                    />
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Name:</strong> {man.name}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Phone:</strong> {man.phone}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Address:</strong> {man.address}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {!showAll && serviceMen.length > 2 && (
+                  <button
+                    onClick={() => setShowAll(true)}
+                    className="text-blue-600 hover:underline text-sm mt-2"
+                  >
+                    Show More
+                  </button>
+                )}
+              </div>
 
             </div>
 
@@ -258,11 +293,82 @@ const BookingRequestDetails = () => {
 
         {activeTab === 'status' && (
           <div className="flex flex-col lg:flex-row gap-4">
-            <div className="w-full lg:w-2/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              <h3 className="p-8">stat booking details (2/3)</h3>
+            <div className="w-full lg:w-2/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Details</h3>
+              <div className="flex flex-col md:flex-row justify-between gap-6">
+                {/* Left Side */}
+                <div className="flex-1 space-y-2">
+                  <p className="text-gray-700">
+                    <strong>Payment Method:</strong> {checkoutDetails.paymentMethod?.join(', ')}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}
+                  </p>
+                </div>
+
+                {/* Right Side */}
+                <div className="flex-1 space-y-2">
+                  <p className="text-gray-700">
+                    <strong>Payment Status:</strong> {checkoutDetails.paymentStatus}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Schedule Date:</strong>{' '}
+                    {checkoutDetails.createdAt
+                      ? format(new Date(checkoutDetails.createdAt), 'dd MMMM yy hh:mm a')
+                      : 'N/A'}
+                  </p>
+                </div>
+              </div>
             </div>
+
+
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              <h3 className="p-8">stat booking details (1/3)</h3>
+              {/* Customer Information Section */}
+              <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Customer Information</h4>
+                <hr className="my-4 border-gray-300 dark:border-gray-700" />
+
+                <div className="flex items-center gap-5">
+                  <img
+                    src="/path/to/profile.jpg" // Replace with actual image path or dynamic src
+                    alt="Profile"
+                    className="w-16 h-16 rounded-full object-cover border border-gray-300"
+                  />
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Name:</strong> John Doe</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Phone:</strong> +91 9876543210</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Address:</strong> 123 Street, City, State</p>
+                  </div>
+                </div>
+              </div>
+              <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Service Man Information</h4>
+                <hr className="my-4 border-gray-300 dark:border-gray-700" />
+
+                {visibleServiceMen.map((man, index) => (
+                  <div key={index} className="flex items-center gap-5 mb-6">
+                    <img
+                      src={man.image}
+                      alt={man.name}
+                      className="w-16 h-16 rounded-full object-cover border border-gray-300"
+                    />
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Name:</strong> {man.name}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Phone:</strong> {man.phone}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200"><strong>Address:</strong> {man.address}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {!showAll && serviceMen.length > 2 && (
+                  <button
+                    onClick={() => setShowAll(true)}
+                    className="text-blue-600 hover:underline text-sm mt-2"
+                  >
+                    Show More
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}

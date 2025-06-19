@@ -51,7 +51,7 @@ interface CheckoutContextType {
   errorCheckouts: string | null;
   fetchCheckoutsByProviderId: (providerId: string) => Promise<void>;
 
-  checkoutDetails: CheckoutType[];
+checkoutDetails: CheckoutType | null;
   loadingCheckoutDetails: boolean;
   errorCheckoutDetails: string | null;
   fetchCheckoutsDetailsById: (providerId: string) => Promise<void>;
@@ -72,7 +72,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   const [loadingCheckouts, setLoadingCheckouts] = useState<boolean>(false);
   const [errorCheckouts, setErrorCheckouts] = useState<string | null>(null);
 
-  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutType[]>([]);
+  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutType | null>(null);
   const [loadingCheckoutDetails, setLoadingCheckoutDetails] = useState<boolean>(false);
   const [errorCheckoutDetails, setErrorCheckoutDetails] = useState<string | null>(null);
 
@@ -98,7 +98,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       const res = await axios.get(
         `https://biz-booster.vercel.app/api/checkout/details/${id}`
       );
-      setCheckoutDetails(res.data?.data || []);
+      setCheckoutDetails(res.data?.data || null);
       setErrorCheckoutDetails(null);
     } catch (err) {
       console.error("Error fetching checkouts:", err);
