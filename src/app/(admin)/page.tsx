@@ -25,6 +25,12 @@ export default function Ecommerce() {
   const router = useRouter();
 
   useEffect(() => {
+  if (providerDetails === null) {
+    router.push("/signin");
+  }
+}, [providerDetails, router]);
+
+  useEffect(() => {
     // Check KYC status and open modal if incomplete
     if (providerDetails && providerDetails.kycCompleted === false) {
       openModal();
