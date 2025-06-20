@@ -10,8 +10,8 @@ import { useAuth } from "@/app/context/AuthContext";
 const identityOptions = [
   { value: "passport", label: "Passport" },
   { value: "driving_license", label: "Driving License" },
-  { value: "nid", label: "NID" },
-  { value: "trade_license", label: "Trade License" },
+  { value: "addharcard", label: "AddarCard" },
+  { value: "pancard", label: "PanCard" },
 ];
 
 export default function AddServiceManPage() {
