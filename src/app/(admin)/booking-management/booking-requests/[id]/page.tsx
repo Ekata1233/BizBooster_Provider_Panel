@@ -11,7 +11,6 @@ import { useServiceMan } from '@/app/context/ServiceManContext';
 import { useAuth } from '@/app/context/AuthContext';
 import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
-import Button from '@/components/ui/button/Button';
 
 const BookingRequestDetails = () => {
   const [showAll, setShowAll] = useState(false);
@@ -30,7 +29,7 @@ const BookingRequestDetails = () => {
     loadingCheckoutDetails,
     errorCheckoutDetails,
     fetchCheckoutsDetailsById,
-    updateCheckoutById, loadingUpdate, errorUpdate
+    updateCheckoutById, loadingUpdate, 
   } = useCheckout();
 
   const {
