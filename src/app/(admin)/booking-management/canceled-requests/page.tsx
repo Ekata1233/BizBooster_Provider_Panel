@@ -8,6 +8,7 @@ import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import Link from 'next/link';
 
 const CanceledRequests = () => {
   const { provider } = useAuth();
@@ -122,12 +123,11 @@ const CanceledRequests = () => {
       accessor: 'action',
       render: (row: any) => (
         <div className="flex gap-2">
-          <button
-            onClick={() => alert(`Viewing booking ID: ${row.bookingId}`)}
-            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
-          >
-            <EyeIcon />
-          </button>
+          <Link href={`/booking-management/canceled-requests/${row._id}`} passHref>
+              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+                <EyeIcon />
+              </button>
+            </Link>
           <button
             onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
@@ -153,6 +153,7 @@ const CanceledRequests = () => {
     scheduleDate: checkout.createdAt, // Replace if you have it
     bookingDate: checkout.createdAt,
     orderStatus: checkout.orderStatus,
+     _id: checkout._id,
   }));
 
 

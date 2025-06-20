@@ -10,6 +10,28 @@ import { useAuth } from '@/app/context/AuthContext';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import Link from 'next/link';
 
+interface BookingRow {
+  _id: string;
+  bookingId: string;
+  serviceCustomer: string;
+  totalAmount: number;
+  paymentStatus: string;
+  scheduleDate?: string;
+  bookingDate: string;
+  orderStatus: string;
+}
+type CheckoutType = {
+  bookingId: string;
+  serviceCustomer: string;
+  totalAmount: number;
+  paymentStatus: string;
+  createdAt: string;
+  orderStatus: string;
+  isAccepted: boolean;
+  _id: string;
+};
+
+
 const AcceptedRequests = () => {
   const { provider } = useAuth();
   const {
@@ -33,9 +55,9 @@ const AcceptedRequests = () => {
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
 
   // Filter based on Booking ID
-  const filteredCheckouts = checkouts.filter((checkout) =>
-    checkout.bookingId?.toLowerCase().includes(search.toLowerCase())
-  );
+  // const filteredCheckouts = checkouts.filter((checkout) =>
+  //   checkout.bookingId?.toLowerCase().includes(search.toLowerCase())
+  // );
 
   const columns = [
     {
@@ -45,7 +67,7 @@ const AcceptedRequests = () => {
     {
       header: 'Customer Info',
       accessor: 'customerInfo',
-      render: (row: any) => {
+      render: (row: BookingRow) => {
         console.log("Customer Info Row:", row); // 👈 This will log the entire row object
         return (
           <div className="text-sm">
@@ -58,14 +80,14 @@ const AcceptedRequests = () => {
     {
       header: 'Total Amount',
       accessor: 'totalAmount',
-      render: (row: any) => (
+      render: (row: BookingRow) => (
         <span className="text-gray-800 font-semibold">₹ {row.totalAmount}</span>
       ),
     },
     {
       header: 'Payment Status',
       accessor: 'paymentStatus',
-      render: (row: any) => {
+      render: (row: BookingRow) => {
         const status = row.paymentStatus;
         const statusColor = status === 'paid'
           ? 'bg-green-100 text-green-700 border-green-300'
@@ -81,21 +103,21 @@ const AcceptedRequests = () => {
     {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
-      render: (row: any) => (
+      render: (row: BookingRow) => (
         <span>{row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A'}</span>
       ),
     },
     {
       header: 'Booking Date',
       accessor: 'bookingDate',
-      render: (row: any) => (
+      render: (row: BookingRow) => (
         <span>{new Date(row.bookingDate).toLocaleString()}</span>
       ),
     },
     {
       header: 'Status',
       accessor: 'orderStatus',
-      render: (row: any) => {
+      render: (row: BookingRow) => {
         let colorClass = '';
         switch (row.orderStatus) {
           case 'processing':
@@ -121,13 +143,13 @@ const AcceptedRequests = () => {
     {
       header: 'Action',
       accessor: 'action',
-      render: (row: any) => (
+      render: (row: BookingRow) => (
         <div className="flex gap-2">
-          <Link href={`/customer-management/user/user-list/${row.id}`} passHref>
-            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-              <EyeIcon />
-            </button>
-          </Link>
+          <Link href={`/booking-management/accepted-requests/${row._id}`} passHref>
+              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+                <EyeIcon />
+              </button>
+            </Link>
           {/* <button
             onClick={() => alert(`Viewing booking ID: ${row.bookingId}`)}
             className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
@@ -151,15 +173,19 @@ const AcceptedRequests = () => {
     },
   ];
 
-  const data = checkouts.filter((checkout: any) => checkout.isAccepted === true).map((checkout: any) => ({
+  const data = checkouts
+  .filter((checkout: CheckoutType) => checkout.isAccepted === true)
+  .map((checkout: CheckoutType) => ({
     bookingId: checkout.bookingId,
     serviceCustomer: checkout.serviceCustomer,
     totalAmount: checkout.totalAmount,
     paymentStatus: checkout.paymentStatus,
-    scheduleDate: checkout.createdAt, // Replace if you have it
+    scheduleDate: checkout.createdAt,
     bookingDate: checkout.createdAt,
     orderStatus: checkout.orderStatus,
+    _id: checkout._id,
   }));
+
 
 
   return (

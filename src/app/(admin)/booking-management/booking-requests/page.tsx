@@ -149,7 +149,7 @@ const BookingRequests = () => {
     }
   ];
 
-  const data = checkouts.map((checkout: any) => ({
+  const data = checkouts.filter((checkout: any) => checkout.isAccepted === false).map((checkout: any) => ({
     bookingId: checkout.bookingId,
     serviceCustomer: checkout.serviceCustomer,
     totalAmount: checkout.totalAmount,
@@ -159,8 +159,6 @@ const BookingRequests = () => {
     orderStatus: checkout.orderStatus,
     _id: checkout._id,
   }));
-
-
 
   return (
     <div>
