@@ -138,16 +138,16 @@ const CanceledBookingDetails = () => {
                     <tr>
                       <th className="border px-4 py-2 text-left">Service</th>
                       <th className="border px-4 py-2 text-left">Price</th>
-                      <th className="border px-4 py-2 text-left">Discount</th>
+                      <th className="border px-4 py-2 text-left">Discount Price</th>
                       <th className="border px-4 py-2 text-left">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails.subtotal}</td>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">Subtotal</td>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
                     </tr>
                   </tbody>
                 </table>

@@ -133,21 +133,21 @@ const CustomizedBookingDetails = () => {
               {/* Booking Table */}
               <div className="my-5">
                 <h3 className="text-md font-semibold text-gray-700 mb-2">Booking Summary</h3>
-                <table className="w-full table-auto border border-gray-200 text-sm">
+                 <table className="w-full table-auto border border-gray-200 text-sm">
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="border px-4 py-2 text-left">Service</th>
                       <th className="border px-4 py-2 text-left">Price</th>
-                      <th className="border px-4 py-2 text-left">Discount</th>
+                      <th className="border px-4 py-2 text-left">Discount Price</th>
                       <th className="border px-4 py-2 text-left">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails.subtotal}</td>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">Subtotal</td>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
                     </tr>
                   </tbody>
                 </table>

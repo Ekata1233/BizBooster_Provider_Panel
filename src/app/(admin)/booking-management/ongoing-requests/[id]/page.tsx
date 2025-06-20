@@ -138,16 +138,16 @@ const OngoingBookingDetails = () => {
                     <tr>
                       <th className="border px-4 py-2 text-left">Service</th>
                       <th className="border px-4 py-2 text-left">Price</th>
-                      <th className="border px-4 py-2 text-left">Discount</th>
+                      <th className="border px-4 py-2 text-left">Discount Price</th>
                       <th className="border px-4 py-2 text-left">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails.subtotal}</td>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">Subtotal</td>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -181,14 +181,7 @@ const OngoingBookingDetails = () => {
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
-                <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
-                  <button className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200">
-                    Ignore
-                  </button>
-                  <button className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200">
-                    Accept
-                  </button>
-                </div>
+                
               </div>
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />

@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
@@ -11,7 +10,7 @@ import { useServiceMan } from '@/app/context/ServiceManContext';
 import { useAuth } from '@/app/context/AuthContext';
 import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
-import Button from '@/components/ui/button/Button';
+import BookingStatus from '@/components/booking-management/BookingStatus';
 
 const AcceptedBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);
@@ -30,6 +29,8 @@ const AcceptedBookingDetails = () => {
     errorCheckoutDetails,
     fetchCheckoutsDetailsById,
   } = useCheckout();
+
+  console.log("checkout details : ", checkoutDetails)
 
   const {
     fetchServiceCustomer,
@@ -129,7 +130,7 @@ const AcceptedBookingDetails = () => {
                   </p>
                 </div>
               </div>
-
+              <hr className="my-4 border-gray-300 dark:border-gray-700" />
               {/* Booking Table */}
               <div className="my-5">
                 <h3 className="text-md font-semibold text-gray-700 mb-2">Booking Summary</h3>
@@ -138,16 +139,16 @@ const AcceptedBookingDetails = () => {
                     <tr>
                       <th className="border px-4 py-2 text-left">Service</th>
                       <th className="border px-4 py-2 text-left">Price</th>
-                      <th className="border px-4 py-2 text-left">Discount</th>
+                      <th className="border px-4 py-2 text-left">Discount Price</th>
                       <th className="border px-4 py-2 text-left">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails.subtotal}</td>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">Subtotal</td>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -180,15 +181,10 @@ const AcceptedBookingDetails = () => {
               <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
+                <button className="bg-red-500 text-white px-7  py-2 rounded-md hover:bg-red-600 transition duration-200">
+                  Update Status
+                </button>
 
-                <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
-                  <button className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200">
-                    Ignore
-                  </button>
-                  <button className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200">
-                    Accept
-                  </button>
-                </div>
               </div>
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
@@ -224,6 +220,8 @@ const AcceptedBookingDetails = () => {
                   </p>
                 </div>
               </div>
+              <hr className="my-4 border-gray-300 dark:border-gray-700" />
+              <BookingStatus checkout={checkoutDetails} />
             </div>
 
             {/* RIGHT SIDE */}

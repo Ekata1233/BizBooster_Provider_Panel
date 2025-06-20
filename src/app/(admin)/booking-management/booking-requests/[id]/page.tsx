@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { useCheckout } from '@/app/context/CheckoutContext';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useServiceCustomer } from '@/app/context/ServiceCustomerContext';
 import { useServiceMan } from '@/app/context/ServiceManContext';
@@ -18,6 +18,7 @@ const BookingRequestDetails = () => {
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
 
   const { provider } = useAuth();
+  const router = useRouter();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
 
@@ -29,6 +30,7 @@ const BookingRequestDetails = () => {
     loadingCheckoutDetails,
     errorCheckoutDetails,
     fetchCheckoutsDetailsById,
+    updateCheckoutById, loadingUpdate, errorUpdate
   } = useCheckout();
 
   const {
@@ -57,6 +59,27 @@ const BookingRequestDetails = () => {
     }
   }, [provider]);
 
+  const handleAccept = async () => {
+    if (!checkoutDetails?._id) {
+      console.error("No checkout ID found");
+      return;
+    }
+
+    try {
+      await updateCheckoutById(checkoutDetails._id, {
+        isAccepted: true,
+        acceptedDate: new Date(), // Current timestamp
+      });
+
+      alert("Booking Accepted Successfully");
+      router.push("/booking-management/accepted-requests");
+    } catch (error) {
+      alert("Failed to accept booking");
+      console.error("Error while accepting booking:", error);
+    }
+  };
+
+
   const getStatusLabel = () => {
     if (checkoutDetails?.isCompleted) return 'Done';
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
@@ -66,6 +89,8 @@ const BookingRequestDetails = () => {
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
+
+  console.log("checkout details : ", checkoutDetails)
 
   return (
     <div>
@@ -138,16 +163,16 @@ const BookingRequestDetails = () => {
                     <tr>
                       <th className="border px-4 py-2 text-left">Service</th>
                       <th className="border px-4 py-2 text-left">Price</th>
-                      <th className="border px-4 py-2 text-left">Discount</th>
+                      <th className="border px-4 py-2 text-left">Discount Price</th>
                       <th className="border px-4 py-2 text-left">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails.subtotal}</td>
-                      <td className="border px-4 py-2">Subtotal</td>
-                      <td className="border px-4 py-2">Subtotal</td>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
+                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -185,14 +210,19 @@ const BookingRequestDetails = () => {
                   <button className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200">
                     Ignore
                   </button>
-                  <button className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200">
-                    Accept
+                  <button
+                    onClick={handleAccept}
+                    disabled={loadingUpdate}
+                    className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+                  >
+                    {loadingUpdate ? "Accepting..." : "Accept"}
                   </button>
                 </div>
               </div>
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
+                checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}

@@ -123,7 +123,7 @@ const OngoingRequests = () => {
       accessor: 'action',
       render: (row: any) => (
         <div className="flex gap-2">
-          <Link href={`/booking-management/booking-requests/${row._id}`} passHref>
+          <Link href={`/booking-management/ongoing-requests/${row._id}`} passHref>
               <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
                 <EyeIcon />
               </button>

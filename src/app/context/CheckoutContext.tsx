@@ -7,11 +7,19 @@ import React, {
 } from "react";
 import axios from "axios";
 
+export interface ServiceType {
+  _id: string;
+  serviceName: string;
+  price: number;
+  discount: number;
+  discountedPrice: number;
+}
+
 export interface CheckoutType {
   _id: string;
   bookingId: string;
   user: string;
-  service: string;
+  service: ServiceType;
   serviceCustomer: string;
   provider: string;
   coupon?: string;
@@ -36,6 +44,7 @@ export interface CheckoutType {
   notes?: string;
   isVerified: boolean;
   isAccepted: boolean;
+  acceptedDate: Date;
   isCompleted: boolean;
   isCanceled: boolean;
   isDeleted: boolean;
@@ -51,10 +60,14 @@ interface CheckoutContextType {
   errorCheckouts: string | null;
   fetchCheckoutsByProviderId: (providerId: string) => Promise<void>;
 
-checkoutDetails: CheckoutType | null;
+  checkoutDetails: CheckoutType | null;
   loadingCheckoutDetails: boolean;
   errorCheckoutDetails: string | null;
   fetchCheckoutsDetailsById: (providerId: string) => Promise<void>;
+
+  updateCheckoutById: (id: string, data: Partial<CheckoutType>) => Promise<void>;
+  loadingUpdate: boolean;
+  errorUpdate: string | null;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(
@@ -75,6 +88,9 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   const [checkoutDetails, setCheckoutDetails] = useState<CheckoutType | null>(null);
   const [loadingCheckoutDetails, setLoadingCheckoutDetails] = useState<boolean>(false);
   const [errorCheckoutDetails, setErrorCheckoutDetails] = useState<string | null>(null);
+
+  const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
+  const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
 
   const fetchCheckoutsByProviderId = async (providerId: string) => {
     setLoadingCheckouts(true);
@@ -108,6 +124,21 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     }
   };
 
+
+  const updateCheckoutById = async (id: string, data: Partial<CheckoutType>) => {
+    setLoadingUpdate(true);
+    setErrorUpdate(null);
+    try {
+      const res = await axios.put(`https://biz-booster.vercel.app/api/checkout/${id}`, data);
+      setCheckoutDetails(res.data?.data || null); // Update local detail if relevant
+      
+    } catch (err: any) {
+      console.error("Error updating checkout:", err);
+      setErrorUpdate(err.response?.data?.message || "Failed to update checkout.");
+    } finally {
+      setLoadingUpdate(false);
+    }
+  };
   return (
     <CheckoutContext.Provider
       value={{
@@ -120,6 +151,10 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
         loadingCheckoutDetails,
         errorCheckoutDetails,
         fetchCheckoutsDetailsById,
+
+        updateCheckoutById,
+        loadingUpdate,
+        errorUpdate,
       }}
     >
       {children}
