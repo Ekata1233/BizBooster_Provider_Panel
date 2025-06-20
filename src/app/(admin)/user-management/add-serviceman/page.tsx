@@ -19,6 +19,7 @@ export default function AddServiceManPage() {
   console.log("provider details : ", provider)
   const providerId = provider?._id;
   const { addServiceMan, loading, error } = useServiceMan();
+console.log(providerId);
 
   const [formState, setFormState] = useState({
     name: "",
