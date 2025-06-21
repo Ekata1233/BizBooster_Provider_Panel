@@ -1,37 +1,41 @@
-import { CheckCircleIcon } from '@/icons'
-import React from 'react'
+import { LeadType, useLead } from "@/app/context/LeadContext";
+import { CheckCircleIcon } from "@/icons";
+import React, { useEffect, useState } from "react";
 
-const steps = [
-    {
-        title: "Booking Placed",
-        time: "22-Apr-2025 10:35am",
-        by: "Anika",
-    },
-    {
-        title: "Accepted",
-        time: "22-Apr-2025 10:42am",
-        by: "Ellison Cardenas Trading",
-    },
-    {
-        title: "Ongoing",
-        time: "22-Apr-2025 10:43am",
-        by: "Ellison Cardenas Trading",
-    },
-    {
-        title: "Completed",
-        time: "22-Apr-2025 10:43am",
-        by: "Ellison Cardenas Trading",
-    },
-];
+const BookingStatus = ({ checkout }: any) => {
+    const { getLeadByCheckoutId } = useLead();
+    const [lead, setLead] = useState<LeadType | null>(null);
 
-const BookingStatus = ({checkout}:any) => {
-    console.log("checkout details in status : ", checkout)
+    console.log("lead : ", lead);
+
+    useEffect(() => {
+        const fetchLead = async () => {
+            if (!checkout?._id) return;
+            const fetchedLead = await getLeadByCheckoutId(checkout._id);
+            setLead(fetchedLead);
+        };
+
+        fetchLead();
+    }, [checkout]);
+
+    const steps = lead?.leads?.map((entry) => ({
+        title: entry.statusType,
+        time: new Date(entry.createdAt).toLocaleString("en-IN", {
+            dateStyle: "medium",
+            timeStyle: "short",
+        }),
+        description: entry.description,
+        zoomLink: entry.zoomLink,
+        paymentLink: entry.paymentLink,
+        paymentType: entry.paymentType,
+    })) ?? [];
+
     return (
         <div>
             <div className="relative ml-6 mt-6">
                 {steps.map((step, index) => (
                     <div key={index} className="relative pl-10">
-                        {/* Vertical line between steps (except last) */}
+                        {/* Vertical line */}
                         {index !== steps.length - 1 && (
                             <span className="absolute left-4.5 top-8 w-px h-full bg-green-500"></span>
                         )}
@@ -47,12 +51,38 @@ const BookingStatus = ({checkout}:any) => {
                                 {step.title}
                             </h6>
                             <p className="text-sm text-gray-500">{step.time}</p>
+                            {step.description && (
+                                <p className="text-sm text-gray-400 italic">{step.description}</p>
+                            )}
+                            <div className="ml-5">
+                                {step.zoomLink && (
+                                    <a
+                                        href={step.zoomLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 underline text-sm block"
+                                    >
+                                        Zoom Link
+                                    </a>
+                                )}
+                                {step.paymentLink && (
+                                    <a
+                                        href={step.paymentLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-green-600 underline text-sm block"
+                                    >
+                                        Payment Link ({step.paymentType})
+                                    </a>
+                                )}
+                            </div>
                         </div>
+
                     </div>
                 ))}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default BookingStatus
+export default BookingStatus;

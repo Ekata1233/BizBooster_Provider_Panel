@@ -9,10 +9,6 @@ import React, {
 } from "react";
 import axios from "axios";
 
-// =======================
-// Types
-// =======================
-
 export interface IStatus {
   statusType: string;
   description?: string;
@@ -40,11 +36,8 @@ interface LeadContextType {
   errorLeads: string | null;
   refetchLeads: () => void;
   createLead: (data: FormData) => Promise<void>;
+   getLeadByCheckoutId: (checkoutId: string) => Promise<LeadType | null>;
 }
-
-// =======================
-// Context Setup
-// =======================
 
 const LeadContext = createContext<LeadContextType | undefined>(undefined);
 
@@ -57,12 +50,11 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   const [loadingLeads, setLoadingLeads] = useState<boolean>(false);
   const [errorLeads, setErrorLeads] = useState<string | null>(null);
 
-  // Fetch existing leads - optional, based on GET endpoint (if exists)
   const fetchLeads = async () => {
     setLoadingLeads(true);
     try {
       const res = await axios.get("https://biz-booster.vercel.app/api/leads");
-      setLeads(res.data?.data || []);
+      setLeads(res.data || []);
       setErrorLeads(null);
     } catch (err) {
       console.error("Failed to fetch leads:", err);
@@ -72,7 +64,19 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
     }
   };
 
-  // POST a new lead
+  const getLeadByCheckoutId = async (checkoutId: string): Promise<LeadType | null> => {
+  try {
+    const res = await axios.get(
+      `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
+    );
+    return res.data?.data || null;
+  } catch (err) {
+    console.error("Failed to fetch lead by checkoutId:", err);
+    return null;
+  }
+};
+
+
   const createLead = async (formData: FormData) => {
     setLoadingLeads(true);
     try {
@@ -85,7 +89,6 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
           },
         }
       );
-      // Optionally add the new lead to local state
       setLeads((prev) => [...prev, res.data]);
       setErrorLeads(null);
     } catch (err) {
@@ -96,7 +99,6 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
     }
   };
 
-  // Initial fetch (optional if GET is supported)
   useEffect(() => {
     fetchLeads();
   }, []);
@@ -109,16 +111,13 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
         errorLeads,
         refetchLeads: fetchLeads,
         createLead,
+         getLeadByCheckoutId,
       }}
     >
       {children}
     </LeadContext.Provider>
   );
 };
-
-// =======================
-// Hook to use LeadContext
-// =======================
 
 export const useLead = (): LeadContextType => {
   const context = useContext(LeadContext);

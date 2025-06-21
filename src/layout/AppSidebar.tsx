@@ -41,6 +41,7 @@ const bookingItems: NavItem[] = [
     icon: <PlugInIcon />,
     name: "Bookings",
     subItems: [
+      { name: "All Bookings", path: "/booking-management/all-bookings", pro: false },
       { name: "Customized Requests", path: "/booking-management/customized-requests", pro: false },
       { name: "Booking Requests", path: "/booking-management/booking-requests", pro: false },
       { name: "Accepted Requests", path: "/booking-management/accepted-requests", pro: false },

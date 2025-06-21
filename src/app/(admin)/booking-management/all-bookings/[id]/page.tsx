@@ -15,7 +15,7 @@ import { useModal } from '@/hooks/useModal';
 import { useLead } from '@/app/context/LeadContext';
 import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
 
-const AcceptedBookingDetails = () => {
+const AllBookingsDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
   const { isOpen, openModal, closeModal } = useModal();
@@ -75,7 +75,7 @@ const AcceptedBookingDetails = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Accepted Booking Details" />
+      <PageBreadcrumb pageTitle="All Bookings Details" />
 
       <div className="space-y-6">
         {/* Booking Summary Header */}
@@ -278,4 +278,4 @@ const AcceptedBookingDetails = () => {
   );
 };
 
-export default AcceptedBookingDetails;
+export default AllBookingsDetails;
