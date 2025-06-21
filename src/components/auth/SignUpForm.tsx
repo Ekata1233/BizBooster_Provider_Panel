@@ -477,7 +477,7 @@ const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) 
                       All steps completed!
                     </h2>
                     <p className="text-gray-600 mt-2">
-                      🎉 All steps completed — your account is under review. We'll notify
+                      🎉 All steps completed — your account is under review. We&apos;ll notify
                       you once everything is verified.
                     </p>
                   </div>
