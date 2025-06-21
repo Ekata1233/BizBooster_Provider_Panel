@@ -25,10 +25,12 @@ export default function SignInForm() {
     setLoading(true);
     await login(email, password);
     router.push("/");
-  } catch (err: any) {
-    console.error("Login failed:", err);
-    alert(err.message || "Login failed. Please check your credentials.");
-  } finally {
+  }catch (err: unknown) {
+  console.error("Login failed:", err);
+  const error = err as { message?: string };
+  alert(error.message || "Login failed. Please check your credentials.");
+}
+finally {
     setLoading(false);
   }
 };

@@ -55,6 +55,7 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [price, setPrice] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+    console.log(selectedServiceId);
 
     const [localServices, setLocalServices] = useState<Service[]>(services);
     console.log("services data : ", services)
@@ -77,7 +78,7 @@ const AllServices: React.FC<AllServicesProps> = ({
 
 
     const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>, selectedServiceId?: string,) => {
-  
+
         e.preventDefault();
         if (!selectedServiceId || !provider?._id) return;
 
@@ -153,8 +154,9 @@ const AllServices: React.FC<AllServicesProps> = ({
                         console.log("service Id : ", service._id)
                         console.log("providerSubscribedIds : ", providerSubscribedIds)
                         const isAlreadySubscribed = providerSubscribedIds.some(
-                            (subscribedService) => subscribedService._id === service._id
+                            (subscribedService) => (subscribedService as unknown as { _id: string })._id === service._id
                         );
+
 
 
                         console.log("is alredy subscribed : ", isAlreadySubscribed)

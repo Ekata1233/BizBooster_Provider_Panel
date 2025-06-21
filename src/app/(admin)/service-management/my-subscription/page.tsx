@@ -22,10 +22,9 @@ interface ProviderPrice {
   providerPrice: number;
   // …other fields you actually use can stay optional
 }
-interface ProviderDetails {
-  subscribedServices: { _id: string }[];
-  // ... other fields
-}
+// interface ProviderDetails {
+//   subscribedServices: { _id: string }[];
+// }
 
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();

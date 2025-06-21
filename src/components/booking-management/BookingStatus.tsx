@@ -1,6 +1,12 @@
 import { CheckCircleIcon } from '@/icons'
 import React from 'react'
-
+interface Checkout {
+  // Add actual fields if you use them in the future
+  [key: string]: unknown;
+}
+interface BookingStatusProps {
+  checkout: Checkout;
+}
 const steps = [
     {
         title: "Booking Placed",
@@ -24,7 +30,7 @@ const steps = [
     },
 ];
 
-const BookingStatus = ({checkout}:any) => {
+const BookingStatus = ({checkout}:BookingStatusProps) => {
     console.log("checkout details in status : ", checkout)
     return (
         <div>
