@@ -14,7 +14,7 @@ type ServiceMan = {
 };
 
 type ServiceMenListCardProps = {
-  checkoutId: string;
+  checkoutId?: string;
   visibleServiceMen: ServiceMan[]; // ✅ Fix is here
   totalServiceMen: number;
   showAll: boolean;

@@ -8,7 +8,7 @@ export interface BusinessInformation {
 }
 
 export interface ServiceMan {
-  _id?: string;
+  _id: string;
   name: string;
   lastName: string;
   phoneNo: string;
