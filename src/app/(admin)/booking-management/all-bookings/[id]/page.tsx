@@ -14,10 +14,19 @@ import BookingStatus from '@/components/booking-management/BookingStatus';
 import { useModal } from '@/hooks/useModal';
 import { useLead } from '@/app/context/LeadContext';
 import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
+import { Modal } from '@/components/ui/modal';
 
 const AllBookingsDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editPrice, setEditPrice] = useState("");
+  const [additionalFields, setAdditionalFields] = useState<
+    { serviceName: string; price: string; discount: string; total: string }[]
+  >([]);
+
+
   const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
@@ -62,6 +71,38 @@ const AllBookingsDetails = () => {
     }
   }, [provider]);
 
+ const handleFieldChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    const updatedFields = [...additionalFields];
+    updatedFields[index][field as keyof typeof updatedFields[0]] = value;
+
+    const price = parseFloat(updatedFields[index].price) || 0;
+    const discount = parseFloat(updatedFields[index].discount) || 0;
+    updatedFields[index].total = (price - discount).toString();
+
+    setAdditionalFields(updatedFields);
+  };
+
+  const addAdditionalRequirement = () => {
+    setAdditionalFields([
+      ...additionalFields,
+      { serviceName: "", price: "", discount: "", total: "" },
+    ]);
+  };
+
+  const handleUpdate = () => {
+    const data = {
+      editPrice,
+      additionalRequirements: additionalFields,
+    };
+    console.log("Updating with:", data);
+    setIsModalOpen(false);
+  };
+
+
   const getStatusLabel = () => {
     if (checkoutDetails?.isCompleted) return 'Done';
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
@@ -91,7 +132,9 @@ const AllBookingsDetails = () => {
             </div>
 
             <div>
-              <button className="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 mx-2">
+              <button className="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 mx-2"
+              onClick={() => setIsModalOpen(true)}
+              >
               Edit Lead
             </button>
             <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
@@ -249,6 +292,117 @@ const AllBookingsDetails = () => {
           </div>
         )}
       </div>
+         {isModalOpen && (
+  <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-[700px] m-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-4">Edit Lead</h2>
+
+        {/* Edit Price */}
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Edit Price:
+          <input
+            type="text"
+            value={editPrice}
+            onChange={(e) => setEditPrice(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1"
+          />
+        </label>
+
+        {/* Add First Additional Requirements Button */}
+        {additionalFields.length === 0 && (
+          <button
+            onClick={addAdditionalRequirement}
+            className="mt-4 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
+          >
+            + Add Additional Requirements
+          </button>
+        )}
+
+        {/* Scrollable Fields */}
+        <div className="max-h-[50vh] overflow-y-auto pr-1">
+          {additionalFields.map((field, index) => (
+            <div
+              key={index}
+              className="mt-4 border p-3 rounded-md bg-gray-50"
+            >
+              <label className="block text-sm font-medium">
+                Service Name:
+                <input
+                  type="text"
+                  value={field.serviceName}
+                  onChange={(e) =>
+                    handleFieldChange(index, "serviceName", e.target.value)
+                  }
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
+                />
+              </label>
+
+              <label className="block text-sm font-medium mt-2">
+                Price:
+                <input
+                  type="number"
+                  value={field.price}
+                  onChange={(e) =>
+                    handleFieldChange(index, "price", e.target.value)
+                  }
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
+                />
+              </label>
+
+              <label className="block text-sm font-medium mt-2">
+                Discount:
+                <input
+                  type="number"
+                  value={field.discount}
+                  onChange={(e) =>
+                    handleFieldChange(index, "discount", e.target.value)
+                  }
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
+                />
+              </label>
+
+              <label className="block text-sm font-medium mt-2">
+                Total:
+                <input
+                  type="text"
+                  value={field.total}
+                  disabled
+                  className="w-full p-2 border border-gray-300 rounded mt-1 bg-gray-100"
+                />
+              </label>
+
+              {index === additionalFields.length - 1 && (
+                <button
+                  onClick={addAdditionalRequirement}
+                  className="mt-4 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
+                >
+                  + Add Additional Requirements
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end mt-6">
+          <button
+            className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded mr-2"
+            onClick={() => setIsModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpdate}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded"
+          >
+            Update
+          </button>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}
 
       <div>
         <UpdateStatusModal
