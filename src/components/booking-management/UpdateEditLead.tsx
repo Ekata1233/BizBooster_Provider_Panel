@@ -9,9 +9,9 @@ interface EditLeadPageProps {
 
 export default function EditLeadPage({ isOpen, closeModal }: EditLeadPageProps) {
   const [editPrice, setEditPrice] = useState("");
-  const [additionalFields, setAdditionalFields] = useState([
-    { serviceName: "", price: "", discount: "", total: "" },
-  ]);
+  const [additionalFields, setAdditionalFields] = useState<
+    { serviceName: string; price: string; discount: string; total: string }[]
+  >([]);
 
   const addAdditionalRequirement = () => {
     setAdditionalFields([
@@ -22,7 +22,7 @@ export default function EditLeadPage({ isOpen, closeModal }: EditLeadPageProps) 
 
   const handleFieldChange = (
     index: number,
-    field: string,
+    field: "serviceName" | "price" | "discount" | "total",
     value: string
   ) => {
     const newFields = [...additionalFields];
@@ -58,7 +58,7 @@ export default function EditLeadPage({ isOpen, closeModal }: EditLeadPageProps) 
           />
         </div>
 
-        {/* Additional Fields */}
+        {/* Show Add Button only if no fields yet */}
         {additionalFields.length === 0 && (
           <button
             onClick={addAdditionalRequirement}
@@ -68,68 +68,71 @@ export default function EditLeadPage({ isOpen, closeModal }: EditLeadPageProps) 
           </button>
         )}
 
-        <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
-          {additionalFields.map((field, index) => (
-            <div key={index} className="p-4 border rounded-md bg-gray-50">
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                  Service Name
-                </label>
-                <input
-                  type="text"
-                  value={field.serviceName}
-                  onChange={(e) => handleFieldChange(index, "serviceName", e.target.value)}
-                  className="w-full p-2 border rounded-md"
-                />
-              </div>
+        {/* Additional Fields */}
+        {additionalFields.length > 0 && (
+          <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 mt-4">
+            {additionalFields.map((field, index) => (
+              <div key={index} className="p-4 border rounded-md bg-gray-50">
+                <div className="mb-2">
+                  <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                    Service Name
+                  </label>
+                  <input
+                    type="text"
+                    value={field.serviceName}
+                    onChange={(e) => handleFieldChange(index, "serviceName", e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  />
+                </div>
 
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                  Price
-                </label>
-                <input
-                  type="number"
-                  value={field.price}
-                  onChange={(e) => handleFieldChange(index, "price", e.target.value)}
-                  className="w-full p-2 border rounded-md"
-                />
-              </div>
+                <div className="mb-2">
+                  <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                    Price
+                  </label>
+                  <input
+                    type="number"
+                    value={field.price}
+                    onChange={(e) => handleFieldChange(index, "price", e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  />
+                </div>
 
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                  Discount
-                </label>
-                <input
-                  type="number"
-                  value={field.discount}
-                  onChange={(e) => handleFieldChange(index, "discount", e.target.value)}
-                  className="w-full p-2 border rounded-md"
-                />
-              </div>
+                <div className="mb-2">
+                  <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                    Discount
+                  </label>
+                  <input
+                    type="number"
+                    value={field.discount}
+                    onChange={(e) => handleFieldChange(index, "discount", e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  />
+                </div>
 
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                  Total
-                </label>
-                <input
-                  type="text"
-                  value={field.total}
-                  disabled
-                  className="w-full p-2 border rounded-md bg-gray-100"
-                />
-              </div>
+                <div className="mb-2">
+                  <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                    Total
+                  </label>
+                  <input
+                    type="text"
+                    value={field.total}
+                    disabled
+                    className="w-full p-2 border rounded-md bg-gray-100"
+                  />
+                </div>
 
-              {index === additionalFields.length - 1 && (
-                <button
-                  onClick={addAdditionalRequirement}
-                  className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
-                >
-                  + Add Additional Requirements
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+                {index === additionalFields.length - 1 && (
+                  <button
+                    onClick={addAdditionalRequirement}
+                    className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
+                  >
+                    + Add Additional Requirements
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex justify-end mt-6">
