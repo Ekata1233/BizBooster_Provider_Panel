@@ -8,6 +8,7 @@ const ServiceMenListCard = ({ checkoutId, visibleServiceMen, totalServiceMen, sh
     updateCheckoutById, loadingUpdate, errorUpdate
   } = useCheckout();
 
+
   const handleAssign = async () => {
     if (!checkoutId) {
       console.error("No checkout ID found");

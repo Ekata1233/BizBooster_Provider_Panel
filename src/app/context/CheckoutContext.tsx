@@ -45,6 +45,7 @@ export interface CheckoutType {
   isVerified: boolean;
   isAccepted: boolean;
   acceptedDate: Date;
+  serviceMan?: string;
   isCompleted: boolean;
   isCanceled: boolean;
   isDeleted: boolean;
