@@ -11,13 +11,17 @@ import { useAuth } from '@/app/context/AuthContext';
 import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
 import BookingStatus from '@/components/booking-management/BookingStatus';
+import { useModal } from '@/hooks/useModal';
+import { useLead } from '@/app/context/LeadContext';
+import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
 
 const AcceptedBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
-
+  const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
+  const { createLead, loadingLeads } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
 
   const params = useParams();
@@ -63,6 +67,7 @@ const AcceptedBookingDetails = () => {
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
     return 'Pending';
   };
+
 
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
@@ -181,7 +186,7 @@ const AcceptedBookingDetails = () => {
               <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
-                <button className="bg-red-500 text-white px-7  py-2 rounded-md hover:bg-red-600 transition duration-200">
+                <button onClick={openModal} className="bg-red-500 text-white px-7  py-2 rounded-md hover:bg-red-600 transition duration-200">
                   Update Status
                 </button>
 
@@ -189,6 +194,7 @@ const AcceptedBookingDetails = () => {
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
+                checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}
@@ -237,6 +243,31 @@ const AcceptedBookingDetails = () => {
           </div>
         )}
       </div>
+
+      <div>
+        <UpdateStatusModal
+          isOpen={isOpen}
+          onClose={closeModal}
+          onSubmit={async (formData) => {
+            try {
+              await createLead(formData);
+              alert("Lead status updated successfully.");
+              closeModal();
+            } catch (err) {
+              console.error("Failed to save lead:", err);
+              alert("Failed to save lead status.");
+            }
+          }}
+          checkoutId={checkoutDetails._id}
+          serviceCustomerId={checkoutDetails.serviceCustomer}
+          serviceManId={checkoutDetails.serviceMan ?? ""}
+          serviceId={checkoutDetails.service?._id ?? ""}
+          amount={checkoutDetails.discountedPrice?.toString() || "150"}
+          loading={loadingLeads}
+        />
+
+      </div>
+     
     </div>
   );
 };

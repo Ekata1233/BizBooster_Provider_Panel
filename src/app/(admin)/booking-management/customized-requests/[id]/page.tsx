@@ -192,6 +192,7 @@ const CustomizedBookingDetails = () => {
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
+              checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}

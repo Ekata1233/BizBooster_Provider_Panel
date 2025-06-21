@@ -1,6 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import axios from "axios";
+
+// =======================
+// Types
+// =======================
 
 export interface IStatus {
   statusType: string;
@@ -13,7 +24,7 @@ export interface IStatus {
   updatedAt?: string;
 }
 
-export interface ILead {
+export interface LeadType {
   _id?: string;
   checkout: string;
   serviceCustomer: string;
@@ -21,103 +32,98 @@ export interface ILead {
   service: string;
   amount: number;
   leads: IStatus[];
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 interface LeadContextType {
-  leads: ILead[];
-  loading: boolean;
-  fetchLeads: () => void;
-  createLead: (formData: FormData) => Promise<void>;
-  updateLeadStatus: (id: string, leadIndex: number, formData: FormData) => Promise<void>;
-  deleteLead: (id: string) => Promise<void>;
+  leads: LeadType[];
+  loadingLeads: boolean;
+  errorLeads: string | null;
+  refetchLeads: () => void;
+  createLead: (data: FormData) => Promise<void>;
 }
+
+// =======================
+// Context Setup
+// =======================
 
 const LeadContext = createContext<LeadContextType | undefined>(undefined);
 
-export const LeadProvider = ({ children }: { children: React.ReactNode }) => {
-  const [leads, setLeads] = useState<ILead[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+interface LeadProviderProps {
+  children: ReactNode;
+}
 
-  const API_BASE = "https://biz-booster.vercel.app/api/leads";
+export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
+  const [leads, setLeads] = useState<LeadType[]>([]);
+  const [loadingLeads, setLoadingLeads] = useState<boolean>(false);
+  const [errorLeads, setErrorLeads] = useState<string | null>(null);
 
+  // Fetch existing leads - optional, based on GET endpoint (if exists)
   const fetchLeads = async () => {
-    setLoading(true);
+    setLoadingLeads(true);
     try {
-      const res = await fetch(API_BASE);
-      const data = await res.json();
-      setLeads(data);
-    } catch (error) {
-      console.error("Failed to fetch leads:", error);
+      const res = await axios.get("https://biz-booster.vercel.app/api/leads");
+      setLeads(res.data?.data || []);
+      setErrorLeads(null);
+    } catch (err) {
+      console.error("Failed to fetch leads:", err);
+      setErrorLeads("Failed to fetch leads.");
     } finally {
-      setLoading(false);
+      setLoadingLeads(false);
     }
   };
 
+  // POST a new lead
   const createLead = async (formData: FormData) => {
+    setLoadingLeads(true);
     try {
-      const res = await fetch(API_BASE, {
-        method: "POST",
-        body: formData,
-      });
-      const newLead = await res.json();
-      setLeads((prev) => {
-        const exists = prev.find((l) => l._id === newLead._id);
-        if (exists) {
-          return prev.map((lead) =>
-            lead._id === newLead._id ? newLead : lead
-          );
+      const res = await axios.post(
+        "https://biz-booster.vercel.app/api/leads",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-        return [...prev, newLead];
-      });
+      );
+      // Optionally add the new lead to local state
+      setLeads((prev) => [...prev, res.data]);
+      setErrorLeads(null);
     } catch (err) {
       console.error("Failed to create lead:", err);
+      setErrorLeads("Failed to create lead.");
+    } finally {
+      setLoadingLeads(false);
     }
   };
 
-  const updateLeadStatus = async (id: string, leadIndex: number, formData: FormData) => {
-    try {
-      formData.append("leadIndex", leadIndex.toString());
-      const res = await fetch(`${API_BASE}/${id}`, {
-        method: "PUT",
-        body: formData,
-      });
-      const updatedLead = await res.json();
-      setLeads((prev) =>
-        prev.map((lead) => (lead._id === updatedLead.data._id ? updatedLead.data : lead))
-      );
-    } catch (err) {
-      console.error("Failed to update lead status:", err);
-    }
-  };
-
-  const deleteLead = async (id: string) => {
-    try {
-      await fetch(`${API_BASE}/${id}`, {
-        method: "DELETE",
-      });
-      setLeads((prev) => prev.filter((lead) => lead._id !== id));
-    } catch (err) {
-      console.error("Failed to delete lead:", err);
-    }
-  };
-
+  // Initial fetch (optional if GET is supported)
   useEffect(() => {
     fetchLeads();
   }, []);
 
   return (
     <LeadContext.Provider
-      value={{ leads, loading, fetchLeads, createLead, updateLeadStatus, deleteLead }}
+      value={{
+        leads,
+        loadingLeads,
+        errorLeads,
+        refetchLeads: fetchLeads,
+        createLead,
+      }}
     >
       {children}
     </LeadContext.Provider>
   );
 };
 
-export const useLead = () => {
+// =======================
+// Hook to use LeadContext
+// =======================
+
+export const useLead = (): LeadContextType => {
   const context = useContext(LeadContext);
-  if (!context) throw new Error("useLead must be used within a LeadProvider");
+  if (!context) {
+    throw new Error("useLead must be used within a LeadProvider");
+  }
   return context;
 };
