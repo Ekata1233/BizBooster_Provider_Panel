@@ -54,19 +54,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     formData.append("service", serviceId ?? "");
     formData.append("amount", amount);
 
-    const leadStatus: any = {
-      statusType,
-      description,
-    };
+    const leadStatus: Record<string, unknown> = {
+  statusType,
+  description,
+};
 
-    if (linkType === "zoom" && zoomLink.trim()) {
-      leadStatus.zoomLink = zoomLink;
-    }
+if (linkType === "zoom" && zoomLink.trim()) {
+  leadStatus.zoomLink = zoomLink;
+}
 
-    if (linkType === "payment") {
-      if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
-      if (paymentType) leadStatus.paymentType = paymentType;
-    }
+if (linkType === "payment") {
+  if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
+  if (paymentType) leadStatus.paymentType = paymentType;
+}
+
 
     formData.append("leads", JSON.stringify([leadStatus]));
 

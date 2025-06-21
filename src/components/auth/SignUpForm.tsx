@@ -4,10 +4,10 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useProvider } from '@/context/ProviderContext';
-import { CheckCircleIcon, ChevronLeftIcon } from '@/icons';
+import { ChevronLeftIcon } from '@/icons';
 import Link from 'next/link';
 import { Check, ArrowRightIcon, Clock } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/app/context/AuthContext';
 
@@ -76,7 +76,6 @@ export default function ProviderOnboardingPage() {
     updateStoreInfo,
     updateKycInfo,
   } = useProvider();
-  const [isChecked, setIsChecked] = useState(false);
   const router = useRouter();
   const { providerDetails } = useAuth();
 
@@ -124,7 +123,7 @@ export default function ProviderOnboardingPage() {
     fetchProvider();
   }, [providerId]);
 
-  const onRegister = async (data: any) => {
+  const onRegister = async (data: Record<string, FormDataEntryValue | Blob>) => {
     const fd = new FormData();
     Object.entries(data).forEach(([k, v]) => fd.append(k, v as string));
     await registerProvider(fd);
@@ -132,37 +131,41 @@ export default function ProviderOnboardingPage() {
     setActiveStep(2);
   };
 
-  const
-    onStoreSave = async (data: any) => {
-      const fd = new FormData();
-      Object.entries(data).forEach(([k, v]) => {
-        if (v instanceof FileList) {
-          Array.from(v).forEach((file) => fd.append(k, file));
-        } else {
-          fd.append(k, v as any);
-        }
-      });
-      await updateStoreInfo(fd);
-      storeForm.reset();
-      setActiveStep(3);
-    };
 
-  const onKycSave = async (data: any) => {
-    const fd = new FormData();
-    Object.entries(data).forEach(([k, v]) => {
-      if (v instanceof FileList) {
-        Array.from(v).forEach((file) => fd.append(k, file));
-      } else {
-        fd.append(k, v as any);
-      }
-    });
-    await updateKycInfo(fd);
-    kycForm.reset();
+const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+  const fd = new FormData();
+  Object.entries(data).forEach(([k, v]) => {
+    if (v instanceof FileList) {
+      Array.from(v).forEach((file) => fd.append(k, file));
+    } else {
+      fd.append(k, v);
+    }
+  });
+  await updateStoreInfo(fd);
+  storeForm.reset();
+  setActiveStep(3);
+};
 
-    setTimeout(() => {
-      router.push("/");
-    }, 3000);
-  };
+
+ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+  const fd = new FormData();
+
+  Object.entries(data).forEach(([k, v]) => {
+    if (v instanceof FileList) {
+      Array.from(v).forEach((file) => fd.append(k, file));
+    } else {
+      fd.append(k, v as string); // TypeScript understands v is FormDataEntryValue
+    }
+  });
+
+  await updateKycInfo(fd);
+  kycForm.reset();
+
+  setTimeout(() => {
+    router.push("/");
+  }, 3000);
+};
+
 
   const storeDone = !!provider?.storeInfoCompleted;
   const kycDone = !!provider?.kycCompleted;
@@ -474,7 +477,7 @@ export default function ProviderOnboardingPage() {
                       All steps completed!
                     </h2>
                     <p className="text-gray-600 mt-2">
-                      🎉 All steps completed — your account is under review. We'll notify
+                      🎉 All steps completed — your account is under review. We&apos;ll notify
                       you once everything is verified.
                     </p>
                   </div>

@@ -19,19 +19,28 @@ export default function SignInForm() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
     setLoading(true);
-    await login(email, password);
-    router.push("/");
-  } catch (err: any) {
+    await login(email, password); // make sure this finishes everything
+
+    // Optional: slight delay to ensure context updates
+    setTimeout(() => {
+      router.push("/");
+    }, 100); // 100ms delay
+  } catch (err: unknown) {
     console.error("Login failed:", err);
-    alert(err.message || "Login failed. Please check your credentials.");
+    if (err instanceof Error) {
+      alert(err.message);
+    } else {
+      alert("Login failed. Please check your credentials.");
+    }
   } finally {
     setLoading(false);
   }
 };
+
 
 
   return (

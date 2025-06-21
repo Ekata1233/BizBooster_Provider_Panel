@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState,  ReactNode } from 'react';
 
 export interface Provider {
   _id: string;
@@ -9,8 +9,8 @@ export interface Provider {
   email: string;
   phoneNo: string;
   password?: string;
-  storeInfo?: Record<string, any>;
-  kyc?: Record<string, any>;
+  storeInfo?: Record<string, unknown>;
+  kyc?: Record<string, unknown>;
   step1Completed?: boolean;
   storeInfoCompleted?: boolean;
   kycCompleted?: boolean;
@@ -25,7 +25,7 @@ type ProviderContextType = {
   updateStoreInfo: (data: FormData) => Promise<void>;
   updateKycInfo: (data: FormData) => Promise<void>;
   getProviderById: (id: string) => Promise<void>;
-  updateProvider: (id: string, updates: any) => Promise<void>;
+  updateProvider: (id: string, updates: string) => Promise<void>;
   deleteProvider: (id: string) => Promise<void>;
 };
 
@@ -60,9 +60,11 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
     }
       setProvider(data.provider);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
+    } catch (err: unknown) {
+  const error = err as Error;
+  setError(error.message);
+}
+ finally {
       setLoading(false);
     }
   };
@@ -83,8 +85,10 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       if (!res.ok) throw new Error(data.message || 'Store info update failed');
       setProvider(data.provider);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+        const error = err as Error;
+
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -106,8 +110,10 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       if (!res.ok) throw new Error(data.message || 'KYC update failed');
       setProvider(data.provider);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+        const error = err as Error;
+
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -122,15 +128,17 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       if (!res.ok) throw new Error(data.message || 'Failed to fetch provider');
       setProvider(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+        const error = err as Error;
+
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const updateProvider = async (id: string, updates: any) => {
-    setLoading(true);
+ const updateProvider = async (id: string, updates: string) => {
+  setLoading(true);
     try {
       const res = await fetch(`${BASE_URL}/${id}`, {
         method: 'PUT',
@@ -142,8 +150,10 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       if (!res.ok) throw new Error(data.message || 'Failed to update provider');
       setProvider(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+              const error = err as Error;
+
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -160,8 +170,10 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       if (!res.ok) throw new Error(data.message || 'Failed to delete provider');
       setProvider(null);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+              const error = err as Error;
+
+      setError(error.message);
     } finally {
       setLoading(false);
     }

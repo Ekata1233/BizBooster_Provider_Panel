@@ -4,7 +4,6 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "@/app/context/AuthContext";
-import Link from "next/link";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useRouter } from "next/navigation";
 

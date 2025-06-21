@@ -3,7 +3,7 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
+
   ReactNode,
 } from "react";
 import axios from "axios";
@@ -47,9 +47,11 @@ export const ServiceCustomerProvider = ({ children }: { children: ReactNode }) =
     try {
       const response = await axios.get(`https://biz-booster.vercel.app/api/service-customer/${id}`);
       setServiceCustomer(response.data.data);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Something went wrong");
-    } finally {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error?.response?.data?.message || "Something went wrong");
+    }
+    finally {
       setLoading(false);
     }
   };

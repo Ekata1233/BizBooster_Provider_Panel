@@ -11,7 +11,6 @@ import { useServiceMan } from '@/app/context/ServiceManContext';
 import { useAuth } from '@/app/context/AuthContext';
 import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
-import Button from '@/components/ui/button/Button';
 
 const CompletedBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);

@@ -1,11 +1,32 @@
 import { useCheckout } from '@/app/context/CheckoutContext';
 import React, { useState } from 'react'
 
-const ServiceMenListCard = ({ checkoutId, visibleServiceMen, totalServiceMen, showAll, setShowAll }: any) => {
+type ServiceMan = {
+  _id: string;
+  name: string;
+  lastName: string;
+  phoneNo: string;
+  generalImage?: string;
+  businessInformation?: {
+    identityType?: string;
+    identityNumber?: string;
+  };
+};
+
+type ServiceMenListCardProps = {
+  checkoutId?: string;
+  visibleServiceMen: ServiceMan[]; // ✅ Fix is here
+  totalServiceMen: number;
+  showAll: boolean;
+  setShowAll: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+
+const ServiceMenListCard = ({ checkoutId, visibleServiceMen, totalServiceMen, showAll, setShowAll }: ServiceMenListCardProps) => {
   const [selectedManId, setSelectedManId] = useState<string | null>(null);
   const {
-    checkoutDetails,
-    updateCheckoutById, loadingUpdate, errorUpdate
+    
+    updateCheckoutById, 
   } = useCheckout();
 
 
@@ -22,16 +43,19 @@ const ServiceMenListCard = ({ checkoutId, visibleServiceMen, totalServiceMen, sh
      try {
     const res = await updateCheckoutById(checkoutId, { serviceMan: selectedManId });
     alert("Service Man Assigned successfully");
+    console.log(res);
+    
   } catch (err) {
     alert("Service Man not assigned");
     console.error("Failed to assign service man", err);
   }
+
   };
   return (
     <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
       <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Service Man Information</h4>
       <hr className="my-4 border-gray-300 dark:border-gray-700" />
-      {visibleServiceMen.map((man: any, index: number) => (
+      {visibleServiceMen.map((man: ServiceMan, index: number) => (
         <div key={index} className="flex items-center gap-5 mb-6">
           <div>
             <input

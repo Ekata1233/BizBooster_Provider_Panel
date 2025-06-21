@@ -133,10 +133,13 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
       const res = await axios.put(`https://biz-booster.vercel.app/api/checkout/${id}`, data);
       setCheckoutDetails(res.data?.data || null); // Update local detail if relevant
       
-    } catch (err: any) {
-      console.error("Error updating checkout:", err);
-      setErrorUpdate(err.response?.data?.message || "Failed to update checkout.");
-    } finally {
+    }catch (err: unknown) {
+  const error = err as { response?: { data?: { message?: string } } };
+  console.error("Error updating checkout:", error);
+  setErrorUpdate(error.response?.data?.message || "Failed to update checkout.");
+}
+
+    finally {
       setLoadingUpdate(false);
     }
   };

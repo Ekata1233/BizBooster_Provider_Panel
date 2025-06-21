@@ -115,7 +115,7 @@ const OngoingRequests = () => {
     {
       header: 'Status',
       accessor: 'orderStatus',
-      render: (row: any) => {
+      render: (row: BookingRow) => {
         let colorClass = '';
         switch (row.orderStatus) {
           case 'processing':

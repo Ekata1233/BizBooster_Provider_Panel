@@ -18,32 +18,42 @@ interface ServiceManTableData {
   email: string;
   status: string;
 }
+interface ServiceMan {
+  _id?: string;
+  name?: string;
+  lastName?: string;
+  phoneNo?: string;
+  email?: string;
+  isDeleted?: boolean;
+}
+
 
 const ServicemanListPage = () => {
-  const {provider} = useAuth();
-  const { serviceMenByProvider,fetchServiceMenByProvider, loading, error, deleteServiceMan } = useServiceMan();
+  const { provider } = useAuth();
+  const { serviceMenByProvider, fetchServiceMenByProvider, loading, error, deleteServiceMan } = useServiceMan();
   const [tableData, setTableData] = useState<ServiceManTableData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState<ServiceManTableData[]>([]);
   const [activeTab, setActiveTab] = useState('all');
   const router = useRouter();
 
-    useEffect(() => {
-      if (provider?._id) {
-        fetchServiceMenByProvider(provider._id);
-      }
-    }, [provider]);
+  useEffect(() => {
+    if (provider?._id) {
+      fetchServiceMenByProvider(provider._id);
+    }
+  }, [provider]);
 
   useEffect(() => {
     if (serviceMenByProvider && serviceMenByProvider.length > 0) {
-      const formatted = serviceMenByProvider.map((man: any) => ({
-        id: man._id,
+      const formatted = serviceMenByProvider.map((man: ServiceMan) => ({
+        id: man._id || '',
         name: man.name || '—',
         lastName: man.lastName || '—',
         phoneNo: man.phoneNo || '—',
         email: man.email || '—',
-        status: man.isDeleted ? 'Inactive' : 'Active', // assuming isDeleted exists
+        status: man.isDeleted ? 'Inactive' : 'Active',
       }));
+
       setTableData(formatted);
     }
   }, [serviceMenByProvider]);
@@ -68,7 +78,6 @@ const ServicemanListPage = () => {
   };
 
   const handleEdit = (id: string) => router.push(`/admin/serviceman/edit/${id}`);
-  const handleView = (id: string) => router.push(`/admin/serviceman/view/${id}`);
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this serviceman?')) {
       await deleteServiceMan(id);
@@ -76,54 +85,54 @@ const ServicemanListPage = () => {
   };
 
   const columns = [
-  { header: 'Name', accessor: 'name' },
-  { header: 'Last Name', accessor: 'lastName' },
-  { header: 'Phone Number', accessor: 'phoneNo' },
-  { header: 'Email', accessor: 'email' },
-  {
-    header: 'Status',
-    accessor: 'status',
-    render: (row: ServiceManTableData) => {
-      const colorClass =
-        row.status === 'Inactive'
-          ? 'text-red-500 bg-red-100 border border-red-300'
-          : 'text-green-600 bg-green-100 border border-green-300';
+    { header: 'Name', accessor: 'name' },
+    { header: 'Last Name', accessor: 'lastName' },
+    { header: 'Phone Number', accessor: 'phoneNo' },
+    { header: 'Email', accessor: 'email' },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (row: ServiceManTableData) => {
+        const colorClass =
+          row.status === 'Inactive'
+            ? 'text-red-500 bg-red-100 border border-red-300'
+            : 'text-green-600 bg-green-100 border border-green-300';
 
-      return (
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${colorClass}`}
-        >
-          {row.status}
-        </span>
-      );
+        return (
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-semibold ${colorClass}`}
+          >
+            {row.status}
+          </span>
+        );
+      },
     },
-  },
-  {
-    header: 'Actions',
-    accessor: 'actions',
-    render: (row: ServiceManTableData) => (
-      <div className="flex gap-2">
-        <button
-          onClick={() => handleEdit(row.id)}
-          className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"
-        >
-          <PencilIcon />
-        </button>
-        <button
-          onClick={() => handleDelete(row.id)}
-          className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white hover:border-red-500"
-        >
-          <TrashBinIcon />
-        </button>
-        <Link href={`/admin/serviceman/view/${row.id}`} passHref>
-          <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-            <EyeIcon />
+    {
+      header: 'Actions',
+      accessor: 'actions',
+      render: (row: ServiceManTableData) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(row.id)}
+            className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"
+          >
+            <PencilIcon />
           </button>
-        </Link>
-      </div>
-    ),
-  },
-];
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white hover:border-red-500"
+          >
+            <TrashBinIcon />
+          </button>
+          <Link href={`/admin/serviceman/view/${row.id}`} passHref>
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
+        </div>
+      ),
+    },
+  ];
 
   if (loading) return <p className="py-10 text-center text-sm text-gray-500">Loading ServiceMen…</p>;
   if (error) return <p className="py-10 text-center text-red-500">{error}</p>;

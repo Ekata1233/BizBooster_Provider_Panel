@@ -16,6 +16,8 @@ export async function getUserIdFromRequest(req: NextRequest) {
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
     return decoded.id;
   } catch (e) {
+    console.log(e);
+    
     return null;
   }
 }
