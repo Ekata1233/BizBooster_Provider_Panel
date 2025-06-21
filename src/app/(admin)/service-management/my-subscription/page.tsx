@@ -22,6 +22,11 @@ interface ProviderPrice {
   providerPrice: number;
   // …other fields you actually use can stay optional
 }
+interface ProviderDetails {
+  subscribedServices: { _id: string }[];
+  // ... other fields
+}
+
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();
   const { providerDetails } = useAuth();
@@ -38,7 +43,11 @@ const MySubscriptionPage = () => {
       return;
     }
 
-    const idSet = new Set<string>(providerDetails.subscribedServices.map((s: any) => s._id));
+const idSet = new Set<string>(
+  (providerDetails.subscribedServices as unknown as { _id: string }[]).map((s) => s._id)
+);
+
+
 
     const flattened = services
       .filter((srv) => idSet.has(srv._id))

@@ -10,8 +10,8 @@ import { useAuth } from "@/app/context/AuthContext";
 const identityOptions = [
   { value: "passport", label: "Passport" },
   { value: "driving_license", label: "Driving License" },
-  { value: "nid", label: "NID" },
-  { value: "trade_license", label: "Trade License" },
+  { value: "addharcard", label: "AddarCard" },
+  { value: "pancard", label: "PanCard" },
 ];
 
 export default function AddServiceManPage() {
@@ -19,6 +19,7 @@ export default function AddServiceManPage() {
   console.log("provider details : ", provider)
   const providerId = provider?._id;
   const { addServiceMan, loading, error } = useServiceMan();
+console.log(providerId);
 
   const [formState, setFormState] = useState({
     name: "",
