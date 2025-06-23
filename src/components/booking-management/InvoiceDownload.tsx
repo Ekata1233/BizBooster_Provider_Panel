@@ -3,6 +3,7 @@
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import img from '../../../public/images/logo/final-logo.png'
 
 export default function InvoiceDownload() {
   const invoiceRef = useRef<HTMLDivElement>(null);
@@ -47,7 +48,7 @@ export default function InvoiceDownload() {
           padding: '30px',
           fontFamily: 'Arial, sans-serif',
           fontSize: '13px',
-          lineHeight: '1.6',
+          lineHeight: '1.2', // decreased line-height
           color: '#000',
           backgroundColor: '#fff',
           margin: '0 auto',
@@ -61,11 +62,18 @@ export default function InvoiceDownload() {
             <p style={{ margin: '4px 0' }}>Booking #100318</p>
             <p>Date: 20-Jun-2025 11:20pm</p>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <p>3rd Floor, 307 Amanora Chamber, Amanora Mall, Hadapsar Pune–411028</p>
-            <p>+91 93096 517500</p>
-            <p>info@bizbooster2x.com</p>
+          <div style={{ textAlign: 'right', lineHeight: '1.4' }}>
+            {/* Logo image added here */}
+            <img
+              src='../../../public/images/logo/final-logo.png'
+              alt="Logo"
+              style={{ width: '100px', marginBottom: '8px' }}
+            />
+            <p style={{ lineHeight: '1.4' }}>3rd Floor, 307 Amanora Chamber, Amanora Mall, Hadapsar Pune–411028</p>
+            <p style={{ lineHeight: '1.4' }}>+91 93096 517500</p>
+            <p style={{ lineHeight: '1.4' }}>info@bizbooster2x.com</p>
           </div>
+
         </div>
 
         {/* Box Section */}
@@ -73,20 +81,20 @@ export default function InvoiceDownload() {
           {/* First Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <div style={{ width: '30%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Partner Info</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Satish Kadam Kadam Test 1</p>
+              <p><strong>Partner Info</strong></p>
+              <p>Satish Kadam Kadam Test 1</p>
             </div>
             <div style={{ width: '20%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Email</strong></p>
-              <p style={{ lineHeight: '1.2' }}>shivrajv@gmail.com</p>
+              <p><strong>Email</strong></p>
+              <p>shivrajv@gmail.com</p>
             </div>
             <div style={{ width: '25%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Phone</strong></p>
-              <p style={{ lineHeight: '1.2' }}>+91 93096 517900</p>
+              <p><strong>Phone</strong></p>
+              <p>+91 93096 517900</p>
             </div>
             <div style={{ width: '25%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Invoice of (INR)</strong></p>
-              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff', lineHeight: '1.2' }}>₹17,997.00</p>
+              <p><strong>Invoice of (INR)</strong></p>
+              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>₹17,997.00</p>
             </div>
           </div>
 
@@ -95,25 +103,23 @@ export default function InvoiceDownload() {
           {/* Second Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ width: '33%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Payment</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Cash after service</p>
-              <p style={{ lineHeight: '1.2' }}><strong>Reference ID:</strong> 100318</p>
+              <p><strong>Payment</strong></p>
+              <p>Cash after service</p>
+              <p><strong>Reference ID:</strong> 100318</p>
             </div>
             <div style={{ width: '33%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Service Address</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Satish Kadam Kadam Test 1</p>
-              <p style={{ lineHeight: '1.2' }}>+91 93095 17900</p>
-              <p style={{ lineHeight: '1.2' }}>FWJW+HRV, Gokul Colony, Papde Wasti, Phursungi, Pune, Maharashtra 412308, India</p>
+              <p><strong>Service Address</strong></p>
+              <p>Satish Kadam Kadam Test 1</p>
+              <p>+91 93095 17900</p>
+              <p>FWJW+HRV, Gokul Colony, Papde Wasti, Phursungi, Pune, Maharashtra 412308, India</p>
             </div>
             <div style={{ width: '33%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Service Time</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Request Date: 20-Jun-2025 11:20pm</p>
-              <p style={{ lineHeight: '1.2' }}>Service Date: 20-Jun-2025 03:50am</p>
+              <p><strong>Service Time</strong></p>
+              <p>Request Date: 20-Jun-2025 11:20pm</p>
+              <p>Service Date: 20-Jun-2025 03:50am</p>
             </div>
           </div>
         </div>
-
-
 
         {/* Table */}
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
@@ -165,29 +171,27 @@ export default function InvoiceDownload() {
           </div>
         </div>
 
-
         {/* Footer */}
         <div style={{ marginTop: '30px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <p style={{ lineHeight: '1' }}><strong>Terms & Conditions</strong></p>
-          <p style={{ lineHeight: '1' }}>Change of mind is not applicable as a reason for refund</p>
+          <p><strong>Terms & Conditions</strong></p>
+          <p>Change of mind is not applicable as a reason for refund</p>
         </div>
 
-       <div style={{ 
-  display: 'flex', 
-  justifyContent: 'space-between', 
-  alignItems: 'center', 
-  marginTop: '40px', 
-  fontSize: '13px', 
-  color: '#555', 
-  gap: '20px',
-  backgroundColor: '#f0f0f0', // light gray
-  padding: '10px'
-}}>
-  <span>bizbooster.lifelinecart.com</span>
-  <span>+91 93096 517500</span>
-  <span>info@bizbooster2x.com</span>
-</div>
-
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '40px',
+          fontSize: '13px',
+          color: '#555',
+          gap: '20px',
+          backgroundColor: '#f0f0f0',
+          padding: '10px'
+        }}>
+          <span>bizbooster.lifelinecart.com</span>
+          <span>+91 93096 517500</span>
+          <span>info@bizbooster2x.com</span>
+        </div>
       </div>
     </div>
   );
