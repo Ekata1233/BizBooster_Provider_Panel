@@ -15,6 +15,7 @@ import { useModal } from '@/hooks/useModal';
 import { useLead } from '@/app/context/LeadContext';
 import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
 import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
+import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
 
 
 const AllBookingsDetails = () => {
@@ -95,21 +96,22 @@ const AllBookingsDetails = () => {
             </div>
 
             <div>
-                <button
-        className="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 mx-2"
-        onClick={() => setIsEditOpen(true)}
-      >
-        Edit Lead
-      </button>
+              <button
+                className="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 mx-2"
+                onClick={() => setIsEditOpen(true)}
+              >
+                Edit Lead
+              </button>
 
-      {/* Show modal only when open */}
-      {isEditOpen && (
-        <UpdateEditLead isOpen={isEditOpen} closeModal={() => setIsEditOpen(false)} checkoutId={checkoutDetails._id} />
-      )}
-    
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
+              {/* Show modal only when open */}
+              {isEditOpen && (
+                <UpdateEditLead isOpen={isEditOpen} closeModal={() => setIsEditOpen(false)} checkoutId={checkoutDetails._id} />
+              )}
+
+              {/* <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
               Download Invoice
-            </button>
+            </button> */}
+              <InvoiceDownload />
             </div>
           </div>
         </ComponentCard>
@@ -262,8 +264,8 @@ const AllBookingsDetails = () => {
           </div>
         )}
       </div>
-     
- <div>
+
+      <div>
         <UpdateStatusModal
           isOpen={isOpen}
           onClose={closeModal}
@@ -286,7 +288,7 @@ const AllBookingsDetails = () => {
         />
 
       </div>
-     
+
     </div>
   );
 };
