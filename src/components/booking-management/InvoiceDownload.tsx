@@ -3,10 +3,12 @@
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { IServiceCustomer } from '@/app/context/ServiceCustomerContext';
+import { CheckoutType } from '@/app/context/CheckoutContext';
 
 interface InvoiceDownloadProps {
-  checkoutDetails: any;
-  serviceCustomer: any;
+  checkoutDetails: CheckoutType;
+  serviceCustomer: IServiceCustomer | null;
 }
 
 export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: InvoiceDownloadProps) {
@@ -95,8 +97,9 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: In
             <div style={{ width: '25%' }}>
               <p><strong>Invoice of (INR)</strong></p>
               <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>
-                {formatPrice(checkoutDetails?.total || 0)}
+                {formatPrice(checkoutDetails?.totalAmount || 0)}
               </p>
+
             </div>
           </div>
 
@@ -117,7 +120,8 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: In
             <div style={{ width: '33%' }}>
               <p><strong>Service Time</strong></p>
               <p>Request: {formatDateTime(checkoutDetails?.createdAt)}</p>
-              <p>Service: {formatDateTime(checkoutDetails?.serviceDate)}</p>
+              <p>Service: {formatDateTime(checkoutDetails?.["serviceDate"] as string)}</p>
+
             </div>
           </div>
         </div>
@@ -134,33 +138,34 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: In
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td style={tdStyle}>01</td>
-              <td style={tdStyle}>
-                <strong>{checkoutDetails?.serviceName || 'Service'}</strong>
-                <br />
-                {checkoutDetails?.packageName || '-'}
-              </td>
-              <td style={tdStyle}>1</td>
-              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.total || 0)}</td>
-              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.total || 0)}</td>
-            </tr>
-          </tbody>
+  <tr>
+    <td style={tdStyle}>01</td>
+    <td style={tdStyle}>
+      <strong>{checkoutDetails?.service?.serviceName || 'Service'}</strong>
+      <br />
+      {'-'}
+    </td>
+    <td style={tdStyle}>1</td>
+    <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
+    <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
+  </tr>
+</tbody>
+
         </table>
 
         {/* Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
-              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td></tr>
+              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount  || 0)}</td></tr>
               <tr><td>Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
               <tr><td>Coupon</td><td style={rightAlign}>- ₹0.00</td></tr>
               <tr><td>Tax</td><td style={rightAlign}>+ ₹0.00</td></tr>
               <tr style={{ fontWeight: 'bold' }}>
-                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td>
+                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount  || 0)}</td>
               </tr>
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
-                <td>Due</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td>
+                <td>Due</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount  || 0)}</td>
               </tr>
             </tbody>
           </table>
