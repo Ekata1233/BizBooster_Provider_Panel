@@ -4,7 +4,12 @@ import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-export default function InvoiceDownload() {
+interface InvoiceDownloadProps {
+  checkoutDetails: any;
+  serviceCustomer: any;
+}
+
+export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: InvoiceDownloadProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
@@ -21,13 +26,17 @@ export default function InvoiceDownload() {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('invoice.pdf');
+      pdf.save(`invoice-${checkoutDetails?.bookingId || 'download'}.pdf`);
     } catch (err) {
       console.error('PDF generation failed:', err);
     } finally {
       element.style.display = originalDisplay;
     }
   };
+
+  // Format functions
+  const formatDateTime = (dateStr?: string) => dateStr ? new Date(dateStr).toLocaleString('en-IN') : 'N/A';
+  const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
 
   return (
     <div className="p-4">
@@ -47,7 +56,7 @@ export default function InvoiceDownload() {
           padding: '30px',
           fontFamily: 'Arial, sans-serif',
           fontSize: '13px',
-          lineHeight: '1.6',
+          lineHeight: '1.2',
           color: '#000',
           backgroundColor: '#fff',
           margin: '0 auto',
@@ -58,62 +67,60 @@ export default function InvoiceDownload() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', margin: 0 }}>Invoice</h2>
-            <p style={{ margin: '4px 0' }}>Booking #100318</p>
-            <p>Date: 20-Jun-2025 11:20pm</p>
+            <p style={{ margin: '4px 0' }}>Booking #{checkoutDetails?.bookingId}</p>
+            <p>Date: {formatDateTime(checkoutDetails?.createdAt)}</p>
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'right', lineHeight: '1.4' }}>
             <p>3rd Floor, 307 Amanora Chamber, Amanora Mall, Hadapsar Pune–411028</p>
             <p>+91 93096 517500</p>
             <p>info@bizbooster2x.com</p>
           </div>
         </div>
 
-        {/* Box Section */}
-        <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px', lineHeight: '1.2' }}>
-          {/* First Row */}
+        {/* Partner Info Box */}
+        <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <div style={{ width: '30%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Partner Info</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Satish Kadam Kadam Test 1</p>
+              <p><strong>Partner Info</strong></p>
+              <p>{serviceCustomer?.fullName || '-'}</p>
             </div>
             <div style={{ width: '20%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Email</strong></p>
-              <p style={{ lineHeight: '1.2' }}>shivrajv@gmail.com</p>
+              <p><strong>Email</strong></p>
+              <p>{serviceCustomer?.email || '-'}</p>
             </div>
             <div style={{ width: '25%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Phone</strong></p>
-              <p style={{ lineHeight: '1.2' }}>+91 93096 517900</p>
+              <p><strong>Phone</strong></p>
+              <p>{serviceCustomer?.phone || '-'}</p>
             </div>
             <div style={{ width: '25%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Invoice of (INR)</strong></p>
-              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff', lineHeight: '1.2' }}>₹17,997.00</p>
+              <p><strong>Invoice of (INR)</strong></p>
+              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>
+                {formatPrice(checkoutDetails?.total || 0)}
+              </p>
             </div>
           </div>
 
           <hr style={{ margin: '16px 0' }} />
 
-          {/* Second Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ width: '33%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Payment</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Cash after service</p>
-              <p style={{ lineHeight: '1.2' }}><strong>Reference ID:</strong> 100318</p>
+              <p><strong>Payment</strong></p>
+              <p>{checkoutDetails?.paymentMethod || 'Cash after service'}</p>
+              <p><strong>Reference ID:</strong> {checkoutDetails?.bookingId}</p>
             </div>
             <div style={{ width: '33%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Service Address</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Satish Kadam Kadam Test 1</p>
-              <p style={{ lineHeight: '1.2' }}>+91 93095 17900</p>
-              <p style={{ lineHeight: '1.2' }}>FWJW+HRV, Gokul Colony, Papde Wasti, Phursungi, Pune, Maharashtra 412308, India</p>
+              <p><strong>Service Address</strong></p>
+              <p>{serviceCustomer?.fullName}</p>
+              <p>{serviceCustomer?.phone}</p>
+              <p>{serviceCustomer?.address || '-'}</p>
             </div>
             <div style={{ width: '33%' }}>
-              <p style={{ lineHeight: '1.2' }}><strong>Service Time</strong></p>
-              <p style={{ lineHeight: '1.2' }}>Request Date: 20-Jun-2025 11:20pm</p>
-              <p style={{ lineHeight: '1.2' }}>Service Date: 20-Jun-2025 03:50am</p>
+              <p><strong>Service Time</strong></p>
+              <p>Request: {formatDateTime(checkoutDetails?.createdAt)}</p>
+              <p>Service: {formatDateTime(checkoutDetails?.serviceDate)}</p>
             </div>
           </div>
         </div>
-
-
 
         {/* Table */}
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
@@ -130,87 +137,66 @@ export default function InvoiceDownload() {
             <tr>
               <td style={tdStyle}>01</td>
               <td style={tdStyle}>
-                <strong>App Marketing & Promotion</strong>
+                <strong>{checkoutDetails?.serviceName || 'Service'}</strong>
                 <br />
-                Basic-ASO-Package
+                {checkoutDetails?.packageName || '-'}
               </td>
-              <td style={tdStyle}>3</td>
-              <td style={tdStyleRight}>₹5,999.00</td>
-              <td style={tdStyleRight}>₹17,997.00</td>
+              <td style={tdStyle}>1</td>
+              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.total || 0)}</td>
+              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.total || 0)}</td>
             </tr>
           </tbody>
         </table>
 
-        {/* Breakdown */}
+        {/* Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
-              <tr><td>Subtotal</td><td style={rightAlign}>₹17,997.00</td></tr>
+              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td></tr>
               <tr><td>Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Campaign Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Coupon Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Referral Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Vat / Tax (%)</td><td style={rightAlign}>+ ₹0.00</td></tr>
+              <tr><td>Coupon</td><td style={rightAlign}>- ₹0.00</td></tr>
+              <tr><td>Tax</td><td style={rightAlign}>+ ₹0.00</td></tr>
               <tr style={{ fontWeight: 'bold' }}>
-                <td>Total</td><td style={rightAlign}>₹17,997.00</td>
+                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td>
               </tr>
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
-                <td>Due Amount</td><td style={rightAlign}>₹17,997.00</td>
+                <td>Due</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td>
               </tr>
             </tbody>
           </table>
-
           <div style={{ width: '100%', textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
             Thanks for using our service.
           </div>
         </div>
 
-
         {/* Footer */}
         <div style={{ marginTop: '30px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <p style={{ lineHeight: '1' }}><strong>Terms & Conditions</strong></p>
-          <p style={{ lineHeight: '1' }}>Change of mind is not applicable as a reason for refund</p>
+          <p><strong>Terms & Conditions</strong></p>
+          <p>Change of mind is not applicable as a reason for refund.</p>
         </div>
 
-       <div style={{ 
-  display: 'flex', 
-  justifyContent: 'space-between', 
-  alignItems: 'center', 
-  marginTop: '40px', 
-  fontSize: '13px', 
-  color: '#555', 
-  gap: '20px',
-  backgroundColor: '#f0f0f0', // light gray
-  padding: '10px'
-}}>
-  <span>bizbooster.lifelinecart.com</span>
-  <span>+91 93096 517500</span>
-  <span>info@bizbooster2x.com</span>
-</div>
-
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '40px',
+          fontSize: '13px',
+          color: '#555',
+          gap: '20px',
+          backgroundColor: '#f0f0f0',
+          padding: '10px'
+        }}>
+          <span>bizbooster.lifelinecart.com</span>
+          <span>+91 93096 517500</span>
+          <span>info@bizbooster2x.com</span>
+        </div>
       </div>
     </div>
   );
 }
 
 // Styles
-const thStyle = {
-  border: '1px solid #ccc',
-  padding: '8px',
-  textAlign: 'left' as const,
-};
-
-const tdStyle = {
-  border: '1px solid #ccc',
-  padding: '8px',
-};
-
-const tdStyleRight = {
-  border: '1px solid #ccc',
-  padding: '8px',
-  textAlign: 'right' as const,
-};
-
-const rightAlign = {
-  textAlign: 'right' as const,
-};
+const thStyle = { border: '1px solid #ccc', padding: '8px', textAlign: 'left' as const };
+const tdStyle = { border: '1px solid #ccc', padding: '8px' };
+const tdStyleRight = { border: '1px solid #ccc', padding: '8px', textAlign: 'right' as const };
+const rightAlign = { textAlign: 'right' as const };

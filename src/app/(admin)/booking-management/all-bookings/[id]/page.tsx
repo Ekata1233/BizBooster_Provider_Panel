@@ -108,10 +108,9 @@ const AllBookingsDetails = () => {
                 <UpdateEditLead isOpen={isEditOpen} closeModal={() => setIsEditOpen(false)} checkoutId={checkoutDetails._id} />
               )}
 
-              {/* <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
-              Download Invoice
-            </button> */}
-              <InvoiceDownload />
+              {/* <InvoiceDownload /> */}
+              <InvoiceDownload checkoutDetails={checkoutDetails} serviceCustomer={serviceCustomer} />
+
             </div>
           </div>
         </ComponentCard>
