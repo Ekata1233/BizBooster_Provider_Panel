@@ -6,7 +6,7 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -16,32 +16,34 @@ export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+
+  const { login, providerDetails } = useAuth();
   const router = useRouter();
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    setLoading(true);
-    await login(email, password); // make sure this finishes everything
-
-    // Optional: slight delay to ensure context updates
-    setTimeout(() => {
-      router.push("/");
-    }, 100); // 100ms delay
-  } catch (err: unknown) {
-    console.error("Login failed:", err);
-    if (err instanceof Error) {
-      alert(err.message);
-    } else {
-      alert("Login failed. Please check your credentials.");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await login(email, password);
+      // ⛔️ Removed router.push here – will redirect inside useEffect when providerDetails is ready
+    } catch (err: unknown) {
+      console.error("Login failed:", err);
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Login failed. Please check your credentials.");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
+  // ✅ Redirect to dashboard after successful login (when providerDetails is ready)
+  useEffect(() => {
+    if (providerDetails && !loading) {
+      router.push("/");
+    }
+  }, [providerDetails, loading, router]);
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -67,7 +69,9 @@ const handleSubmit = async (e: React.FormEvent) => {
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
-                <Label>Email <span className="text-error-500">*</span></Label>
+                <Label>
+                  Email <span className="text-error-500">*</span>
+                </Label>
                 <Input
                   placeholder="info@gmail.com"
                   type="email"
@@ -77,7 +81,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 />
               </div>
               <div>
-                <Label>Password <span className="text-error-500">*</span></Label>
+                <Label>
+                  Password <span className="text-error-500">*</span>
+                </Label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
