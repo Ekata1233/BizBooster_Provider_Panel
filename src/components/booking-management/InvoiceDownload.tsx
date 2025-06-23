@@ -69,36 +69,51 @@ export default function InvoiceDownload() {
         </div>
 
         {/* Box Section */}
-        <div
-          style={{
-            border: '1px solid #ccc',
-            padding: '16px',
-            marginBottom: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ width: '30%' }}>
-            <p><strong>Partner Info</strong></p>
-            <p>Satish Kadam Kadam Test 1</p>
-            <p><strong>Phone:</strong> +91 93096 517900</p>
-            <p><strong>Email:</strong> shivrajv@gmail.com</p>
+        <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px', lineHeight: '1.2' }}>
+          {/* First Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div style={{ width: '30%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Partner Info</strong></p>
+              <p style={{ lineHeight: '1.2' }}>Satish Kadam Kadam Test 1</p>
+            </div>
+            <div style={{ width: '20%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Email</strong></p>
+              <p style={{ lineHeight: '1.2' }}>shivrajv@gmail.com</p>
+            </div>
+            <div style={{ width: '25%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Phone</strong></p>
+              <p style={{ lineHeight: '1.2' }}>+91 93096 517900</p>
+            </div>
+            <div style={{ width: '25%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Invoice of (INR)</strong></p>
+              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff', lineHeight: '1.2' }}>₹17,997.00</p>
+            </div>
           </div>
-          <div style={{ width: '40%' }}>
-            <p><strong>Payment</strong></p>
-            <p>Cash after service</p>
-            <p><strong>Reference ID:</strong> 100318</p>
-            <p><strong>Service Address:</strong></p>
-            <p>FWJW+HRV, Gokul Colony, Papde Wasti, Phursungi, Pune, Maharashtra 412308</p>
-          </div>
-          <div style={{ width: '30%' }}>
-            <p><strong>Service Time</strong></p>
-            <p>Request Date: 20-Jun-2025 11:20pm</p>
-            <p>Service Date: 20-Jun-2025 03:50am</p>
-            <p style={{ fontWeight: 'bold', marginTop: '10px' }}>Invoice of (INR)</p>
-            <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>₹17,997.00</p>
+
+          <hr style={{ margin: '16px 0' }} />
+
+          {/* Second Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ width: '33%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Payment</strong></p>
+              <p style={{ lineHeight: '1.2' }}>Cash after service</p>
+              <p style={{ lineHeight: '1.2' }}><strong>Reference ID:</strong> 100318</p>
+            </div>
+            <div style={{ width: '33%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Service Address</strong></p>
+              <p style={{ lineHeight: '1.2' }}>Satish Kadam Kadam Test 1</p>
+              <p style={{ lineHeight: '1.2' }}>+91 93095 17900</p>
+              <p style={{ lineHeight: '1.2' }}>FWJW+HRV, Gokul Colony, Papde Wasti, Phursungi, Pune, Maharashtra 412308, India</p>
+            </div>
+            <div style={{ width: '33%' }}>
+              <p style={{ lineHeight: '1.2' }}><strong>Service Time</strong></p>
+              <p style={{ lineHeight: '1.2' }}>Request Date: 20-Jun-2025 11:20pm</p>
+              <p style={{ lineHeight: '1.2' }}>Service Date: 20-Jun-2025 03:50am</p>
+            </div>
           </div>
         </div>
+
+
 
         {/* Table */}
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
@@ -127,7 +142,7 @@ export default function InvoiceDownload() {
         </table>
 
         {/* Breakdown */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
               <tr><td>Subtotal</td><td style={rightAlign}>₹17,997.00</td></tr>
@@ -144,19 +159,35 @@ export default function InvoiceDownload() {
               </tr>
             </tbody>
           </table>
+
+          <div style={{ width: '100%', textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
+            Thanks for using our service.
+          </div>
         </div>
+
 
         {/* Footer */}
         <div style={{ marginTop: '30px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <p><strong>Terms & Conditions</strong></p>
-          <p>Change of mind is not applicable as a reason for refund</p>
+          <p style={{ lineHeight: '1' }}><strong>Terms & Conditions</strong></p>
+          <p style={{ lineHeight: '1' }}>Change of mind is not applicable as a reason for refund</p>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '40px', fontSize: '13px', color: '#555' }}>
-          <p>bizbooster.lifelinecart.com</p>
-          <p>+91 93096 517500</p>
-          <p>info@bizbooster2x.com</p>
-        </div>
+       <div style={{ 
+  display: 'flex', 
+  justifyContent: 'space-between', 
+  alignItems: 'center', 
+  marginTop: '40px', 
+  fontSize: '13px', 
+  color: '#555', 
+  gap: '20px',
+  backgroundColor: '#f0f0f0', // light gray
+  padding: '10px'
+}}>
+  <span>bizbooster.lifelinecart.com</span>
+  <span>+91 93096 517500</span>
+  <span>info@bizbooster2x.com</span>
+</div>
+
       </div>
     </div>
   );
