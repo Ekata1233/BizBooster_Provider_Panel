@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { IServiceCustomer } from '@/app/context/ServiceCustomerContext';
 import { CheckoutType } from '@/app/context/CheckoutContext';
 import { LeadType } from '@/app/context/LeadContext';
+import { useProvider } from '@/context/ProviderContext';
 
 interface InvoiceDownloadProps {
   checkoutDetails: CheckoutType;
@@ -15,6 +16,7 @@ interface InvoiceDownloadProps {
 
 export default function InvoiceDownload({ checkoutDetails, serviceCustomer, leadDetails }: InvoiceDownloadProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
+   const { getProviderById, provider, loading, error } = useProvider();
 
   const handleDownload = async () => {
     const element = invoiceRef.current;
@@ -44,6 +46,19 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
 
   const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
   const updatedAmount = leadDetails?.newAmount;
+
+  console.log("checkout details in invoice : ", checkoutDetails)
+
+  useEffect(() => {
+    if (checkoutDetails?.provider) {
+      getProviderById(checkoutDetails?.provider);
+    }
+  }, [checkoutDetails]);
+
+  if (loading) return <p>Loading provider data...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!provider) return <p>No provider data found.</p>;
+
 
 
   return (
@@ -89,7 +104,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
         <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <div style={{ width: '30%' }}>
-              <p><strong>Partner Info</strong></p>
+              <p><strong>Customer Details</strong></p>
               <p>{serviceCustomer?.fullName || '-'}</p>
             </div>
             <div style={{ width: '20%' }}>
@@ -118,7 +133,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
               <p><strong>Reference ID:</strong> {checkoutDetails?.bookingId}</p>
             </div>
             <div style={{ width: '33%' }}>
-              <p><strong>Service Address</strong></p>
+              <p><strong>Service Provider</strong></p>
               <p>{serviceCustomer?.fullName}</p>
               <p>{serviceCustomer?.phone}</p>
               <p>{serviceCustomer?.address || '-'}</p>
