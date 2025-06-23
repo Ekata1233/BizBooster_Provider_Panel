@@ -3,7 +3,6 @@
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import img from '../../../public/images/logo/final-logo.png'
 
 export default function InvoiceDownload() {
   const invoiceRef = useRef<HTMLDivElement>(null);
