@@ -1,17 +1,21 @@
 "use client";
 import React, { useState } from "react";
 import { Modal } from "../ui/modal";
+import { useLead } from "@/app/context/LeadContext";
 
 interface EditLeadPageProps {
   isOpen: boolean;
   closeModal: () => void;
+  checkoutId : string;
 }
 
-export default function EditLeadPage({ isOpen, closeModal }: EditLeadPageProps) {
+export default function EditLeadPage({ isOpen, closeModal,checkoutId }: EditLeadPageProps) {
   const [editPrice, setEditPrice] = useState("");
   const [additionalFields, setAdditionalFields] = useState<
     { serviceName: string; price: string; discount: string; total: string }[]
   >([]);
+  const { updateLeadByCheckoutId } = useLead();
+
 
   const addAdditionalRequirement = () => {
     setAdditionalFields([
@@ -35,10 +39,35 @@ export default function EditLeadPage({ isOpen, closeModal }: EditLeadPageProps) 
     setAdditionalFields(newFields);
   };
 
-  const handleUpdate = () => {
-    console.log({ editPrice, additionalFields });
+const handleUpdate = async () => {
+  try {
+    const payload = {
+      newAmount: parseFloat(editPrice || "0"),
+      extraService: additionalFields.map((field) => ({
+        serviceName: field.serviceName,
+        price: parseFloat(field.price || "0"),
+        discount: parseFloat(field.discount || "0"),
+        total: parseFloat(field.total || "0"),
+      })),
+    };
+
+    const updated = await updateLeadByCheckoutId(checkoutId, payload);
+
+    if (updated) {
+      alert("Lead updated successfully!");
+    } else {
+      alert("Failed to update lead.");
+    }
+
     closeModal();
-  };
+  } catch (err) {
+    console.error("Update failed:", err);
+    alert("Something went wrong while updating the lead.");
+  }
+};
+
+
+
 
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">

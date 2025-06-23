@@ -9,6 +9,13 @@ import React, {
 } from "react";
 import axios from "axios";
 
+interface IExtraService {
+  serviceName: string;
+  price: number;
+  discount: number;
+  total: number;
+}
+
 export interface IStatus {
   statusType: string;
   description?: string;
@@ -27,6 +34,8 @@ export interface LeadType {
   serviceMan: string;
   service: string;
   amount: number;
+  newAmount?: number;
+  extraService?: IExtraService[];
   leads: IStatus[];
 }
 
@@ -36,7 +45,11 @@ interface LeadContextType {
   errorLeads: string | null;
   refetchLeads: () => void;
   createLead: (data: FormData) => Promise<void>;
-   getLeadByCheckoutId: (checkoutId: string) => Promise<LeadType | null>;
+  getLeadByCheckoutId: (checkoutId: string) => Promise<LeadType | null>;
+  updateLeadByCheckoutId: (
+    checkoutId: string,
+    updates: { newAmount?: number; extraService?: IExtraService[] }
+  ) => Promise<LeadType | null>;
 }
 
 const LeadContext = createContext<LeadContextType | undefined>(undefined);
@@ -44,6 +57,8 @@ const LeadContext = createContext<LeadContextType | undefined>(undefined);
 interface LeadProviderProps {
   children: ReactNode;
 }
+
+
 
 export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   const [leads, setLeads] = useState<LeadType[]>([]);
@@ -65,17 +80,16 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   };
 
   const getLeadByCheckoutId = async (checkoutId: string): Promise<LeadType | null> => {
-  try {
-    const res = await axios.get(
-      `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
-    );
-    return res.data?.data || null;
-  } catch (err) {
-    console.error("Failed to fetch lead by checkoutId:", err);
-    return null;
-  }
-};
-
+    try {
+      const res = await axios.get(
+        `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
+      );
+      return res.data?.data || null;
+    } catch (err) {
+      console.error("Failed to fetch lead by checkoutId:", err);
+      return null;
+    }
+  };
 
   const createLead = async (formData: FormData) => {
     setLoadingLeads(true);
@@ -99,6 +113,32 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
     }
   };
 
+  const updateLeadByCheckoutId = async (
+    checkoutId: string,
+    updates: { newAmount?: number; extraService?: IExtraService[] }
+  ): Promise<LeadType | null> => {
+    try {
+      const res = await axios.put(
+        `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`,
+        updates
+      );
+      const updatedLead = res.data?.data;
+
+      // Optionally update local state if the lead exists in the list
+      setLeads((prevLeads) =>
+        prevLeads.map((lead) =>
+          lead.checkout === checkoutId ? { ...lead, ...updatedLead } : lead
+        )
+      );
+
+      return updatedLead || null;
+    } catch (err) {
+      console.error("Failed to update lead by checkoutId:", err);
+      return null;
+    }
+  };
+
+
   useEffect(() => {
     fetchLeads();
   }, []);
@@ -111,7 +151,8 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
         errorLeads,
         refetchLeads: fetchLeads,
         createLead,
-         getLeadByCheckoutId,
+        getLeadByCheckoutId,
+        updateLeadByCheckoutId,
       }}
     >
       {children}
