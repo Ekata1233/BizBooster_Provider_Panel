@@ -102,6 +102,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ✅ Login Function
   const login = async (email: string, password: string) => {
+    setProvider(null);
+    setProviderDetails(null);
+    setToken(null);
+    localStorage.clear(); // or remove specific keys
+
     try {
       const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
         method: "POST",
@@ -122,6 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setProvider(provider);
       setToken(token);
       localStorage.setItem("providerData", JSON.stringify(provider));
+      // localStorage.setItem("providerDetails", JSON.stringify(provider));
       localStorage.setItem("providerToken", token);
 
       // Fetch full provider details
@@ -180,7 +186,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [provider?._id, token]);
 
   // ✅ Logout Function
-  const logout = () => {
+  const logout = async () => {
+    try {
+    await fetch("https://biz-booster.vercel.app/api/provider/logout", {
+      method: "POST",
+      credentials: "include", // Clear the cookie
+    });
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }
     // Clear state
     setProvider(null);
     setProviderDetails(null);
@@ -190,8 +204,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("providerToken");
     localStorage.removeItem("providerData");
     localStorage.removeItem("providerDetails");
-    localStorage.removeItem("token");        
-    localStorage.removeItem("theme"); 
+    localStorage.removeItem("token");
+    localStorage.removeItem("theme");
 
     console.log("🚪 Logged out and cleared all relevant localStorage items");
   };

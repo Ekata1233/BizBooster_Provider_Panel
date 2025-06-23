@@ -4,7 +4,12 @@ import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-export default function InvoiceDownload() {
+interface InvoiceDownloadProps {
+  checkoutDetails: any;
+  serviceCustomer: any;
+}
+
+export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: InvoiceDownloadProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
@@ -21,13 +26,17 @@ export default function InvoiceDownload() {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('invoice.pdf');
+      pdf.save(`invoice-${checkoutDetails?.bookingId || 'download'}.pdf`);
     } catch (err) {
       console.error('PDF generation failed:', err);
     } finally {
       element.style.display = originalDisplay;
     }
   };
+
+  // Format functions
+  const formatDateTime = (dateStr?: string) => dateStr ? new Date(dateStr).toLocaleString('en-IN') : 'N/A';
+  const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
 
   return (
     <div className="p-4">
@@ -47,7 +56,7 @@ export default function InvoiceDownload() {
           padding: '30px',
           fontFamily: 'Arial, sans-serif',
           fontSize: '13px',
-          lineHeight: '1.2', // decreased line-height
+          lineHeight: '1.2',
           color: '#000',
           backgroundColor: '#fff',
           margin: '0 auto',
@@ -58,64 +67,57 @@ export default function InvoiceDownload() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', margin: 0 }}>Invoice</h2>
-            <p style={{ margin: '4px 0' }}>Booking #100318</p>
-            <p>Date: 20-Jun-2025 11:20pm</p>
+            <p style={{ margin: '4px 0' }}>Booking #{checkoutDetails?.bookingId}</p>
+            <p>Date: {formatDateTime(checkoutDetails?.createdAt)}</p>
           </div>
           <div style={{ textAlign: 'right', lineHeight: '1.4' }}>
-            {/* Logo image added here */}
-            <img
-              src='../../../public/images/logo/final-logo.png'
-              alt="Logo"
-              style={{ width: '100px', marginBottom: '8px' }}
-            />
-            <p style={{ lineHeight: '1.4' }}>3rd Floor, 307 Amanora Chamber, Amanora Mall, Hadapsar Pune–411028</p>
-            <p style={{ lineHeight: '1.4' }}>+91 93096 517500</p>
-            <p style={{ lineHeight: '1.4' }}>info@bizbooster2x.com</p>
+            <p>3rd Floor, 307 Amanora Chamber, Amanora Mall, Hadapsar Pune–411028</p>
+            <p>+91 93096 517500</p>
+            <p>info@bizbooster2x.com</p>
           </div>
-
         </div>
 
-        {/* Box Section */}
-        <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px', lineHeight: '1.2' }}>
-          {/* First Row */}
+        {/* Partner Info Box */}
+        <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <div style={{ width: '30%' }}>
               <p><strong>Partner Info</strong></p>
-              <p>Satish Kadam Kadam Test 1</p>
+              <p>{serviceCustomer?.fullName || '-'}</p>
             </div>
             <div style={{ width: '20%' }}>
               <p><strong>Email</strong></p>
-              <p>shivrajv@gmail.com</p>
+              <p>{serviceCustomer?.email || '-'}</p>
             </div>
             <div style={{ width: '25%' }}>
               <p><strong>Phone</strong></p>
-              <p>+91 93096 517900</p>
+              <p>{serviceCustomer?.phone || '-'}</p>
             </div>
             <div style={{ width: '25%' }}>
               <p><strong>Invoice of (INR)</strong></p>
-              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>₹17,997.00</p>
+              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>
+                {formatPrice(checkoutDetails?.total || 0)}
+              </p>
             </div>
           </div>
 
           <hr style={{ margin: '16px 0' }} />
 
-          {/* Second Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ width: '33%' }}>
               <p><strong>Payment</strong></p>
-              <p>Cash after service</p>
-              <p><strong>Reference ID:</strong> 100318</p>
+              <p>{checkoutDetails?.paymentMethod || 'Cash after service'}</p>
+              <p><strong>Reference ID:</strong> {checkoutDetails?.bookingId}</p>
             </div>
             <div style={{ width: '33%' }}>
               <p><strong>Service Address</strong></p>
-              <p>Satish Kadam Kadam Test 1</p>
-              <p>+91 93095 17900</p>
-              <p>FWJW+HRV, Gokul Colony, Papde Wasti, Phursungi, Pune, Maharashtra 412308, India</p>
+              <p>{serviceCustomer?.fullName}</p>
+              <p>{serviceCustomer?.phone}</p>
+              <p>{serviceCustomer?.address || '-'}</p>
             </div>
             <div style={{ width: '33%' }}>
               <p><strong>Service Time</strong></p>
-              <p>Request Date: 20-Jun-2025 11:20pm</p>
-              <p>Service Date: 20-Jun-2025 03:50am</p>
+              <p>Request: {formatDateTime(checkoutDetails?.createdAt)}</p>
+              <p>Service: {formatDateTime(checkoutDetails?.serviceDate)}</p>
             </div>
           </div>
         </div>
@@ -135,36 +137,33 @@ export default function InvoiceDownload() {
             <tr>
               <td style={tdStyle}>01</td>
               <td style={tdStyle}>
-                <strong>App Marketing & Promotion</strong>
+                <strong>{checkoutDetails?.serviceName || 'Service'}</strong>
                 <br />
-                Basic-ASO-Package
+                {checkoutDetails?.packageName || '-'}
               </td>
-              <td style={tdStyle}>3</td>
-              <td style={tdStyleRight}>₹5,999.00</td>
-              <td style={tdStyleRight}>₹17,997.00</td>
+              <td style={tdStyle}>1</td>
+              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.total || 0)}</td>
+              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.total || 0)}</td>
             </tr>
           </tbody>
         </table>
 
-        {/* Breakdown */}
+        {/* Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
-              <tr><td>Subtotal</td><td style={rightAlign}>₹17,997.00</td></tr>
+              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td></tr>
               <tr><td>Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Campaign Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Coupon Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Referral Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
-              <tr><td>Vat / Tax (%)</td><td style={rightAlign}>+ ₹0.00</td></tr>
+              <tr><td>Coupon</td><td style={rightAlign}>- ₹0.00</td></tr>
+              <tr><td>Tax</td><td style={rightAlign}>+ ₹0.00</td></tr>
               <tr style={{ fontWeight: 'bold' }}>
-                <td>Total</td><td style={rightAlign}>₹17,997.00</td>
+                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td>
               </tr>
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
-                <td>Due Amount</td><td style={rightAlign}>₹17,997.00</td>
+                <td>Due</td><td style={rightAlign}>{formatPrice(checkoutDetails?.total || 0)}</td>
               </tr>
             </tbody>
           </table>
-
           <div style={{ width: '100%', textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
             Thanks for using our service.
           </div>
@@ -173,7 +172,7 @@ export default function InvoiceDownload() {
         {/* Footer */}
         <div style={{ marginTop: '30px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
           <p><strong>Terms & Conditions</strong></p>
-          <p>Change of mind is not applicable as a reason for refund</p>
+          <p>Change of mind is not applicable as a reason for refund.</p>
         </div>
 
         <div style={{
@@ -197,23 +196,7 @@ export default function InvoiceDownload() {
 }
 
 // Styles
-const thStyle = {
-  border: '1px solid #ccc',
-  padding: '8px',
-  textAlign: 'left' as const,
-};
-
-const tdStyle = {
-  border: '1px solid #ccc',
-  padding: '8px',
-};
-
-const tdStyleRight = {
-  border: '1px solid #ccc',
-  padding: '8px',
-  textAlign: 'right' as const,
-};
-
-const rightAlign = {
-  textAlign: 'right' as const,
-};
+const thStyle = { border: '1px solid #ccc', padding: '8px', textAlign: 'left' as const };
+const tdStyle = { border: '1px solid #ccc', padding: '8px' };
+const tdStyleRight = { border: '1px solid #ccc', padding: '8px', textAlign: 'right' as const };
+const rightAlign = { textAlign: 'right' as const };
