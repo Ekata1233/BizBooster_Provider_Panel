@@ -1,8 +1,10 @@
 import { LeadType, useLead } from "@/app/context/LeadContext";
 import { CheckCircleIcon } from "@/icons";
 import React, { useEffect, useState } from "react";
-
-const BookingStatus = ({ checkout }: any) => {
+interface CheckoutType {
+  _id: string;
+}
+const BookingStatus = ({ checkout }:{ checkout: CheckoutType }) => {
     const { getLeadByCheckoutId } = useLead();
     const [lead, setLead] = useState<LeadType | null>(null);
 
@@ -19,16 +21,19 @@ const BookingStatus = ({ checkout }: any) => {
     }, [checkout]);
 
     const steps = lead?.leads?.map((entry) => ({
-        title: entry.statusType,
-        time: new Date(entry.createdAt).toLocaleString("en-IN", {
-            dateStyle: "medium",
-            timeStyle: "short",
-        }),
-        description: entry.description,
-        zoomLink: entry.zoomLink,
-        paymentLink: entry.paymentLink,
-        paymentType: entry.paymentType,
-    })) ?? [];
+    title: entry.statusType,
+    time: entry.createdAt
+        ? new Date(entry.createdAt).toLocaleString("en-IN", {
+              dateStyle: "medium",
+              timeStyle: "short",
+          })
+        : "N/A", // fallback string if createdAt is undefined
+    description: entry.description,
+    zoomLink: entry.zoomLink,
+    paymentLink: entry.paymentLink,
+    paymentType: entry.paymentType,
+})) ?? [];
+
 
     return (
         <div>
