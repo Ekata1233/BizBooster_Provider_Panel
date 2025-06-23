@@ -5,13 +5,15 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { IServiceCustomer } from '@/app/context/ServiceCustomerContext';
 import { CheckoutType } from '@/app/context/CheckoutContext';
+import { LeadType } from '@/app/context/LeadContext';
 
 interface InvoiceDownloadProps {
   checkoutDetails: CheckoutType;
   serviceCustomer: IServiceCustomer | null;
+  leadDetails: LeadType | null;
 }
 
-export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: InvoiceDownloadProps) {
+export default function InvoiceDownload({ checkoutDetails, serviceCustomer, leadDetails }: InvoiceDownloadProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
@@ -39,6 +41,10 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: In
   // Format functions
   const formatDateTime = (dateStr?: string) => dateStr ? new Date(dateStr).toLocaleString('en-IN') : 'N/A';
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
+
+  const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
+  const updatedAmount = leadDetails?.newAmount;
+
 
   return (
     <div className="p-4">
@@ -138,40 +144,78 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer }: In
             </tr>
           </thead>
           <tbody>
-  <tr>
-    <td style={tdStyle}>01</td>
-    <td style={tdStyle}>
-      <strong>{checkoutDetails?.service?.serviceName || 'Service'}</strong>
-      <br />
-      {'-'}
-    </td>
-    <td style={tdStyle}>1</td>
-    <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
-    <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
-  </tr>
-</tbody>
+            <tr>
+              <td style={tdStyle}>01</td>
+              <td style={tdStyle}>
+                <strong>{checkoutDetails?.service?.serviceName || 'Service'}</strong>
+                <br />
+                {'-'}
+              </td>
+              <td style={tdStyle}>1</td>
+              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
+              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
+            </tr>
+          </tbody>
 
         </table>
+
+        {hasExtraServices && (
+          <>
+            <h4 style={{ fontSize: '15px', margin: '10px 0' }}>Extra Services</h4>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f0f0f0' }}>
+                  <th style={thStyle}>SL</th>
+                  <th style={thStyle}>Service Name</th>
+                  <th style={thStyle}>Price</th>
+                  <th style={thStyle}>Discount</th>
+                  <th style={thStyle}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leadDetails!.extraService!.map((service, index) => (
+                  <tr key={index}>
+                    <td style={tdStyle}>{index + 1}</td>
+                    <td style={tdStyle}>{service.serviceName}</td>
+                    <td style={tdStyleRight}>{formatPrice(service.price)}</td>
+                    <td style={tdStyleRight}>{formatPrice(service.discount)}</td>
+                    <td style={tdStyleRight}>{formatPrice(service.total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
 
         {/* Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
-              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount  || 0)}</td></tr>
+              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td></tr>
               <tr><td>Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
               <tr><td>Coupon</td><td style={rightAlign}>- ₹0.00</td></tr>
               <tr><td>Tax</td><td style={rightAlign}>+ ₹0.00</td></tr>
               <tr style={{ fontWeight: 'bold' }}>
-                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount  || 0)}</td>
+                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
               </tr>
+              {updatedAmount && (
+                <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
+                  <td>Updated Amount</td>
+                  <td style={rightAlign}>{formatPrice(updatedAmount)}</td>
+                </tr>
+              )}
+
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
-                <td>Due</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount  || 0)}</td>
+                <td>Due</td>
+                <td style={rightAlign}>
+                  {updatedAmount
+                    ? formatPrice(updatedAmount)
+                    : formatPrice(checkoutDetails?.totalAmount || 0)}
+                </td>
               </tr>
             </tbody>
           </table>
-          <div style={{ width: '100%', textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
-            Thanks for using our service.
-          </div>
         </div>
 
         {/* Footer */}
