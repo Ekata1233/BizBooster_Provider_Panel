@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { IServiceCustomer } from '@/app/context/ServiceCustomerContext';
 import { CheckoutType } from '@/app/context/CheckoutContext';
 import { LeadType } from '@/app/context/LeadContext';
-import { useProvider } from '@/context/ProviderContext';
+import { useAuth } from '@/app/context/AuthContext';
 
 interface InvoiceDownloadProps {
   checkoutDetails: CheckoutType;
@@ -16,14 +16,19 @@ interface InvoiceDownloadProps {
 
 export default function InvoiceDownload({ checkoutDetails, serviceCustomer, leadDetails }: InvoiceDownloadProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
-   const { getProviderById, provider, loading, error } = useProvider();
+  const {providerDetails} = useAuth()
 
   const handleDownload = async () => {
     const element = invoiceRef.current;
     if (!element) return;
 
-    const originalDisplay = element.style.display;
-    element.style.display = 'block';
+ const originalDisplay = element.style.display;
+  const originalPosition = element.style.position;
+  const originalLeft = element.style.left;
+
+  element.style.display = 'block';
+  element.style.position = 'absolute';
+  element.style.left = '-9999px';
 
     try {
       const canvas = await html2canvas(element, { scale: 2 });
@@ -37,6 +42,8 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
       console.error('PDF generation failed:', err);
     } finally {
       element.style.display = originalDisplay;
+    element.style.position = originalPosition;
+    element.style.left = originalLeft;
     }
   };
 
@@ -47,18 +54,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
   const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
   const updatedAmount = leadDetails?.newAmount;
 
-  console.log("checkout details in invoice : ", checkoutDetails)
-
-  useEffect(() => {
-    if (checkoutDetails?.provider) {
-      getProviderById(checkoutDetails?.provider);
-    }
-  }, [checkoutDetails]);
-
-  if (loading) return <p>Loading provider data...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!provider) return <p>No provider data found.</p>;
-
+  console.log("provier details in invoice : ", providerDetails)
 
 
   return (
@@ -134,9 +130,9 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
             </div>
             <div style={{ width: '33%' }}>
               <p><strong>Service Provider</strong></p>
-              <p>{serviceCustomer?.fullName}</p>
-              <p>{serviceCustomer?.phone}</p>
-              <p>{serviceCustomer?.address || '-'}</p>
+              <p>{providerDetails?.fullName}</p>
+              <p>{providerDetails?.email}</p>
+              <p>{providerDetails?.phoneNo || '-'}</p>
             </div>
             <div style={{ width: '33%' }}>
               <p><strong>Service Time</strong></p>

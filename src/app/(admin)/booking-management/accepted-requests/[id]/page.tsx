@@ -92,11 +92,11 @@ const AcceptedBookingDetails = () => {
 
             <div>
               <button className="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 mx-2">
-              Edit Lead
-            </button>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
-              Download Invoice
-            </button>
+                Edit Lead
+              </button>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
+                Download Invoice
+              </button>
             </div>
           </div>
         </ComponentCard>
@@ -259,9 +259,8 @@ const AcceptedBookingDetails = () => {
               await createLead(formData);
               alert("Lead status updated successfully.");
               closeModal();
-            } catch (err) {
-              console.error("Failed to save lead:", err);
-              alert("Failed to save lead status.");
+            } catch (err: any) {
+              alert(err.message); // ✅ Will show "Please assign serviceman" if that's the backend message
             }
           }}
           checkoutId={checkoutDetails._id}
@@ -273,7 +272,7 @@ const AcceptedBookingDetails = () => {
         />
 
       </div>
-     
+
     </div>
   );
 };

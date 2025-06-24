@@ -291,7 +291,7 @@ const AllBookingsDetails = () => {
           onSubmit={async (formData) => {
             try {
               await createLead(formData);
-              alert("Lead status updated successfully.");
+              alert("Lead status updated ully.");
               closeModal();
             } catch (err) {
               console.error("Failed to save lead:", err);

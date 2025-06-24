@@ -103,11 +103,16 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
           },
         }
       );
+
       setLeads((prev) => [...prev, res.data]);
       setErrorLeads(null);
-    } catch (err) {
-      console.error("Failed to create lead:", err);
-      setErrorLeads("Failed to create lead.");
+    } catch (err: any) {
+      let message = "Failed to create lead.";
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+      setErrorLeads(message);
+      throw new Error(message); // ✅ Throw it to show in component
     } finally {
       setLoadingLeads(false);
     }
