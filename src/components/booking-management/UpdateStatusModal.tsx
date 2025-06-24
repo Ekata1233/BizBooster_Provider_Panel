@@ -47,6 +47,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
+
+
     const formData = new FormData();
     formData.append("checkout", checkoutId);
     formData.append("serviceCustomer", serviceCustomerId);
@@ -55,18 +57,18 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     formData.append("amount", amount);
 
     const leadStatus: Record<string, unknown> = {
-  statusType,
-  description,
-};
+      statusType,
+      description,
+    };
 
-if (linkType === "zoom" && zoomLink.trim()) {
-  leadStatus.zoomLink = zoomLink;
-}
+    if (linkType === "zoom" && zoomLink.trim()) {
+      leadStatus.zoomLink = zoomLink;
+    }
 
-if (linkType === "payment") {
-  if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
-  if (paymentType) leadStatus.paymentType = paymentType;
-}
+    if (linkType === "payment") {
+      if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
+      if (paymentType) leadStatus.paymentType = paymentType;
+    }
 
 
     formData.append("leads", JSON.stringify([leadStatus]));
@@ -74,6 +76,16 @@ if (linkType === "payment") {
     if (document) {
       formData.append("document", document);
     }
+
+    console.log("Submitting Lead:", {
+      checkoutId,
+      serviceCustomerId,
+      serviceManId,
+      serviceId,
+      amount,
+      leadStatus, // contains paymentLink?
+    });
+
 
     onSubmit(formData);
 
@@ -149,6 +161,7 @@ if (linkType === "payment") {
               />
               Payment Link
             </Label>
+            {/* <Label className="text-red-700">RS {amount}</Label> */}
           </div>
 
           {linkType === "zoom" && (
@@ -163,13 +176,6 @@ if (linkType === "payment") {
 
           {linkType === "payment" && (
             <>
-              <input
-                type="text"
-                placeholder="Enter Payment Link"
-                className="w-full p-2 mb-2 rounded-md border"
-                value={paymentLink}
-                onChange={(e) => setPaymentLink(e.target.value)}
-              />
               <div className="flex gap-4">
                 <Label className="flex items-center gap-2">
                   <input
@@ -177,21 +183,88 @@ if (linkType === "payment") {
                     name="paymentType"
                     value="full"
                     checked={paymentType === "full"}
-                    onChange={() => setPaymentType("full")}
+                    // onChange={() => setPaymentType("full")}
+                    onChange={async () => {
+                      setPaymentType("full");
+                      const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          amount: Number(amount),
+                          customerId: serviceCustomerId,
+                          customerName: "Customer Name", // Replace dynamically if available
+                          customerEmail: "customer@example.com", // Replace dynamically
+                          customerPhone: "9999999999"
+                        }),
+                      });
+                      const data = await res.json();
+                      console.log("Set payment link:", data.paymentLink);
+
+                      setPaymentLink(data.paymentLink || "");
+                    }}
+
                   />
                   Full Payment
                 </Label>
+                <Label className="text-red-700">RS {amount}</Label>
                 <Label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="paymentType"
                     value="partial"
                     checked={paymentType === "partial"}
-                    onChange={() => setPaymentType("partial")}
+                    // onChange={() => setPaymentType("partial")}
+                    onChange={async () => {
+                      setPaymentType("partial");
+                      const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          amount: Number(amount) / 2,
+                          customerId: serviceCustomerId,
+                          customerName: "Customer Name",
+                          customerEmail: "customer@example.com",
+                          customerPhone: "9999999999"
+                        }),
+                      });
+                      const data = await res.json();
+                      console.log("Set payment link:", data.paymentLink);
+
+                      setPaymentLink(data.paymentLink || "");
+                      console.log("Payment link response:", data);
+
+                    }}
+
                   />
                   Partial Payment
                 </Label>
+                <Label className="text-red-700">RS {Number(amount) / 2}</Label>
               </div>
+              {paymentLink && (
+                <div className="text-sm mt-2">
+                  <span className="text-blue-600 underline">
+                    <a href={paymentLink} target="_blank" rel="noopener noreferrer">
+                      Preview Payment Link
+                    </a>
+                  </span>
+                </div>
+              )}
+
+              {/* <input
+                type="text"
+                placeholder="Enter Payment Link"
+                className="w-full p-2 mb-2 rounded-md border"
+                value={paymentLink}
+                onChange={(e) => setPaymentLink(e.target.value)}
+              /> */}
+              <input
+                type="text"
+                placeholder="Enter Payment Link"
+                className="w-full p-2 mb-2 rounded-md border"
+                value={paymentLink}
+                disabled
+              />
+
             </>
           )}
         </div>

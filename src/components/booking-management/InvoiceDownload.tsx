@@ -54,7 +54,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
   const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
   const updatedAmount = leadDetails?.newAmount;
 
-  console.log("provier details in invoice : ", providerDetails)
   // Calculate total amount
   const baseAmount = leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
   const extraAmount = leadDetails?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;

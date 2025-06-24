@@ -116,7 +116,7 @@ const AllBookingsDetails = () => {
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
 
-  console.log("checkout details  : ", checkoutDetails)
+  // console.log("checkout details  : ", checkoutDetails)
 
   return (
     <div>
@@ -317,7 +317,7 @@ const AllBookingsDetails = () => {
           onSubmit={async (formData) => {
             try {
               await createLead(formData);
-              alert("Lead status updated ully.");
+              alert("Lead status updated Successfully.");
               closeModal();
             } catch (err) {
               console.error("Failed to save lead:", err);
@@ -329,7 +329,7 @@ const AllBookingsDetails = () => {
           serviceCustomerId={checkoutDetails.serviceCustomer}
           serviceManId={checkoutDetails.serviceMan ?? ""}
           serviceId={checkoutDetails.service?._id ?? ""}
-          amount={checkoutDetails.discountedPrice?.toString() || "150"}
+          amount={checkoutDetails.totalAmount?.toString() || "000"}
           loading={loadingLeads}
         />
 
