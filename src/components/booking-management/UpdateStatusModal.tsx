@@ -139,32 +139,38 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
         </div>
 
         <div className="mb-4">
-          <Label className="block mb-1 font-medium">Add Link</Label>
+          {(statusType === "Payment request (partial/full)" || statusType === "Need understand requirement") && (
+            <Label className="block mb-1 font-medium">Add Link</Label>
+          )}
+
           <div className="flex gap-4 mb-2">
-            <Label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="linkType"
-                value="zoom"
-                checked={linkType === "zoom"}
-                onChange={() => setLinkType("zoom")}
-              />
-              Zoom Link
-            </Label>
-            <Label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="linkType"
-                value="payment"
-                checked={linkType === "payment"}
-                onChange={() => setLinkType("payment")}
-              />
-              Payment Link
-            </Label>
+            {statusType === "Need understand requirement" &&
+              <Label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="linkType"
+                  value="zoom"
+                  checked={linkType === "zoom"}
+                  onChange={() => setLinkType("zoom")}
+                />
+                Zoom Link
+              </Label>}
+
+            {statusType === "Payment request (partial/full)" &&
+              <Label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="linkType"
+                  value="payment"
+                  checked={linkType === "payment"}
+                  onChange={() => setLinkType("payment")}
+                />
+                Payment Link
+              </Label>}
             {/* <Label className="text-red-700">RS {amount}</Label> */}
           </div>
 
-          {linkType === "zoom" && (
+          {statusType === "Need understand requirement" && (
             <input
               type="text"
               placeholder="Enter Zoom Link"
@@ -174,7 +180,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             />
           )}
 
-          {linkType === "payment" && (
+          {statusType === "Payment request (partial/full)" && (
             <>
               <div className="flex gap-4">
                 <Label className="flex items-center gap-2">
