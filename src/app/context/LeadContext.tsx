@@ -9,6 +9,10 @@ import React, {
 } from "react";
 import axios from "axios";
 
+type UpdateLeadResponse = {
+  data: LeadType | null;
+  errorMessage?: string;
+};
 interface IExtraService {
   serviceName: string;
   price: number;
@@ -49,8 +53,9 @@ interface LeadContextType {
   updateLeadByCheckoutId: (
     checkoutId: string,
     updates: { newAmount?: number; extraService?: IExtraService[] }
-  ) => Promise<LeadType | null>;
+  ) => Promise<{ data: LeadType | null; errorMessage?: string }>;
 }
+
 
 const LeadContext = createContext<LeadContextType | undefined>(undefined);
 
@@ -85,11 +90,16 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
         `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
       );
       return res.data?.data || null;
-    } catch (err) {
-      console.error("Failed to fetch lead by checkoutId:", err);
+    } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn("Lead not found for ID:");
       return null;
     }
-  };
+
+    console.error("Unexpected error in getLeadByCheckoutId:", error.message || error);
+    return null;
+  }
+};
 
   const createLead = async (formData: FormData) => {
     setLoadingLeads(true);
@@ -120,30 +130,31 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   }
 };
 
-  const updateLeadByCheckoutId = async (
-    checkoutId: string,
-    updates: { newAmount?: number; extraService?: IExtraService[] }
-  ): Promise<LeadType | null> => {
-    try {
-      const res = await axios.put(
-        `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`,
-        updates
-      );
-      const updatedLead = res.data?.data;
+const updateLeadByCheckoutId = async (
+  checkoutId: string,
+  updates: { newAmount?: number; extraService?: IExtraService[] }
+): Promise<{ data: LeadType | null; errorMessage?: string }> => {
+  try {
+    const res = await axios.put(
+      `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`,
+      updates
+    );
+    const updatedLead = res.data?.data;
 
-      // Optionally update local state if the lead exists in the list
-      setLeads((prevLeads) =>
-        prevLeads.map((lead) =>
-          lead.checkout === checkoutId ? { ...lead, ...updatedLead } : lead
-        )
-      );
+    setLeads((prevLeads) =>
+      prevLeads.map((lead) =>
+        lead.checkout === checkoutId ? { ...lead, ...updatedLead } : lead
+      )
+    );
 
-      return updatedLead || null;
-    } catch (err) {
-      console.error("Failed to update lead by checkoutId:", err);
-      return null;
-    }
-  };
+    return { data: updatedLead || null };
+  } catch (err: any) {
+    console.error("Failed to update lead by checkoutId:", err);
+    const message =
+      err.response?.data?.message || "Something went wrong on the server.";
+    return { data: null, errorMessage: message };
+  }
+};
 
 
   useEffect(() => {

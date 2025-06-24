@@ -51,12 +51,12 @@ const handleUpdate = async () => {
       })),
     };
 
-    const updated = await updateLeadByCheckoutId(checkoutId, payload);
+    const result = await updateLeadByCheckoutId(checkoutId, payload);
 
-    if (updated) {
+    if (result.data) {
       alert("Lead updated successfully!");
     } else {
-      alert("Failed to update lead.");
+      alert(result.errorMessage || "Failed to update lead.");
     }
 
     closeModal();
@@ -65,8 +65,6 @@ const handleUpdate = async () => {
     alert("Something went wrong while updating the lead.");
   }
 };
-
-
 
 
   return (

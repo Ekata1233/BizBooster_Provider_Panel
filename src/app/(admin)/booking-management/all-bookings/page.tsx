@@ -174,7 +174,6 @@ const AllBookings = () => {
   ];
 
   const data = checkouts
-  .filter((checkout: CheckoutType) => checkout.isAccepted === true)
   .map((checkout: CheckoutType) => ({
     bookingId: checkout.bookingId,
     serviceCustomer: checkout.serviceCustomer,

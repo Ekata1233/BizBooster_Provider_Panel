@@ -43,15 +43,41 @@ const AllBookingsDetails = () => {
   const [lead, setLead] = useState<LeadType | null>(null);
 
 
-  useEffect(() => {
-    const fetchLead = async () => {
-      if (!checkoutDetails?._id) return;
-      const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
-      setLead(fetchedLead);
-    };
+  // useEffect(() => {
+  //   const fetchLead = async () => {
+  //     if (!checkoutDetails?._id) return;
+  //     const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+  //     setLead(fetchedLead);
+  //   };
 
-    fetchLead();
-  }, [checkoutDetails]);
+  //   fetchLead();
+  // }, [checkoutDetails]);
+
+  useEffect(() => {
+  const fetchLead = async () => {
+    if (!checkoutDetails?._id) return;
+
+    try {
+      const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+
+      if (!fetchedLead) {
+        console.warn("No lead found for ID:", checkoutDetails._id);
+        return;
+      }
+
+      setLead(fetchedLead);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+      } else {
+        console.error("Error fetching lead:", error.message || error);
+      }
+    }
+  };
+
+  fetchLead();
+}, [checkoutDetails]);
+
 
   const {
     fetchServiceCustomer,

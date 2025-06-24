@@ -10,15 +10,41 @@ const BookingStatus = ({ checkout }:{ checkout: CheckoutType }) => {
 
     console.log("lead : ", lead);
 
-    useEffect(() => {
-        const fetchLead = async () => {
-            if (!checkout?._id) return;
-            const fetchedLead = await getLeadByCheckoutId(checkout._id);
-            setLead(fetchedLead);
-        };
+    // useEffect(() => {
+    //     const fetchLead = async () => {
+    //         if (!checkout?._id) return;
+    //         const fetchedLead = await getLeadByCheckoutId(checkout._id);
+    //         setLead(fetchedLead);
+    //     };
 
-        fetchLead();
-    }, [checkout]);
+    //     fetchLead();
+    // }, [checkout]);
+
+    useEffect(() => {
+  const fetchLead = async () => {
+    if (!checkout?._id) return;
+
+    try {
+      const fetchedLead = await getLeadByCheckoutId(checkout._id);
+
+      if (!fetchedLead) {
+        console.warn("No lead found for ID:", checkout._id);
+        return;
+      }
+
+      setLead(fetchedLead);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn("Lead not found (404) for ID:", checkout._id);
+      } else {
+        console.error("Error fetching lead:", error.message || error);
+      }
+    }
+  };
+
+  fetchLead();
+}, [checkout]);
+
 
     const steps = lead?.leads?.map((entry) => ({
     title: entry.statusType,
