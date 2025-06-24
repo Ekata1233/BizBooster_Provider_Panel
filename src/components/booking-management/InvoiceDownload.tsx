@@ -16,19 +16,19 @@ interface InvoiceDownloadProps {
 
 export default function InvoiceDownload({ checkoutDetails, serviceCustomer, leadDetails }: InvoiceDownloadProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
-  const {providerDetails} = useAuth()
+  const { providerDetails } = useAuth()
 
   const handleDownload = async () => {
     const element = invoiceRef.current;
     if (!element) return;
 
- const originalDisplay = element.style.display;
-  const originalPosition = element.style.position;
-  const originalLeft = element.style.left;
+    const originalDisplay = element.style.display;
+    const originalPosition = element.style.position;
+    const originalLeft = element.style.left;
 
-  element.style.display = 'block';
-  element.style.position = 'absolute';
-  element.style.left = '-9999px';
+    element.style.display = 'block';
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
 
     try {
       const canvas = await html2canvas(element, { scale: 2 });
@@ -42,8 +42,8 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
       console.error('PDF generation failed:', err);
     } finally {
       element.style.display = originalDisplay;
-    element.style.position = originalPosition;
-    element.style.left = originalLeft;
+      element.style.position = originalPosition;
+      element.style.left = originalLeft;
     }
   };
 
@@ -55,6 +55,10 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
   const updatedAmount = leadDetails?.newAmount;
 
   console.log("provier details in invoice : ", providerDetails)
+  // Calculate total amount
+  const baseAmount = leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
+  const extraAmount = leadDetails?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
+  const grandTotal = baseAmount + extraAmount;
 
 
   return (
@@ -163,8 +167,8 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
                 {'-'}
               </td>
               <td style={tdStyle}>1</td>
-              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
-              <td style={tdStyleRight}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
+              <td style={tdStyleRight}> {formatPrice(leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
+              <td style={tdStyleRight}> {formatPrice(leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
             </tr>
           </tbody>
 
@@ -203,26 +207,31 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
-              <tr><td>Subtotal</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td></tr>
+              <tr><td>Subtotal</td><td style={rightAlign}> {formatPrice(leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td></tr>
               <tr><td>Discount</td><td style={rightAlign}>- ₹0.00</td></tr>
               <tr><td>Coupon</td><td style={rightAlign}>- ₹0.00</td></tr>
               <tr><td>Tax</td><td style={rightAlign}>+ ₹0.00</td></tr>
-              <tr style={{ fontWeight: 'bold' }}>
-                <td>Total</td><td style={rightAlign}>{formatPrice(checkoutDetails?.totalAmount || 0)}</td>
+              {leadDetails?.extraService?.map((service, index) => (
+                <tr key={index} style={{ fontWeight: 'bold' }}>
+                  <td>Extra Service</td>
+                  <td style={rightAlign}>{formatPrice(service.total)}</td>
+                </tr>
+              ))}
+
+              <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
+                <td>Total</td><td style={rightAlign}>{formatPrice(grandTotal || 0)}</td>
               </tr>
-              {updatedAmount && (
+              {/* {updatedAmount && (
                 <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
                   <td>Updated Amount</td>
                   <td style={rightAlign}>{formatPrice(updatedAmount)}</td>
                 </tr>
-              )}
+              )} */}
 
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
                 <td>Due</td>
                 <td style={rightAlign}>
-                  {updatedAmount
-                    ? formatPrice(updatedAmount)
-                    : formatPrice(checkoutDetails?.totalAmount || 0)}
+                  {formatPrice(grandTotal || 0)}
                 </td>
               </tr>
             </tbody>

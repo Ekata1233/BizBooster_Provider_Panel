@@ -107,16 +107,18 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
       setLeads((prev) => [...prev, res.data]);
       setErrorLeads(null);
     } catch (err: any) {
-      let message = "Failed to create lead.";
-      if (axios.isAxiosError(err)) {
-        message = err.response?.data?.message || message;
-      }
-      setErrorLeads(message);
-      throw new Error(message); // ✅ Throw it to show in component
-    } finally {
-      setLoadingLeads(false);
+    let message = "Failed to create lead.";
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message || message;
     }
-  };
+    setErrorLeads(message);
+
+    // ✅ Instead of throwing a new Error, just throw the message directly:
+    throw message;
+  } finally {
+    setLoadingLeads(false);
+  }
+};
 
   const updateLeadByCheckoutId = async (
     checkoutId: string,

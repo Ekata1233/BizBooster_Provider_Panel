@@ -295,7 +295,8 @@ const AllBookingsDetails = () => {
               closeModal();
             } catch (err) {
               console.error("Failed to save lead:", err);
-              alert("Failed to save lead status.");
+              // ✅ `err` is now the message string
+              alert(err || "Failed to save lead status.");
             }
           }}
           checkoutId={checkoutDetails._id}
