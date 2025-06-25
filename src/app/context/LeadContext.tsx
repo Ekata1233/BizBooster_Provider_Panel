@@ -41,6 +41,7 @@ export interface LeadType {
   newAmount?: number;
   extraService?: IExtraService[];
   leads: IStatus[];
+  isAdminApproved? : boolean;
 }
 
 interface LeadContextType {

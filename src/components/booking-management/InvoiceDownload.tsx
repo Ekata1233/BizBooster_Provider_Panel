@@ -18,6 +18,8 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
   const invoiceRef = useRef<HTMLDivElement>(null);
   const { providerDetails } = useAuth()
 
+  console.log("lead details : ", leadDetails);
+
   const handleDownload = async () => {
     const element = invoiceRef.current;
     if (!element) return;
@@ -47,19 +49,20 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
     }
   };
 
-  // Format functions
   const formatDateTime = (dateStr?: string) => dateStr ? new Date(dateStr).toLocaleString('en-IN') : 'N/A';
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
 
-  const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
+  // const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
+  const hasExtraServices =
+  leadDetails?.isAdminApproved === true &&
+  Array.isArray(leadDetails?.extraService) &&
+  leadDetails.extraService.length > 0;
+
   const updatedAmount = leadDetails?.newAmount;
 
-  // Calculate total amount
   const baseAmount = leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
   const extraAmount = leadDetails?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
   const grandTotal = baseAmount + extraAmount;
-
-
   return (
     <div className="p-4">
       <button
@@ -68,8 +71,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
       >
         Download Invoice
       </button>
-
-      {/* Hidden invoice template */}
       <div
         ref={invoiceRef}
         style={{
@@ -85,7 +86,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
           boxSizing: 'border-box',
         }}
       >
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', margin: 0 }}>Invoice</h2>
@@ -98,8 +98,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
             <p>info@bizbooster2x.com</p>
           </div>
         </div>
-
-        {/* Partner Info Box */}
         <div style={{ border: '1px solid #ccc', padding: '16px', marginBottom: '20px', fontSize: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <div style={{ width: '30%' }}>
@@ -122,9 +120,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
 
             </div>
           </div>
-
           <hr style={{ margin: '16px 0' }} />
-
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ width: '33%' }}>
               <p><strong>Payment</strong></p>
@@ -145,8 +141,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
             </div>
           </div>
         </div>
-
-        {/* Table */}
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
           <thead>
             <tr style={{ backgroundColor: '#f0f0f0' }}>
@@ -170,9 +164,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
               <td style={tdStyleRight}> {formatPrice(leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
             </tr>
           </tbody>
-
         </table>
-
         {hasExtraServices && (
           <>
             <h4 style={{ fontSize: '15px', margin: '10px 0' }}>Extra Services</h4>
@@ -200,9 +192,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
             </table>
           </>
         )}
-
-
-        {/* Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <table style={{ width: '50%', fontSize: '13px' }}>
             <tbody>
@@ -220,13 +209,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
                 <td>Total</td><td style={rightAlign}>{formatPrice(grandTotal || 0)}</td>
               </tr>
-              {/* {updatedAmount && (
-                <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
-                  <td>Updated Amount</td>
-                  <td style={rightAlign}>{formatPrice(updatedAmount)}</td>
-                </tr>
-              )} */}
-
+            
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
                 <td>Due</td>
                 <td style={rightAlign}>
