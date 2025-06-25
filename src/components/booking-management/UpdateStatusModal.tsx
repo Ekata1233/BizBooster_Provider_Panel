@@ -35,6 +35,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [paymentType, setPaymentType] = useState("");
   const [document, setDocument] = useState<File | null>(null);
 
+  console.log("payment link : ", paymentLink)
+
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setDocument(e.target.files[0]);
@@ -77,13 +79,13 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       formData.append("document", document);
     }
 
-    console.log("Submitting Lead:", {
+    console.log("Submitting Lead of formdata :", {
       checkoutId,
       serviceCustomerId,
       serviceManId,
       serviceId,
       amount,
-      leadStatus, // contains paymentLink?
+      leadStatus, 
     });
 
 
@@ -98,6 +100,27 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     setPaymentType("");
     setDocument(null);
   };
+
+  const createPaymentLink = async (amountToPay: number) => {
+    const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: amountToPay,
+        customerId: serviceCustomerId,
+        customerName: "Customer Name",
+        customerEmail: "customer@example.com",
+        customerPhone: "9999999999"
+      }),
+    });
+
+    const data = await res.json();
+    setPaymentLink(data.paymentLink || "");
+    if (data.paymentLink) {
+      window.open(data.paymentLink, "_blank");
+    }
+  };
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -143,7 +166,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             <Label className="block mb-1 font-medium">Add Link</Label>
           )}
 
-          <div className="flex gap-4 mb-2">
+          {/* <div className="flex gap-4 mb-2">
             {statusType === "Need understand requirement" &&
               <Label className="flex items-center gap-2">
                 <input
@@ -167,8 +190,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                 />
                 Payment Link
               </Label>}
-            {/* <Label className="text-red-700">RS {amount}</Label> */}
-          </div>
+          </div> */}
 
           {statusType === "Need understand requirement" && (
             <input
@@ -182,33 +204,39 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
           {statusType === "Payment request (partial/full)" && (
             <>
-              <div className="flex gap-4">
+              <div className="flex gap-4 my-3">
                 <Label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="paymentType"
                     value="full"
                     checked={paymentType === "full"}
-                    // onChange={() => setPaymentType("full")}
-                    onChange={async () => {
+                    // onChange={async () => {
+                    //   setPaymentType("full");
+                    //   const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
+                    //     method: "POST",
+                    //     headers: { "Content-Type": "application/json" },
+                    //     body: JSON.stringify({
+                    //       amount: Number(amount),
+                    //       customerId: serviceCustomerId,
+                    //       customerName: "Customer Name", // Replace dynamically if available
+                    //       customerEmail: "customer@example.com", // Replace dynamically
+                    //       customerPhone: "9999999999"
+                    //     }),
+                    //   });
+                    //   const data = await res.json();
+                    //   console.log("Set payment link:", data.paymentLink);
+
+                    //   setPaymentLink(data.paymentLink || "");
+                    //   if (data.paymentLink) {
+                    //     window.open(data.paymentLink, "_blank"); // Opens in new tab
+                    //     // Or use: window.location.href = data.paymentLink; // Opens in same tab
+                    //   }
+                    // }}
+                    onChange={() => {
                       setPaymentType("full");
-                      const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          amount: Number(amount),
-                          customerId: serviceCustomerId,
-                          customerName: "Customer Name", // Replace dynamically if available
-                          customerEmail: "customer@example.com", // Replace dynamically
-                          customerPhone: "9999999999"
-                        }),
-                      });
-                      const data = await res.json();
-                      console.log("Set payment link:", data.paymentLink);
-
-                      setPaymentLink(data.paymentLink || "");
+                      createPaymentLink(Number(amount));
                     }}
-
                   />
                   Full Payment
                 </Label>
@@ -219,34 +247,40 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                     name="paymentType"
                     value="partial"
                     checked={paymentType === "partial"}
-                    // onChange={() => setPaymentType("partial")}
-                    onChange={async () => {
+                    // onChange={async () => {
+                    //   setPaymentType("partial");
+                    //   const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
+                    //     method: "POST",
+                    //     headers: { "Content-Type": "application/json" },
+                    //     body: JSON.stringify({
+                    //       amount: Number(amount) / 2,
+                    //       customerId: serviceCustomerId,
+                    //       customerName: "Customer Name",
+                    //       customerEmail: "customer@example.com",
+                    //       customerPhone: "9999999999"
+                    //     }),
+                    //   });
+                    //   const data = await res.json();
+                    //   console.log("Set payment link:", data.paymentLink);
+
+                    //   setPaymentLink(data.paymentLink || "");
+                    //   console.log("Payment link response:", data);
+                    //   if (data.paymentLink) {
+                    //     window.open(data.paymentLink, "_blank"); // Opens in new tab
+                    //     // Or use: window.location.href = data.paymentLink; // Opens in same tab
+                    //   }
+
+                    // }}
+                    onChange={() => {
                       setPaymentType("partial");
-                      const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          amount: Number(amount) / 2,
-                          customerId: serviceCustomerId,
-                          customerName: "Customer Name",
-                          customerEmail: "customer@example.com",
-                          customerPhone: "9999999999"
-                        }),
-                      });
-                      const data = await res.json();
-                      console.log("Set payment link:", data.paymentLink);
-
-                      setPaymentLink(data.paymentLink || "");
-                      console.log("Payment link response:", data);
-
+                      createPaymentLink(Number(amount) / 2);
                     }}
-
                   />
                   Partial Payment
                 </Label>
                 <Label className="text-red-700">RS {Number(amount) / 2}</Label>
               </div>
-              {paymentLink && (
+              {/* {paymentLink && (
                 <div className="text-sm mt-2">
                   <span className="text-blue-600 underline">
                     <a href={paymentLink} target="_blank" rel="noopener noreferrer">
@@ -254,7 +288,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                     </a>
                   </span>
                 </div>
-              )}
+              )} */}
 
               {/* <input
                 type="text"
