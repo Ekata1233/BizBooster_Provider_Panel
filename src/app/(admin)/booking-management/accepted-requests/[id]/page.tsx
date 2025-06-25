@@ -12,18 +12,22 @@ import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
 import BookingStatus from '@/components/booking-management/BookingStatus';
 import { useModal } from '@/hooks/useModal';
-import { useLead } from '@/app/context/LeadContext';
+import { LeadType, useLead } from '@/app/context/LeadContext';
 import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
+import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
+import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
 
 const AcceptedBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
   const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
   const { createLead, loadingLeads } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
-
+    const { getLeadByCheckoutId } = useLead();
+  const [lead, setLead] = useState<LeadType | null>(null);
   const params = useParams();
   const id = params?.id as string;
 
@@ -62,12 +66,42 @@ const AcceptedBookingDetails = () => {
     }
   }, [provider]);
 
+    useEffect(() => {
+    const fetchLead = async () => {
+      if (!checkoutDetails?._id) return;
+  
+      try {
+        const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+  
+        if (!fetchedLead) {
+          console.warn("No lead found for ID:", checkoutDetails._id);
+          return;
+        }
+  
+        setLead(fetchedLead);
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+        } else {
+          console.error("Error fetching lead:", error.message || error);
+        }
+      }
+    };
+  
+    fetchLead();
+  }, [checkoutDetails]);
+
   const getStatusLabel = () => {
     if (checkoutDetails?.isCompleted) return 'Done';
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
     return 'Pending';
   };
-
+  const getStatusColor = () => {
+    const status = checkoutDetails?.paymentStatus?.toLowerCase();
+    if (status === 'paid') return 'text-green-600';
+    if (status === 'failed') return 'text-red-600';
+    return 'text-blue-600'; // default for pending or other statuses
+  };
 
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
@@ -90,14 +124,29 @@ const AcceptedBookingDetails = () => {
               </p>
             </div>
 
-            <div>
-              <button className="bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 mx-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-4">
+              <button
+                className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 transition duration-300"
+                onClick={() => setIsEditOpen(true)}
+              >
                 Edit Lead
               </button>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mx-2">
-                Download Invoice
-              </button>
+
+              {isEditOpen && (
+                <UpdateEditLead
+                  isOpen={isEditOpen}
+                  closeModal={() => setIsEditOpen(false)}
+                  checkoutId={checkoutDetails._id}
+                />
+              )}
+
+              <InvoiceDownload
+                leadDetails={lead}
+                checkoutDetails={checkoutDetails}
+                serviceCustomer={serviceCustomer}
+              />
             </div>
+
           </div>
         </ComponentCard>
 
@@ -132,7 +181,7 @@ const AcceptedBookingDetails = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <p className="text-gray-700"><strong>Payment Status:</strong> {checkoutDetails.paymentStatus}</p>
+                 <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt

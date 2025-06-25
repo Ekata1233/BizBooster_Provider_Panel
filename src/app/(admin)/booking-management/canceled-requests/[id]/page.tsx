@@ -11,11 +11,14 @@ import { useServiceMan } from '@/app/context/ServiceManContext';
 import { useAuth } from '@/app/context/AuthContext';
 import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
+import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
+import { LeadType, useLead } from '@/app/context/LeadContext';
 
 const CanceledBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
-
+  const { getLeadByCheckoutId } = useLead();
+  const [lead, setLead] = useState<LeadType | null>(null);
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
@@ -36,6 +39,31 @@ const CanceledBookingDetails = () => {
     loading,
     error,
   } = useServiceCustomer();
+
+    useEffect(() => {
+    const fetchLead = async () => {
+      if (!checkoutDetails?._id) return;
+  
+      try {
+        const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+  
+        if (!fetchedLead) {
+          console.warn("No lead found for ID:", checkoutDetails._id);
+          return;
+        }
+  
+        setLead(fetchedLead);
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+        } else {
+          console.error("Error fetching lead:", error.message || error);
+        }
+      }
+    };
+  
+    fetchLead();
+  }, [checkoutDetails]);
 
   // Fetch checkout by ID
   useEffect(() => {
@@ -61,7 +89,12 @@ const CanceledBookingDetails = () => {
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
     return 'Pending';
   };
-
+  const getStatusColor = () => {
+    const status = checkoutDetails?.paymentStatus?.toLowerCase();
+    if (status === 'paid') return 'text-green-600';
+    if (status === 'failed') return 'text-red-600';
+    return 'text-blue-600'; // default for pending or other statuses
+  };
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
@@ -82,9 +115,11 @@ const CanceledBookingDetails = () => {
                 Status: <span className="font-medium">{getStatusLabel()}</span>
               </p>
             </div>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-              Download Invoice
-            </button>
+            <InvoiceDownload
+              leadDetails={lead}
+              checkoutDetails={checkoutDetails}
+              serviceCustomer={serviceCustomer}
+            />
           </div>
         </ComponentCard>
 
@@ -119,7 +154,7 @@ const CanceledBookingDetails = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <p className="text-gray-700"><strong>Payment Status:</strong> {checkoutDetails.paymentStatus}</p>
+                  <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt
@@ -176,7 +211,7 @@ const CanceledBookingDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+              {/* <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
@@ -188,11 +223,11 @@ const CanceledBookingDetails = () => {
                     Accept
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
-              checkoutId={checkoutDetails?._id}
+                checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}

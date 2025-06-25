@@ -11,13 +11,20 @@ import { useServiceMan } from '@/app/context/ServiceManContext';
 import { useAuth } from '@/app/context/AuthContext';
 import CustomerInfoCard from '@/components/booking-management/CustomerInfoCard';
 import ServiceMenListCard from '@/components/booking-management/ServiceMenListCard';
-
+import { LeadType, useLead } from '@/app/context/LeadContext';
+import { useModal } from '@/hooks/useModal';
+import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
+import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
+import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
 const OngoingBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
+  const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
+  const { createLead, loadingLeads, } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
 
   const params = useParams();
@@ -29,6 +36,46 @@ const OngoingBookingDetails = () => {
     errorCheckoutDetails,
     fetchCheckoutsDetailsById,
   } = useCheckout();
+
+  const { getLeadByCheckoutId } = useLead();
+  const [lead, setLead] = useState<LeadType | null>(null);
+
+
+  // useEffect(() => {
+  //   const fetchLead = async () => {
+  //     if (!checkoutDetails?._id) return;
+  //     const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+  //     setLead(fetchedLead);
+  //   };
+
+  //   fetchLead();
+  // }, [checkoutDetails]);
+
+  useEffect(() => {
+  const fetchLead = async () => {
+    if (!checkoutDetails?._id) return;
+
+    try {
+      const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+
+      if (!fetchedLead) {
+        console.warn("No lead found for ID:", checkoutDetails._id);
+        return;
+      }
+
+      setLead(fetchedLead);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+      } else {
+        console.error("Error fetching lead:", error.message || error);
+      }
+    }
+  };
+
+  fetchLead();
+}, [checkoutDetails]);
+
 
   const {
     fetchServiceCustomer,
@@ -61,6 +108,12 @@ const OngoingBookingDetails = () => {
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
     return 'Pending';
   };
+  const getStatusColor = () => {
+    const status = checkoutDetails?.paymentStatus?.toLowerCase();
+    if (status === 'paid') return 'text-green-600';
+    if (status === 'failed') return 'text-red-600';
+    return 'text-blue-600'; // default for pending or other statuses
+  };
 
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
@@ -72,7 +125,7 @@ const OngoingBookingDetails = () => {
 
       <div className="space-y-6">
         {/* Booking Summary Header */}
-        <ComponentCard title="Booking Details">
+      <ComponentCard title="Booking Details">
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-lg font-semibold">
@@ -82,9 +135,30 @@ const OngoingBookingDetails = () => {
                 Status: <span className="font-medium">{getStatusLabel()}</span>
               </p>
             </div>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-              Download Invoice
-            </button>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-4">
+              <button
+                className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 transition duration-300"
+                onClick={() => setIsEditOpen(true)}
+              >
+                Edit Lead
+              </button>
+
+              {isEditOpen && (
+                <UpdateEditLead
+                  isOpen={isEditOpen}
+                  closeModal={() => setIsEditOpen(false)}
+                  checkoutId={checkoutDetails._id}
+                />
+              )}
+
+              <InvoiceDownload
+                leadDetails={lead}
+                checkoutDetails={checkoutDetails}
+                serviceCustomer={serviceCustomer}
+              />
+            </div>
+
           </div>
         </ComponentCard>
 
@@ -119,7 +193,7 @@ const OngoingBookingDetails = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <p className="text-gray-700"><strong>Payment Status:</strong> {checkoutDetails.paymentStatus}</p>
+                 <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt
@@ -179,13 +253,15 @@ const OngoingBookingDetails = () => {
               <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
+                <button onClick={openModal} className="bg-red-500 text-white px-7  py-2 rounded-md hover:bg-red-600 transition duration-200">
+                  Update Status
+                </button>
 
-                
               </div>
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
-              checkoutId={checkoutDetails?._id}
+                checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}
@@ -231,6 +307,31 @@ const OngoingBookingDetails = () => {
             </div>
           </div>
         )}
+      </div>
+
+       <div>
+        <UpdateStatusModal
+          isOpen={isOpen}
+          onClose={closeModal}
+          onSubmit={async (formData) => {
+            try {
+              await createLead(formData);
+              alert("Lead status updated Successfully.");
+              closeModal();
+            } catch (err) {
+              console.error("Failed to save lead:", err);
+              // ✅ `err` is now the message string
+              alert(err || "Failed to save lead status.");
+            }
+          }}
+          checkoutId={checkoutDetails._id}
+          serviceCustomerId={checkoutDetails.serviceCustomer}
+          serviceManId={checkoutDetails.serviceMan ?? ""}
+          serviceId={checkoutDetails.service?._id ?? ""}
+          amount={checkoutDetails.totalAmount?.toString() || "000"}
+          loading={loadingLeads}
+        />
+
       </div>
     </div>
   );
