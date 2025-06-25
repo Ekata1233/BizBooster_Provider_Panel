@@ -61,7 +61,12 @@ const OngoingBookingDetails = () => {
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
     return 'Pending';
   };
-
+const getStatusColor = () => {
+    const status = checkoutDetails?.paymentStatus?.toLowerCase();
+    if (status === 'paid') return 'text-green-600';
+    if (status === 'failed') return 'text-red-600';
+    return 'text-blue-600'; // default for pending or other statuses
+  };
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
@@ -119,7 +124,7 @@ const OngoingBookingDetails = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <p className="text-gray-700"><strong>Payment Status:</strong> {checkoutDetails.paymentStatus}</p>
+                 <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt
