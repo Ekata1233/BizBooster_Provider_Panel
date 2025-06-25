@@ -121,7 +121,7 @@ const AllBookingsDetails = () => {
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
 
-  // console.log("checkout details  : ", checkoutDetails)
+
 
   return (
     <div>

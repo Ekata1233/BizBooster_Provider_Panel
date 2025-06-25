@@ -13,7 +13,8 @@ import Link from 'next/link';
 interface BookingRow {
   _id: string;
   bookingId: string;
-  serviceCustomer: string;
+  fullName: string;
+  email: string;
   totalAmount: number;
   paymentStatus: string;
   scheduleDate?: string;
@@ -22,7 +23,10 @@ interface BookingRow {
 }
 type CheckoutType = {
   bookingId: string;
-  serviceCustomer: string;
+  serviceCustomer: {
+    fullName: string;
+    email: string;
+  };
   totalAmount: number;
   paymentStatus: string;
   createdAt: string;
@@ -49,7 +53,7 @@ const AllBookings = () => {
     }
   }, [provider]);
 
-  console.log("checkout : ", checkouts)
+  console.log("checkout details : ", checkouts)
 
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
@@ -68,11 +72,12 @@ const AllBookings = () => {
       header: 'Customer Info',
       accessor: 'customerInfo',
       render: (row: BookingRow) => {
-        console.log("Customer Info Row:", row); // 👈 This will log the entire row object
+        console.log("data of the bookings : ", row)
         return (
           <div className="text-sm">
-            <p className="font-medium text-gray-900">{row.serviceCustomer || 'N/A'}</p>
-            <p className="text-gray-500">{row.serviceCustomer || ''}</p>
+            <p className="font-medium text-gray-900">{row.fullName || 'N/A'}</p>
+            <p className="text-gray-500">{row.email
+              || ''}</p>
           </div>
         );
       },
@@ -146,10 +151,10 @@ const AllBookings = () => {
       render: (row: BookingRow) => (
         <div className="flex gap-2">
           <Link href={`/booking-management/all-bookings/${row._id}`} passHref>
-              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-                <EyeIcon />
-              </button>
-            </Link>
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
           {/* <button
             onClick={() => alert(`Viewing booking ID: ${row.bookingId}`)}
             className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
@@ -174,16 +179,17 @@ const AllBookings = () => {
   ];
 
   const data = checkouts
-  .map((checkout: CheckoutType) => ({
-    bookingId: checkout.bookingId,
-    serviceCustomer: checkout.serviceCustomer,
-    totalAmount: checkout.totalAmount,
-    paymentStatus: checkout.paymentStatus,
-    scheduleDate: checkout.createdAt,
-    bookingDate: checkout.createdAt,
-    orderStatus: checkout.orderStatus,
-    _id: checkout._id,
-  }));
+    .map((checkout: CheckoutType) => ({
+      bookingId: checkout.bookingId,
+      fullName: checkout.serviceCustomer?.fullName,
+      email: checkout.serviceCustomer?.email,
+      totalAmount: checkout.totalAmount,
+      paymentStatus: checkout.paymentStatus,
+      scheduleDate: checkout.createdAt,
+      bookingDate: checkout.createdAt,
+      orderStatus: checkout.orderStatus,
+      _id: checkout._id,
+    }));
 
 
 
