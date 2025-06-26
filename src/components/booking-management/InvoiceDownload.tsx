@@ -227,7 +227,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
                 </tr>
               )} */}
 
-              <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
+              <tr style={{ fontWeight: 'bold', color: 'red' }}>
                 <td>Due</td>
                 <td style={rightAlign}>
                   {formatPrice(grandTotal || 0)}
