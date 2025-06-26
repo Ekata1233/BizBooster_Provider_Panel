@@ -64,13 +64,22 @@ const OngoingBookingDetails = () => {
       }
 
       setLead(fetchedLead);
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn("Lead not found (404) for ID:", checkoutDetails._id);
-      } else {
-        console.error("Error fetching lead:", error.message || error);
-      }
-    }
+    } catch (error: unknown) {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof (error as { response: unknown }).response === 'object' &&
+    (error as { response: { status?: number } }).response?.status === 404
+  ) {
+    console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+  } else {
+    const message =
+      error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error("Error fetching lead:", message);
+  }
+}
+
   };
 
   fetchLead();

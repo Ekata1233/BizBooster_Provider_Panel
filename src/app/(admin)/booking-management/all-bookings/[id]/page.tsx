@@ -66,13 +66,27 @@ const AllBookingsDetails = () => {
       }
 
       setLead(fetchedLead);
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn("Lead not found (404) for ID:", checkoutDetails._id);
-      } else {
-        console.error("Error fetching lead:", error.message || error);
-      }
-    }
+    } catch (error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: { status?: number } }).response?.status === "number" &&
+    (error as { response: { status: number } }).response.status === 404
+  ) {
+    console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+  } else {
+    const errorMessage =
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error
+        ? String((error as { message?: unknown }).message)
+        : String(error);
+
+    console.error("Error fetching lead:", errorMessage);
+  }
+}
+
   };
 
   fetchLead();
