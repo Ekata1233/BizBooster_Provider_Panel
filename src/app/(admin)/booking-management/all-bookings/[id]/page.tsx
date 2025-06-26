@@ -17,7 +17,6 @@ import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal
 import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
 import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
 
-
 const AllBookingsDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
@@ -41,17 +40,6 @@ const AllBookingsDetails = () => {
 
   const { getLeadByCheckoutId } = useLead();
   const [lead, setLead] = useState<LeadType | null>(null);
-
-
-  // useEffect(() => {
-  //   const fetchLead = async () => {
-  //     if (!checkoutDetails?._id) return;
-  //     const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
-  //     setLead(fetchedLead);
-  //   };
-
-  //   fetchLead();
-  // }, [checkoutDetails]);
 
   useEffect(() => {
   const fetchLead = async () => {
@@ -116,6 +104,15 @@ const AllBookingsDetails = () => {
     if (status === 'failed') return 'text-red-600';
     return 'text-blue-600'; // default for pending or other statuses
   };
+
+    const hasExtraServices =
+    lead?.isAdminApproved === true &&
+    Array.isArray(lead?.extraService) &&
+    lead.extraService.length > 0;
+  const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
+  const baseAmount = lead?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
+  const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
+  const grandTotal = baseAmount + extraAmount;
 
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
@@ -228,6 +225,34 @@ const AllBookingsDetails = () => {
                     </tr>
                   </tbody>
                 </table>
+
+                  {hasExtraServices && (
+                  <>
+                    <h4 className="text-sm font-semibold text-gray-700 my-3">Extra Services</h4>
+                    <table className="w-full table-auto border border-gray-200 text-sm mb-5">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="border px-4 py-2 text-left">SL</th>
+                          <th className="border px-4 py-2 text-left">Service Name</th>
+                          <th className="border px-4 py-2 text-left">Price</th>
+                          <th className="border px-4 py-2 text-left">Discount</th>
+                          <th className="border px-4 py-2 text-left">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lead!.extraService!.map((service, index) => (
+                          <tr key={index}>
+                            <td className="border px-4 py-2 text-left">{index + 1}</td>
+                            <td className="border px-4 py-2 text-left">{service.serviceName}</td>
+                            <td className="border px-4 py-2 text-left">{formatPrice(service.price)}</td>
+                            <td className="border px-4 py-2 text-left">{formatPrice(service.discount)}</td>
+                            <td className="border px-4 py-2 text-left">{formatPrice(service.total)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </>
+                )}
               </div>
 
               {/* Summary Values */}
