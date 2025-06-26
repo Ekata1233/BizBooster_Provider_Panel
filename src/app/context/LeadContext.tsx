@@ -9,10 +9,7 @@ import React, {
 } from "react";
 import axios from "axios";
 
-type UpdateLeadResponse = {
-  data: LeadType | null;
-  errorMessage?: string;
-};
+
 interface IExtraService {
   serviceName: string;
   price: number;
@@ -91,15 +88,33 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
         `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
       );
       return res.data?.data || null;
-    } catch (error: any) {
-    if (error.response?.status === 404) {
+    } catch (error: unknown) {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof (error as { response?: { status?: number } }).response?.status === 'number'
+  ) {
+    const typedError = error as {
+      response?: {
+        status?: number;
+      };
+      message?: string;
+    };
+
+    if (typedError.response?.status === 404) {
       console.warn("Lead not found for ID:");
       return null;
     }
 
-    console.error("Unexpected error in getLeadByCheckoutId:", error.message || error);
+    console.error("Unexpected error in getLeadByCheckoutId:", typedError.message ?? error);
     return null;
   }
+
+  console.error("Unknown error in getLeadByCheckoutId:", error);
+  return null;
+}
+
 };
 
   const createLead = async (formData: FormData) => {
@@ -117,16 +132,24 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
 
       setLeads((prev) => [...prev, res.data]);
       setErrorLeads(null);
-    } catch (err: any) {
-    let message = "Failed to create lead.";
-    if (axios.isAxiosError(err)) {
-      message = err.response?.data?.message || message;
-    }
-    setErrorLeads(message);
+    } catch (err: unknown) {
+  let message = "Failed to create lead.";
 
-    // ✅ Instead of throwing a new Error, just throw the message directly:
-    throw message;
-  } finally {
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+  ) {
+    message = (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? message;
+  }
+
+  setErrorLeads(message);
+
+  // ✅ Throw the message directly
+  throw message;
+}
+ finally {
     setLoadingLeads(false);
   }
 };
@@ -149,12 +172,26 @@ const updateLeadByCheckoutId = async (
     );
 
     return { data: updatedLead || null };
-  } catch (err: any) {
-    console.error("Failed to update lead by checkoutId:", err);
-    const message =
-      err.response?.data?.message || "Something went wrong on the server.";
-    return { data: null, errorMessage: message };
+  }catch (err: unknown) {
+  console.error("Failed to update lead by checkoutId:", err);
+
+  let message = "Something went wrong on the server.";
+
+  if (err && typeof err === "object" && "response" in err) {
+    const errorWithResponse = err as {
+      response?: {
+        data?: {
+          message?: string;
+        };
+      };
+    };
+
+    message = errorWithResponse.response?.data?.message || message;
   }
+
+  return { data: null, errorMessage: message };
+}
+
 };
 
 

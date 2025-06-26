@@ -79,13 +79,25 @@ const AcceptedBookingDetails = () => {
         }
   
         setLead(fetchedLead);
-      } catch (error: any) {
-        if (error.response?.status === 404) {
-          console.warn("Lead not found (404) for ID:", checkoutDetails._id);
-        } else {
-          console.error("Error fetching lead:", error.message || error);
-        }
-      }
+      } catch (error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    (error as { response?: { status?: number } }).response?.status === 404
+  ) {
+    console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+  } else {
+    const errorMessage =
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error
+        ? (error as { message?: string }).message
+        : String(error);
+    console.error("Error fetching lead:", errorMessage);
+  }
+}
+
     };
   
     fetchLead();
@@ -308,9 +320,14 @@ const AcceptedBookingDetails = () => {
               await createLead(formData);
               alert("Lead status updated successfully.");
               closeModal();
-            } catch (err: any) {
-              alert(err.message); // ✅ Will show "Please assign serviceman" if that's the backend message
-            }
+            } catch (err: unknown) {
+  if (err instanceof Error) {
+    alert(err.message); // ✅ Will show "Please assign serviceman" if that's the backend message
+  } else {
+    alert("An unexpected error occurred.");
+  }
+}
+
           }}
           checkoutId={checkoutDetails._id}
           serviceCustomerId={checkoutDetails.serviceCustomer}

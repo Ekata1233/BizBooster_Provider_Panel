@@ -35,7 +35,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [paymentType, setPaymentType] = useState("");
   const [document, setDocument] = useState<File | null>(null);
   const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
-
+console.log(linkType)
   console.log("payment link : ", paymentLink)
 
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {

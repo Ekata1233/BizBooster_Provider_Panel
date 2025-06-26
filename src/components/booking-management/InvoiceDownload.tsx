@@ -58,7 +58,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
   Array.isArray(leadDetails?.extraService) &&
   leadDetails.extraService.length > 0;
 
-  const updatedAmount = leadDetails?.newAmount;
 
   const baseAmount = leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
   const extraAmount = leadDetails?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;

@@ -24,13 +24,19 @@ const BookingStatus = ({ checkout }: { checkout: CheckoutType }) => {
                 }
 
                 setLead(fetchedLead);
-            } catch (error: any) {
-                if (error.response?.status === 404) {
-                    console.warn("Lead not found (404) for ID:", checkout._id);
+            } catch (error: unknown) {
+                if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object') {
+                    const err = error as { response: { status: number }; message?: string };
+                    if (err.response.status === 404) {
+                        console.warn("Lead not found (404) for ID:", checkout._id);
+                    } else {
+                        console.error("Error fetching lead:", err.message || error);
+                    }
                 } else {
-                    console.error("Error fetching lead:", error.message || error);
+                    console.error("Unknown error:", error);
                 }
             }
+
         };
 
         fetchLead();
