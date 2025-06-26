@@ -9,10 +9,7 @@ import React, {
 } from "react";
 import axios from "axios";
 
-type UpdateLeadResponse = {
-  data: LeadType | null;
-  errorMessage?: string;
-};
+
 interface IExtraService {
   serviceName: string;
   price: number;
