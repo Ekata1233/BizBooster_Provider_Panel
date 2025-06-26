@@ -231,11 +231,15 @@ const AllBookingsDetails = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
+                     <tr>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || 'N/A'}</td>
+                      <td className="border px-4 py-2">{formatPrice(lead?.newAmount ?? checkoutDetails?.service?.price ?? 0)}</td>
+                      <td className="border px-4 py-2">
+                        {lead?.newAmount != null
+                          ? '₹0'
+                          : `₹${checkoutDetails?.service?.discountedPrice || 0}`}
+                      </td>
+                      <td className="border px-4 py-2">{formatPrice(lead?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -284,9 +288,16 @@ const AllBookingsDetails = () => {
                     <span>₹{amount}</span>
                   </div>
                 ))}
-                <div className="flex justify-between border-t pt-2 mt-2 font-semibold text-base">
-                  <span>Grand Total :</span>
-                  <span>₹{checkoutDetails.totalAmount}</span>
+                {lead?.extraService?.map((service, index) => (
+                  <div key={index} className="flex justify-between font-semibold">
+                    <span>Extra Service</span>
+                    <span>{formatPrice(service.total)}</span>
+                  </div>
+                ))}
+
+                <div className="flex justify-between font-bold text-blue-600">
+                  <span>Total</span>
+                  <span>{formatPrice(grandTotal || 0)}</span>
                 </div>
               </div>
             </div>
