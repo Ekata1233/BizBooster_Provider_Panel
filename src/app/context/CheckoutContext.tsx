@@ -13,6 +13,7 @@ export interface ServiceType {
   price: number;
   discount: number;
   discountedPrice: number;
+  serviceDiscount: number;
 }
 
 export interface CheckoutType {
