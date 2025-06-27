@@ -36,6 +36,8 @@ export interface LeadType {
   service: string;
   amount: number;
   newAmount?: number;
+  newDiscountAmount?: number;
+
   extraService?: IExtraService[];
   leads: IStatus[];
   isAdminApproved? : boolean;
@@ -50,7 +52,7 @@ interface LeadContextType {
   getLeadByCheckoutId: (checkoutId: string) => Promise<LeadType | null>;
   updateLeadByCheckoutId: (
     checkoutId: string,
-    updates: { newAmount?: number; extraService?: IExtraService[] }
+    updates: { newAmount?: number;newDiscountAmount?: number; extraService?: IExtraService[] }
   ) => Promise<{ data: LeadType | null; errorMessage?: string }>;
 }
 
@@ -156,7 +158,7 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
 
 const updateLeadByCheckoutId = async (
   checkoutId: string,
-  updates: { newAmount?: number; extraService?: IExtraService[] }
+  updates: { newAmount?: number;newDiscountAmount?: number; extraService?: IExtraService[] }
 ): Promise<{ data: LeadType | null; errorMessage?: string }> => {
   try {
     const res = await axios.put(
