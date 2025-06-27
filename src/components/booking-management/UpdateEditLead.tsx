@@ -26,11 +26,12 @@ export default function EditLeadPage({ isOpen, closeModal,checkoutId }: EditLead
   } = useCheckout();
 
   // ⬇️ Fetch on mount or when `checkoutId` changes
-  useEffect(() => {
-    if (checkoutId) {
-      fetchCheckoutsDetailsById(checkoutId);
-    }
-  }, [checkoutId, fetchCheckoutsDetailsById]);
+ useEffect(() => {
+  if (checkoutId && !checkoutDetails?._id) {
+    fetchCheckoutsDetailsById(checkoutId);
+  }
+}, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
+
 
   // ⬇️ Log details once fetched
   useEffect(() => {
