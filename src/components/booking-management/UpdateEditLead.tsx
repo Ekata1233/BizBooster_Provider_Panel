@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "../ui/modal";
 import { useLead } from "@/app/context/LeadContext";
+import { useCheckout } from "@/app/context/CheckoutContext";
 
 interface EditLeadPageProps {
   isOpen: boolean;
@@ -15,7 +16,28 @@ export default function EditLeadPage({ isOpen, closeModal,checkoutId }: EditLead
     { serviceName: string; price: string; discount: string; total: string }[]
   >([]);
   const { updateLeadByCheckoutId } = useLead();
+  console.log("edit lead",);
+  
+   const {
+    fetchCheckoutsDetailsById,
+    checkoutDetails,
+    loadingCheckoutDetails,
+    errorCheckoutDetails,
+  } = useCheckout();
 
+  // ⬇️ Fetch on mount or when `checkoutId` changes
+  useEffect(() => {
+    if (checkoutId) {
+      fetchCheckoutsDetailsById(checkoutId);
+    }
+  }, [checkoutId, fetchCheckoutsDetailsById]);
+
+  // ⬇️ Log details once fetched
+  useEffect(() => {
+    if (checkoutDetails) {
+      console.log("Fetched Checkout Details:", checkoutDetails);
+    }
+  }, [checkoutDetails]);
 
   const addAdditionalRequirement = () => {
     setAdditionalFields([

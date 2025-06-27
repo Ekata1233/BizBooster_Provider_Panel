@@ -93,6 +93,8 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
   const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
 
+  
+  
   const fetchCheckoutsByProviderId = async (providerId: string) => {
     setLoadingCheckouts(true);
     try {
