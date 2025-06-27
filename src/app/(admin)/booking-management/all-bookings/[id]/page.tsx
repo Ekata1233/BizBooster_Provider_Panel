@@ -298,8 +298,10 @@ const AllBookingsDetails = () => {
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
                 {[
-                  ['Subtotal', checkoutDetails.subtotal],
-                  ['Discount', checkoutDetails.serviceDiscount],
+                  ['Subtotal', lead?.newAmount ?? checkoutDetails?.service?.price],
+                  ['Discount', lead?.newAmount != null
+                          ? '0'
+                          : `${checkoutDetails?.service?.discountedPrice}`],
                   ['Campaign Discount', 0],
                   ['Coupon Discount', checkoutDetails.couponDiscount || 0],
                   ['VAT', 0],
