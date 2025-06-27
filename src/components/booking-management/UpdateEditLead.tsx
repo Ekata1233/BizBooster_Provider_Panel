@@ -167,6 +167,17 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
                     className="w-full p-2 border rounded-md"
                   />
                 </div>
+                <div className="mb-4">
+                  <label className="block mb-1 font-medium text-gray-700 dark:text-white">
+                    Edit Price
+                  </label>
+                  <input
+                    type="text"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  />
+                </div>
 
                 {/* Show Add Button only if no fields yet */}
                 {additionalFields.length === 0 && (
