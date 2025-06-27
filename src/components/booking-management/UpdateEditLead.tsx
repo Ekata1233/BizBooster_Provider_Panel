@@ -88,6 +88,14 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
     }
   };
 
+  if (loadingCheckoutDetails) {
+  return <div>Loading...</div>;
+}
+
+if (errorCheckoutDetails) {
+  return <div className="text-red-500">Something went wrong while loading data.</div>;
+}
+
 
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
