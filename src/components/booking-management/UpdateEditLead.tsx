@@ -30,7 +30,7 @@ export default function EditLeadPage({ isOpen, closeModal,checkoutId }: EditLead
     if (checkoutId) {
       fetchCheckoutsDetailsById(checkoutId);
     }
-  }, [checkoutId, fetchCheckoutsDetailsById]);
+  }, [checkoutId]);
 
   // ⬇️ Log details once fetched
   useEffect(() => {
