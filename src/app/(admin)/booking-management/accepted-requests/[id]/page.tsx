@@ -19,14 +19,14 @@ import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
 
 const AcceptedBookingDetails = () => {
   const [showAll, setShowAll] = useState(false);
-    const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
   const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
   const { createLead, loadingLeads } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
-    const { getLeadByCheckoutId } = useLead();
+  const { getLeadByCheckoutId } = useLead();
   const [lead, setLead] = useState<LeadType | null>(null);
   const params = useParams();
   const id = params?.id as string;
@@ -66,40 +66,40 @@ const AcceptedBookingDetails = () => {
     }
   }, [provider]);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchLead = async () => {
       if (!checkoutDetails?._id) return;
-  
+
       try {
         const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
-  
+
         if (!fetchedLead) {
           console.warn("No lead found for ID:", checkoutDetails._id);
           return;
         }
-  
+
         setLead(fetchedLead);
       } catch (error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    (error as { response?: { status?: number } }).response?.status === 404
-  ) {
-    console.warn("Lead not found (404) for ID:", checkoutDetails._id);
-  } else {
-    const errorMessage =
-      typeof error === "object" &&
-      error !== null &&
-      "message" in error
-        ? (error as { message?: string }).message
-        : String(error);
-    console.error("Error fetching lead:", errorMessage);
-  }
-}
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          (error as { response?: { status?: number } }).response?.status === 404
+        ) {
+          console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+        } else {
+          const errorMessage =
+            typeof error === "object" &&
+              error !== null &&
+              "message" in error
+              ? (error as { message?: string }).message
+              : String(error);
+          console.error("Error fetching lead:", errorMessage);
+        }
+      }
 
     };
-  
+
     fetchLead();
   }, [checkoutDetails]);
 
@@ -193,7 +193,7 @@ const AcceptedBookingDetails = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                 <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
+                  <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt
@@ -321,12 +321,12 @@ const AcceptedBookingDetails = () => {
               alert("Lead status updated successfully.");
               closeModal();
             } catch (err: unknown) {
-  if (err instanceof Error) {
-    alert(err.message); // ✅ Will show "Please assign serviceman" if that's the backend message
-  } else {
-    alert("An unexpected error occurred.");
-  }
-}
+              if (err instanceof Error) {
+                alert(err.message); // ✅ Will show "Please assign serviceman" if that's the backend message
+              } else {
+                alert("An unexpected error occurred.");
+              }
+            }
 
           }}
           checkoutId={checkoutDetails._id}

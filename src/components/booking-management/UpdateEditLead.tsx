@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Modal } from "../ui/modal";
-import { useLead } from "@/app/context/LeadContext";
+import { LeadType, useLead } from "@/app/context/LeadContext";
 import { useCheckout } from "@/app/context/CheckoutContext";
 
 interface EditLeadPageProps {
@@ -12,10 +12,50 @@ interface EditLeadPageProps {
 
 export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLeadPageProps) {
   const [editPrice, setEditPrice] = useState("");
+  const [lead, setLead] = useState<LeadType | null>(null);
   const [additionalFields, setAdditionalFields] = useState<
     { serviceName: string; price: string; discount: string; total: string }[]
   >([]);
-  const { updateLeadByCheckoutId } = useLead();
+  const { updateLeadByCheckoutId, getLeadByCheckoutId } = useLead();
+
+  useEffect(() => {
+    const fetchLead = async () => {
+      if (!checkoutId) return;
+
+      try {
+        const fetchedLead = await getLeadByCheckoutId(checkoutId);
+
+        if (!fetchedLead) {
+          console.warn("No lead found for ID:", checkoutId);
+          return;
+        }
+
+        setLead(fetchedLead);
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          (error as { response?: { status?: number } }).response?.status === 404
+        ) {
+          console.warn("Lead not found (404) for ID:", checkoutId);
+        } else {
+          const errorMessage =
+            typeof error === "object" &&
+              error !== null &&
+              "message" in error
+              ? (error as { message?: string }).message
+              : String(error);
+          console.error("Error fetching lead:", errorMessage);
+        }
+      }
+
+    };
+
+    fetchLead();
+  }, [checkoutId]);
+
+  console.log("lead for the edit lead : ", lead)
 
   const {
     fetchCheckoutsDetailsById,
@@ -35,7 +75,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
   // ⬇️ Log details once fetched
   useEffect(() => {
     if (checkoutDetails) {
-      console.log("Fetched Checkout Details for serviceman:", checkoutDetails);
+
     }
   }, [checkoutDetails]);
 
@@ -89,12 +129,12 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
   };
 
   if (loadingCheckoutDetails) {
-  return <div>Loading...</div>;
-}
+    return <div>Loading...</div>;
+  }
 
-if (errorCheckoutDetails) {
-  return <div className="text-red-500">Something went wrong while loading data.</div>;
-}
+  if (errorCheckoutDetails) {
+    return <div className="text-red-500">Something went wrong while loading data.</div>;
+  }
 
 
   return (
@@ -107,113 +147,119 @@ if (errorCheckoutDetails) {
           <div className="mb-4 p-4 bg-red-100 text-red-800 text-sm rounded-md border border-red-300">
             Please assign a service man before proceeding with lead updates.
           </div>
-        ) : (
-          <>
-            {/* Edit Price */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-                Edit Price
-              </label>
-              <input
-                type="text"
-                value={editPrice}
-                onChange={(e) => setEditPrice(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
+        )
+          : lead === null ? (
+            <div className="mb-4 p-4 bg-red-100 text-red-800 text-sm rounded-md border border-red-300">
+              Please update the lead status
             </div>
+          ) :
+            (
+              <>
+                {/* Edit Price */}
+                <div className="mb-4">
+                  <label className="block mb-1 font-medium text-gray-700 dark:text-white">
+                    Edit Price
+                  </label>
+                  <input
+                    type="text"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  />
+                </div>
 
-            {/* Show Add Button only if no fields yet */}
-            {additionalFields.length === 0 && (
-              <button
-                onClick={addAdditionalRequirement}
-                className="mt-4 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
-              >
-                + Add Additional Requirements
-              </button>
-            )}
+                {/* Show Add Button only if no fields yet */}
+                {additionalFields.length === 0 && (
+                  <button
+                    onClick={addAdditionalRequirement}
+                    className="mt-4 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
+                  >
+                    + Add Additional Requirements
+                  </button>
+                )}
 
-            {/* Additional Fields */}
-            {additionalFields.length > 0 && (
-              <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 mt-4">
-                {additionalFields.map((field, index) => (
-                  <div key={index} className="p-4 border rounded-md bg-gray-50">
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Service Name
-                      </label>
-                      <input
-                        type="text"
-                        value={field.serviceName}
-                        onChange={(e) => handleFieldChange(index, "serviceName", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
+                {/* Additional Fields */}
+                {additionalFields.length > 0 && (
+                  <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 mt-4">
+                    {additionalFields.map((field, index) => (
+                      <div key={index} className="p-4 border rounded-md bg-gray-50">
+                        <div className="mb-2">
+                          <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                            Service Name
+                          </label>
+                          <input
+                            type="text"
+                            value={field.serviceName}
+                            onChange={(e) => handleFieldChange(index, "serviceName", e.target.value)}
+                            className="w-full p-2 border rounded-md"
+                          />
+                        </div>
 
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        value={field.price}
-                        onChange={(e) => handleFieldChange(index, "price", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
+                        <div className="mb-2">
+                          <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                            Price
+                          </label>
+                          <input
+                            type="number"
+                            value={field.price}
+                            onChange={(e) => handleFieldChange(index, "price", e.target.value)}
+                            className="w-full p-2 border rounded-md"
+                          />
+                        </div>
 
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Discount
-                      </label>
-                      <input
-                        type="number"
-                        value={field.discount}
-                        onChange={(e) => handleFieldChange(index, "discount", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
+                        <div className="mb-2">
+                          <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                            Discount
+                          </label>
+                          <input
+                            type="number"
+                            value={field.discount}
+                            onChange={(e) => handleFieldChange(index, "discount", e.target.value)}
+                            className="w-full p-2 border rounded-md"
+                          />
+                        </div>
 
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Total
-                      </label>
-                      <input
-                        type="text"
-                        value={field.total}
-                        disabled
-                        className="w-full p-2 border rounded-md bg-gray-100"
-                      />
-                    </div>
+                        <div className="mb-2">
+                          <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                            Total
+                          </label>
+                          <input
+                            type="text"
+                            value={field.total}
+                            disabled
+                            className="w-full p-2 border rounded-md bg-gray-100"
+                          />
+                        </div>
 
-                    {index === additionalFields.length - 1 && (
-                      <button
-                        onClick={addAdditionalRequirement}
-                        className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
-                      >
-                        + Add Additional Requirements
-                      </button>
-                    )}
+                        {index === additionalFields.length - 1 && (
+                          <button
+                            onClick={addAdditionalRequirement}
+                            className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
+                          >
+                            + Add Additional Requirements
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
+                )}
 
-            {/* Action Buttons */}
-            <div className="flex justify-end mt-6">
-              <button
-                className="px-6 py-2 mr-2 rounded-md bg-gray-400 text-white hover:bg-gray-500"
-                onClick={closeModal}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                onClick={handleUpdate}
-              >
-                Update
-              </button>
-            </div>
-          </>)}
+                {/* Action Buttons */}
+                <div className="flex justify-end mt-6">
+                  <button
+                    className="px-6 py-2 mr-2 rounded-md bg-gray-400 text-white hover:bg-gray-500"
+                    onClick={closeModal}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                    onClick={handleUpdate}
+                  >
+                    Update
+                  </button>
+                </div>
+              </>)}
       </div>
     </Modal>
   );
