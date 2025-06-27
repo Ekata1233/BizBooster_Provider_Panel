@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { useCheckout } from '@/app/context/CheckoutContext';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useServiceCustomer } from '@/app/context/ServiceCustomerContext';
 import { useServiceMan } from '@/app/context/ServiceManContext';
@@ -21,7 +21,7 @@ const AllBookingsDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
   const [isEditOpen, setIsEditOpen] = useState(false);
-
+  const router = useRouter();
   const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
@@ -36,49 +36,51 @@ const AllBookingsDetails = () => {
     loadingCheckoutDetails,
     errorCheckoutDetails,
     fetchCheckoutsDetailsById,
+    updateCheckoutById, loadingUpdate,
   } = useCheckout();
 
   const { getLeadByCheckoutId } = useLead();
   const [lead, setLead] = useState<LeadType | null>(null);
 
+
   useEffect(() => {
-  const fetchLead = async () => {
-    if (!checkoutDetails?._id) return;
+    const fetchLead = async () => {
+      if (!checkoutDetails?._id) return;
 
-    try {
-      const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
+      try {
+        const fetchedLead = await getLeadByCheckoutId(checkoutDetails._id);
 
-      if (!fetchedLead) {
-        console.warn("No lead found for ID:", checkoutDetails._id);
-        return;
+        if (!fetchedLead) {
+          console.warn("No lead found for ID:", checkoutDetails._id);
+          return;
+        }
+
+        setLead(fetchedLead);
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          typeof (error as { response?: { status?: number } }).response?.status === "number" &&
+          (error as { response: { status: number } }).response.status === 404
+        ) {
+          console.warn("Lead not found (404) for ID:", checkoutDetails._id);
+        } else {
+          const errorMessage =
+            typeof error === "object" &&
+              error !== null &&
+              "message" in error
+              ? String((error as { message?: unknown }).message)
+              : String(error);
+
+          console.error("Error fetching lead:", errorMessage);
+        }
       }
 
-      setLead(fetchedLead);
-    } catch (error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as { response?: { status?: number } }).response?.status === "number" &&
-    (error as { response: { status: number } }).response.status === 404
-  ) {
-    console.warn("Lead not found (404) for ID:", checkoutDetails._id);
-  } else {
-    const errorMessage =
-      typeof error === "object" &&
-      error !== null &&
-      "message" in error
-        ? String((error as { message?: unknown }).message)
-        : String(error);
+    };
 
-    console.error("Error fetching lead:", errorMessage);
-  }
-}
-
-  };
-
-  fetchLead();
-}, [checkoutDetails]);
+    fetchLead();
+  }, [checkoutDetails]);
 
 
   const {
@@ -119,7 +121,7 @@ const AllBookingsDetails = () => {
     return 'text-blue-600'; // default for pending or other statuses
   };
 
-    const hasExtraServices =
+  const hasExtraServices =
     lead?.isAdminApproved === true &&
     Array.isArray(lead?.extraService) &&
     lead.extraService.length > 0;
@@ -127,6 +129,26 @@ const AllBookingsDetails = () => {
   const baseAmount = lead?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
   const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
   const grandTotal = baseAmount + extraAmount;
+
+  const handleAccept = async () => {
+    if (!checkoutDetails?._id) {
+      console.error("No checkout ID found");
+      return;
+    }
+
+    try {
+      await updateCheckoutById(checkoutDetails._id, {
+        isAccepted: true,
+        acceptedDate: new Date(), // Current timestamp
+      });
+
+      alert("Booking Accepted Successfully");
+      router.push("/booking-management/accepted-requests");
+    } catch (error) {
+      alert("Failed to accept booking");
+      console.error("Error while accepting booking:", error);
+    }
+  };
 
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
@@ -232,15 +254,19 @@ const AllBookingsDetails = () => {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || "N/A"}</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.price}</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails?.service?.discountedPrice}</td>
-                      <td className="border px-4 py-2">₹{checkoutDetails?.totalAmount}</td>
+                      <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || 'N/A'}</td>
+                      <td className="border px-4 py-2">{formatPrice(lead?.newAmount ?? checkoutDetails?.service?.price ?? 0)}</td>
+                      <td className="border px-4 py-2">
+                        {lead?.newAmount != null
+                          ? '₹0'
+                          : `₹${checkoutDetails?.service?.discountedPrice || 0}`}
+                      </td>
+                      <td className="border px-4 py-2">{formatPrice(lead?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
                     </tr>
                   </tbody>
                 </table>
 
-                  {hasExtraServices && (
+                {hasExtraServices && (
                   <>
                     <h4 className="text-sm font-semibold text-gray-700 my-3">Extra Services</h4>
                     <table className="w-full table-auto border border-gray-200 text-sm mb-5">
@@ -284,9 +310,16 @@ const AllBookingsDetails = () => {
                     <span>₹{amount}</span>
                   </div>
                 ))}
-                <div className="flex justify-between border-t pt-2 mt-2 font-semibold text-base">
-                  <span>Grand Total :</span>
-                  <span>₹{checkoutDetails.totalAmount}</span>
+                {lead?.extraService?.map((service, index) => (
+                  <div key={index} className="flex justify-between font-semibold">
+                    <span>Extra Service</span>
+                    <span>{formatPrice(service.total)}</span>
+                  </div>
+                ))}
+
+                <div className="flex justify-between font-bold text-blue-600">
+                  <span>Total</span>
+                  <span>{formatPrice(grandTotal || 0)}</span>
                 </div>
               </div>
             </div>
@@ -296,9 +329,29 @@ const AllBookingsDetails = () => {
               <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
-                <button onClick={openModal} className="bg-red-500 text-white px-7  py-2 rounded-md hover:bg-red-600 transition duration-200">
-                  Update Status
-                </button>
+
+                {!checkoutDetails?.isAccepted ? (
+                  <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
+                    <button className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200">
+                      Ignore
+                    </button>
+                    <button
+                      onClick={handleAccept}
+                      disabled={loadingUpdate}
+                      className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+                    >
+                      {loadingUpdate ? "Accepting..." : "Accept"}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={openModal}
+                    className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                  >
+                    Update Status
+                  </button>
+                )}
+
 
               </div>
 
