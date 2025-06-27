@@ -103,7 +103,7 @@ const BookingStatus = ({ checkout }: { checkout: CheckoutType }) => {
                                         </a>
                                     )}
                                     {step.paymentLink && (
-                                        step.isAdminApproved ? (
+                                        (
                                             <a
                                                 href={step.paymentLink}
                                                 target="_blank"
@@ -112,10 +112,6 @@ const BookingStatus = ({ checkout }: { checkout: CheckoutType }) => {
                                             >
                                                 Payment Link ({step.paymentType})
                                             </a>
-                                        ) : (
-                                            <span className="text-yellow-600 text-sm block italic">
-                                                Payment link will be available once approved by the admin.
-                                            </span>
                                         )
                                     )}
                                 </div>
