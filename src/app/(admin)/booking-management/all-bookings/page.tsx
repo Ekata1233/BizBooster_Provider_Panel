@@ -185,8 +185,6 @@ const AllBookings = () => {
     _id: checkout._id,
   }));
 
-
-
   return (
     <div>
       <PageBreadcrumb pageTitle="All Bookings" />
