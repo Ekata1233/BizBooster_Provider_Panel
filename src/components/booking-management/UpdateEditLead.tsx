@@ -12,8 +12,8 @@ interface EditLeadPageProps {
 
 export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLeadPageProps) {
   const [editPrice, setEditPrice] = useState("");
-    const [editDiscountPrice, setEditDiscountPrice] = useState("");
-
+  const [editDiscountPrice, setEditDiscountPrice] = useState("");
+  const [afterDicountAmount, setAfterDicountAmount] = useState("");
   const [lead, setLead] = useState<LeadType | null>(null);
   const [additionalFields, setAdditionalFields] = useState<
     { serviceName: string; price: string; discount: string; total: string }[]
@@ -21,6 +21,14 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
   const [loadingLead, setLoadingLead] = useState(true);
 
   const { updateLeadByCheckoutId, getLeadByCheckoutId } = useLead();
+
+  useEffect(() => {
+    const price = parseFloat(editPrice || "0");
+    const discount = parseFloat(editDiscountPrice || "0");
+    const afterDiscount = price - discount;
+    setAfterDicountAmount(afterDiscount.toFixed(2));
+  }, [editPrice, editDiscountPrice]);
+
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -114,6 +122,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
       const payload = {
         newAmount: parseFloat(editPrice || "0"),
         newDiscountAmount: parseFloat(editDiscountPrice || "0"),
+        afterDicountAmount: parseFloat(afterDicountAmount || "0"),
         extraService: additionalFields.map((field) => ({
           serviceName: field.serviceName,
           price: parseFloat(field.price || "0"),
@@ -161,31 +170,31 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
           <>
             {/* Edit Price */}
 
-          <div className="flex flex-wrap ">
-  <div className="w-full md:w-1/2 mb-4">
-    <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-      Previous Service Price
-    </label>
-    <input
-      type="text"
-      value={`₹${checkoutDetails?.subtotal ?? ''}`}
-      disabled
-      className="w-[90%] p-2 border rounded-md bg-gray-100"
-    />
-  </div>
+            <div className="flex flex-wrap ">
+              <div className="w-full md:w-1/2 mb-4">
+                <label className="block mb-1 font-medium text-gray-700 dark:text-white">
+                  Previous Service Price
+                </label>
+                <input
+                  type="text"
+                  value={`₹${checkoutDetails?.subtotal ?? ''}`}
+                  disabled
+                  className="w-[90%] p-2 border rounded-md bg-gray-100"
+                />
+              </div>
 
-  <div className="w-full md:w-1/2 mb-4">
-    <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-      Previous Service Discount
-    </label>
-    <input
-      type="text"
-      value={`₹${checkoutDetails?.serviceDiscount ?? ''}`}
-      disabled
-      className="w-[90%] p-2 border rounded-md bg-gray-100"
-    />
-  </div>
-</div>
+              <div className="w-full md:w-1/2 mb-4">
+                <label className="block mb-1 font-medium text-gray-700 dark:text-white">
+                  Previous Service Discount
+                </label>
+                <input
+                  type="text"
+                  value={`₹${checkoutDetails?.serviceDiscount ?? ''}`}
+                  disabled
+                  className="w-[90%] p-2 border rounded-md bg-gray-100"
+                />
+              </div>
+            </div>
 
 
 
@@ -209,6 +218,17 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
                 value={editDiscountPrice}
                 onChange={(e) => setEditDiscountPrice(e.target.value)}
                 className="w-full p-2 border rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                After Discount Price
+              </label>
+              <input
+                type="text"
+                value={`₹${afterDicountAmount}`}
+                disabled
+                className="w-full p-2 border rounded-md bg-gray-100"
               />
             </div>
 
