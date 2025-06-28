@@ -71,8 +71,8 @@ const AllBookings = () => {
         console.log("Customer Info Row:", row); // 👈 This will log the entire row object
         return (
           <div className="text-sm">
-            <p className="font-medium text-gray-900">{row.serviceCustomer || 'N/A'}</p>
-            <p className="text-gray-500">{row.serviceCustomer || ''}</p>
+            <p className="font-medium text-gray-900">{row.serviceCustomer?.fullName || 'N/A'}</p>
+            <p className="text-gray-500">{row.serviceCustomer?.email || ''}</p>
           </div>
         );
       },
