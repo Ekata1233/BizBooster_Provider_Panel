@@ -10,19 +10,30 @@ import { useAuth } from '@/app/context/AuthContext';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import Link from 'next/link';
 
+
+interface ServiceCustomer {
+  fullName: string;
+  email: string;
+  city: string;
+}
+
+
+
 interface BookingRow {
+
   _id: string;
   bookingId: string;
-  serviceCustomer: string;
+  serviceCustomer: ServiceCustomer;
   totalAmount: number;
   paymentStatus: string;
   scheduleDate?: string;
   bookingDate: string;
   orderStatus: string;
+  
 }
 type CheckoutType = {
   bookingId: string;
-  serviceCustomer: string;
+   serviceCustomer: string;
   totalAmount: number;
   paymentStatus: string;
   createdAt: string;
@@ -73,6 +84,8 @@ const AllBookings = () => {
           <div className="text-sm">
             <p className="font-medium text-gray-900">{row.serviceCustomer?.fullName || 'N/A'}</p>
             <p className="text-gray-500">{row.serviceCustomer?.email || ''}</p>
+            <p className="text-gray-500">{row.serviceCustomer?.city || ''}</p>
+
           </div>
         );
       },

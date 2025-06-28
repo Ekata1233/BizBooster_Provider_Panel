@@ -54,9 +54,9 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
 
   // const hasExtraServices = Array.isArray(leadDetails?.extraService) && leadDetails.extraService.length > 0;
   const hasExtraServices =
-  leadDetails?.isAdminApproved === true &&
-  Array.isArray(leadDetails?.extraService) &&
-  leadDetails.extraService.length > 0;
+    leadDetails?.isAdminApproved === true &&
+    Array.isArray(leadDetails?.extraService) &&
+    leadDetails.extraService.length > 0;
 
 
   const baseAmount = leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
@@ -114,7 +114,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
             <div style={{ width: '25%' }}>
               <p><strong>Invoice of (INR)</strong></p>
               <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#007bff' }}>
-                 {formatPrice(grandTotal || 0)}
+                {formatPrice(leadDetails?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}
               </p>
 
             </div>
@@ -208,7 +208,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
                 <td>Total</td><td style={rightAlign}>{formatPrice(grandTotal || 0)}</td>
               </tr>
-            
+
               <tr style={{ fontWeight: 'bold', color: '#007bff' }}>
                 <td>Due</td>
                 <td style={rightAlign}>
@@ -222,8 +222,20 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
         {/* Footer */}
         <div style={{ marginTop: '30px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
           <p><strong>Terms & Conditions</strong></p>
-          <p>Change of mind is not applicable as a reason for refund.</p>
+          <p>
+            All service purchases are final and non-refundable once the project has been initiated or delivered. Refunds are
+            not applicable for change-of-mind requests or delays caused by incomplete information or approvals from the client.
+          </p>
+          <p>
+            Customers who opt for the &quot;Assurity&quot; option at the time of purchase are eligible for a 100% refund in case of
+            dissatisfaction, subject to company review and approval. This assurance is designed to provide added confidence
+            and transparency in our service process.
+          </p>
+          <p>
+            Please read the full Terms & Conditions for complete details regarding our refund policy and service commitments.
+          </p>
         </div>
+
 
         <div style={{
           display: 'flex',
