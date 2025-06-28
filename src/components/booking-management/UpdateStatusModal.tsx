@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
-
+import { useCheckout } from "@/app/context/CheckoutContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -35,8 +35,27 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [paymentType, setPaymentType] = useState("");
   const [document, setDocument] = useState<File | null>(null);
   const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
-console.log(linkType)
-  console.log("payment link : ", paymentLink)
+
+
+
+  const {
+    fetchCheckoutsDetailsById,
+    checkoutDetails,
+    loadingCheckoutDetails,
+    errorCheckoutDetails,
+  } = useCheckout();
+
+  useEffect(() => {
+    if (checkoutId && !checkoutDetails?._id) {
+      fetchCheckoutsDetailsById(checkoutId);
+    }
+  }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
+
+  useEffect(() => {
+    if (checkoutDetails) {
+      console.log("✅ Checkout details fetched:", checkoutDetails);
+    }
+  }, [checkoutDetails]);
 
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -66,7 +85,6 @@ console.log(linkType)
     if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
     if (paymentType) leadStatus.paymentType = paymentType;
 
-
     formData.append("leads", JSON.stringify([leadStatus]));
 
     if (document) {
@@ -92,7 +110,7 @@ console.log(linkType)
   };
 
   const createPaymentLink = async (amountToPay: number) => {
-    setGeneratingPaymentLink(true); // start loading
+    setGeneratingPaymentLink(true);
     try {
       const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
         method: "POST",
@@ -112,10 +130,9 @@ console.log(linkType)
       console.error("Payment link generation failed", error);
       alert("Failed to generate payment link.");
     } finally {
-      setGeneratingPaymentLink(false); // done loading
+      setGeneratingPaymentLink(false);
     }
   };
-
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -125,24 +142,41 @@ console.log(linkType)
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Status Type</Label>
           <select
-            className="w-full p-2 rounded-md border"
-            value={statusType}
-            onChange={(e) => setStatusType(e.target.value)}
-          >
-            <option value="">Select</option>
-            <option value="Lead request">Lead request</option>
-            <option value="Initial contact">Initial contact</option>
-            <option value="Need understand requirement">Need understand requirement</option>
-            <option value="Payment request (partial/full)">Payment request (partial/full)</option>
-            <option value="Payment verified">Payment verified</option>
-            <option value="Lead accepted">Lead accepted</option>
-            <option value="Lead requested documents">Lead requested documents</option>
-            <option value="Lead started">Lead started</option>
-            <option value="Lead ongoing">Lead ongoing</option>
-            <option value="Lead completed">Lead completed</option>
-            <option value="Lead cancel">Lead cancel</option>
-            <option value="Refund">Refund</option>
-          </select>
+  className="w-full p-2 rounded-md border"
+  value={statusType}
+  onChange={(e) => setStatusType(e.target.value)}
+>
+  <option value="">Select</option>
+  <option value="Lead request">Lead request</option>
+  <option value="Initial contact">Initial contact</option>
+  <option value="Need understand requirement">Need understand requirement</option>
+  
+  <option
+    value="Payment request (partial/full)"
+    disabled={
+      checkoutDetails?.paymentStatus === "paid" &&
+      checkoutDetails?.remainingPaymentStatus === "paid"
+    }
+    style={
+      checkoutDetails?.paymentStatus === "paid" &&
+      checkoutDetails?.remainingPaymentStatus === "paid"
+        ? { backgroundColor: "#fca5a5" }
+        : {}
+    }
+  >
+    Payment request (partial/full)
+  </option>
+
+  <option value="Payment verified">Payment verified</option>
+  <option value="Lead accepted">Lead accepted</option>
+  <option value="Lead requested documents">Lead requested documents</option>
+  <option value="Lead started">Lead started</option>
+  <option value="Lead ongoing">Lead ongoing</option>
+  <option value="Lead completed">Lead completed</option>
+  <option value="Lead cancel">Lead cancel</option>
+  <option value="Refund">Refund</option>
+</select>
+
         </div>
 
         <div className="mb-4">
@@ -160,8 +194,6 @@ console.log(linkType)
           {(statusType === "Payment request (partial/full)" || statusType === "Need understand requirement") && (
             <Label className="block mb-1 font-medium">Add Link</Label>
           )}
-
-
 
           {statusType === "Need understand requirement" && (
             <input
@@ -223,13 +255,6 @@ console.log(linkType)
         </div>
 
         <div className="text-right">
-          {/* <button
-            className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? "Submitting..." : "Submit"}
-          </button> */}
           <button
             className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
             onClick={handleSubmit}
@@ -243,7 +268,6 @@ console.log(linkType)
               ? "Processing..."
               : "Submit"}
           </button>
-
         </div>
       </div>
     </Modal>

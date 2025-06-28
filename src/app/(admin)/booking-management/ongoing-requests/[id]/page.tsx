@@ -27,6 +27,7 @@ const OngoingBookingDetails = () => {
   const { createLead, loadingLeads, } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
 
+  
   const params = useParams();
   const id = params?.id as string;
 
@@ -319,29 +320,28 @@ const OngoingBookingDetails = () => {
       </div>
 
        <div>
-        <UpdateStatusModal
-          isOpen={isOpen}
-          onClose={closeModal}
-          onSubmit={async (formData) => {
-            try {
-              await createLead(formData);
-              alert("Lead status updated Successfully.");
-              closeModal();
-            } catch (err) {
-              console.error("Failed to save lead:", err);
-              // ✅ `err` is now the message string
-              alert(err || "Failed to save lead status.");
-            }
-          }}
-          checkoutId={checkoutDetails._id}
-          serviceCustomerId={checkoutDetails.serviceCustomer}
-          serviceManId={checkoutDetails.serviceMan ?? ""}
-          serviceId={checkoutDetails.service?._id ?? ""}
-          amount={checkoutDetails.totalAmount?.toString() || "000"}
-          loading={loadingLeads}
-        />
+  <UpdateStatusModal
+    isOpen={isOpen}
+    onClose={closeModal}
+    onSubmit={async (formData) => {
+      try {
+        await createLead(formData);
+        alert("Lead status updated Successfully.");
+        closeModal();
+      } catch (err) {
+        console.error("Failed to save lead:", err);
+        alert(err || "Failed to save lead status.");
+      }
+    }}
+    checkoutId={checkoutDetails._id}
+    serviceCustomerId={checkoutDetails.serviceCustomer}
+    serviceManId={checkoutDetails.serviceMan ?? ""}
+    serviceId={checkoutDetails.service?._id ?? ""}
+    amount={checkoutDetails.totalAmount?.toString() || "000"}
+    loading={loadingLeads}
+  />
+</div>
 
-      </div>
     </div>
   );
 };
