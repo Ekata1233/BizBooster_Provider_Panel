@@ -230,7 +230,6 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
                 disabled
                 className="w-full p-2 border rounded-md bg-gray-100"
               />
-
             </div>
 
             {/* Show Add Button only if no fields yet */}
