@@ -36,13 +36,13 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [document, setDocument] = useState<File | null>(null);
   const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
 
+console.log(linkType);
 
 
   const {
     fetchCheckoutsDetailsById,
     checkoutDetails,
-    loadingCheckoutDetails,
-    errorCheckoutDetails,
+    
   } = useCheckout();
 
   useEffect(() => {

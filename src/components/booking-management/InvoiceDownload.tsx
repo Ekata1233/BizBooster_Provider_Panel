@@ -227,7 +227,7 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
             not applicable for change-of-mind requests or delays caused by incomplete information or approvals from the client.
           </p>
           <p>
-            Customers who opt for the "Assurity" option at the time of purchase are eligible for a 100% refund in case of
+            Customers who opt for the &quot;Assurity&quot; option at the time of purchase are eligible for a 100% refund in case of
             dissatisfaction, subject to company review and approval. This assurance is designed to provide added confidence
             and transparency in our service process.
           </p>
