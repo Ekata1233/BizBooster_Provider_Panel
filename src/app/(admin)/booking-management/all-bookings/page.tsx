@@ -33,7 +33,7 @@ interface BookingRow {
 }
 type CheckoutType = {
   bookingId: string;
-   serviceCustomer: string;
+   serviceCustomer: ServiceCustomer;
   totalAmount: number;
   paymentStatus: string;
   createdAt: string;
