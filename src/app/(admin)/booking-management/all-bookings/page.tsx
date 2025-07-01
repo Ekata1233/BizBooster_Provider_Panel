@@ -65,10 +65,7 @@ const AllBookings = () => {
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
 
-  // Filter based on Booking ID
-  // const filteredCheckouts = checkouts.filter((checkout) =>
-  //   checkout.bookingId?.toLowerCase().includes(search.toLowerCase())
-  // );
+  
 
   const columns = [
     {
@@ -196,8 +193,6 @@ const data: BookingRow[] = checkouts.map((checkout) => ({
   orderStatus: checkout.orderStatus,
   _id: checkout._id,
 }));
-
-
 
   return (
     <div>
