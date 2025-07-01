@@ -33,7 +33,7 @@ interface BookingRow {
 }
 type CheckoutType = {
   bookingId: string;
-   serviceCustomer: string;
+   serviceCustomer: ServiceCustomer;
   totalAmount: number;
   paymentStatus: string;
   createdAt: string;
@@ -186,17 +186,18 @@ const AllBookings = () => {
     },
   ];
 
-  const data = checkouts
-  .map((checkout: CheckoutType) => ({
-    bookingId: checkout.bookingId,
-    serviceCustomer: checkout.serviceCustomer,
-    totalAmount: checkout.totalAmount,
-    paymentStatus: checkout.paymentStatus,
-    scheduleDate: checkout.createdAt,
-    bookingDate: checkout.createdAt,
-    orderStatus: checkout.orderStatus,
-    _id: checkout._id,
-  }));
+const data: BookingRow[] = checkouts.map((checkout) => ({
+  bookingId: checkout.bookingId,
+  serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
+  totalAmount: checkout.totalAmount,
+  paymentStatus: checkout.paymentStatus,
+  scheduleDate: checkout.createdAt,
+  bookingDate: checkout.createdAt,
+  orderStatus: checkout.orderStatus,
+  _id: checkout._id,
+}));
+
+
 
   return (
     <div>

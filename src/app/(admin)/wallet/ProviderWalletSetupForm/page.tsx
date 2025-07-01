@@ -42,7 +42,7 @@ const ProviderWalletSetupForm: React.FC = () => {
 
             setMessage({ type: "success", text: data.message });
         } catch (error) {
-            console.log("error")
+            console.log(error)
             // setMessage({ type: "error", text: error.message || "Failed to setup wallet" });
         } finally {
             setLoading(false);
