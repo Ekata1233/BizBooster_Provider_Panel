@@ -59,8 +59,23 @@ const userItems: NavItem[] = [
     subItems: [
       { name: "Add Serviceman", path: "/user-management/add-serviceman", pro: false },
       { name: "Serviceman List", path: "/user-management/serviceman-list", pro: false },
-      
+
     ],
+  },
+];
+
+const AccountItems: NavItem[] = [
+   {
+    icon: <GridIcon />,
+    name: "Account Information",
+    path: "/account-management/account-information",
+    // subItems: [{ name: "Dashboard", path: "/", pro: false }],
+  },
+   {
+    icon: <GridIcon />,
+    name: "Bank Information",
+    path: "/account-management/bank-information",
+    // subItems: [{ name: "Dashboard", path: "/", pro: false }],
   },
 ];
 
@@ -84,7 +99,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others" | "booking"| "user"
+    menuType: "main" | "others" | "booking" | "user" | "account"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -200,7 +215,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "booking" | "user";
+    type: "main" | "others" | "booking" | "user" | "account";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -214,21 +229,23 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others", "booking", "user"].forEach((menuType) => {
+    ["main", "others", "booking", "user", "account"].forEach((menuType) => {
       const items =
         menuType === "main"
           ? navItems
           : menuType === "others"
             ? othersItems
             : menuType === "user"
-            ? userItems
-            : bookingItems;
+              ? userItems
+              : menuType === "account"
+                ? AccountItems
+                : bookingItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others" | "booking" | "user",
+                type: menuType as "main" | "others" | "booking" | "user" | "account",
                 index,
               });
               submenuMatched = true;
@@ -257,7 +274,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -367,7 +384,7 @@ const AppSidebar: React.FC = () => {
             </div>
 
 
-<div className="">
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                   }`}
@@ -379,6 +396,20 @@ const AppSidebar: React.FC = () => {
                 )}
               </h2>
               {renderMenuItems(userItems, "user")}
+            </div>
+
+             <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+                  }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Account Management"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(AccountItems, "account")}
             </div>
           </div>
         </nav>
