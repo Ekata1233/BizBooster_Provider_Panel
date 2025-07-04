@@ -47,7 +47,7 @@ const BookingRequestDetails = () => {
   // Fetch service customer
   useEffect(() => {
     if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer);
+      fetchServiceCustomer(checkoutDetails.serviceCustomer?._id);
     }
   }, [checkoutDetails]);
 
@@ -71,7 +71,7 @@ const BookingRequestDetails = () => {
       });
 
       alert("Booking Accepted Successfully");
-      router.push("/booking-management/accepted-requests");
+      router.push("/booking-management/all-bookings");
     } catch (error) {
       alert("Failed to accept booking");
       console.error("Error while accepting booking:", error);

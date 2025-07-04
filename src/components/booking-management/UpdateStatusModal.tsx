@@ -36,13 +36,13 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [document, setDocument] = useState<File | null>(null);
   const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
 
-console.log(linkType);
+  console.log(linkType);
 
 
   const {
     fetchCheckoutsDetailsById,
     checkoutDetails,
-    
+
   } = useCheckout();
 
   useEffect(() => {
@@ -142,40 +142,40 @@ console.log(linkType);
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Status Type</Label>
           <select
-  className="w-full p-2 rounded-md border"
-  value={statusType}
-  onChange={(e) => setStatusType(e.target.value)}
->
-  <option value="">Select</option>
-  <option value="Lead request">Lead request</option>
-  <option value="Initial contact">Initial contact</option>
-  <option value="Need understand requirement">Need understand requirement</option>
-  
-  <option
-    value="Payment request (partial/full)"
-    disabled={
-      checkoutDetails?.paymentStatus === "paid" &&
-      checkoutDetails?.remainingPaymentStatus === "paid"
-    }
-    style={
-      checkoutDetails?.paymentStatus === "paid" &&
-      checkoutDetails?.remainingPaymentStatus === "paid"
-        ? { backgroundColor: "#fca5a5" }
-        : {}
-    }
-  >
-    Payment request (partial/full)
-  </option>
+            className="w-full p-2 rounded-md border"
+            value={statusType}
+            onChange={(e) => setStatusType(e.target.value)}
+          >
+            <option value="">Select</option>
+            <option value="Lead request">Lead request</option>
+            <option value="Initial contact">Initial contact</option>
+            <option value="Need understand requirement">Need understand requirement</option>
 
-  <option value="Payment verified">Payment verified</option>
-  <option value="Lead accepted">Lead accepted</option>
-  <option value="Lead requested documents">Lead requested documents</option>
-  <option value="Lead started">Lead started</option>
-  <option value="Lead ongoing">Lead ongoing</option>
-  <option value="Lead completed">Lead completed</option>
-  <option value="Lead cancel">Lead cancel</option>
-  <option value="Refund">Refund</option>
-</select>
+            <option
+              value="Payment request (partial/full)"
+              disabled={
+                checkoutDetails?.paymentStatus === "paid" &&
+                checkoutDetails?.remainingPaymentStatus === "paid"
+              }
+              style={
+                checkoutDetails?.paymentStatus === "paid" &&
+                  checkoutDetails?.remainingPaymentStatus === "paid"
+                  ? { backgroundColor: "#fca5a5" }
+                  : {}
+              }
+            >
+              Payment request (partial/full)
+            </option>
+
+            <option value="Payment verified">Payment verified</option>
+            <option value="Lead accepted">Lead accepted</option>
+            <option value="Lead requested documents">Lead requested documents</option>
+            <option value="Lead started">Lead started</option>
+            <option value="Lead ongoing">Lead ongoing</option>
+            <option value="Lead completed">Lead completed</option>
+            <option value="Lead cancel">Lead cancel</option>
+            <option value="Refund">Refund</option>
+          </select>
 
         </div>
 

@@ -45,7 +45,7 @@ const CustomizedBookingDetails = () => {
   // Fetch service customer
   useEffect(() => {
     if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer);
+      fetchServiceCustomer(checkoutDetails.serviceCustomer?._id);
     }
   }, [checkoutDetails]);
 
