@@ -55,11 +55,20 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await axios.get(`${WALLET_API}/${providerId}`);
       setWallet(response.data.data); // assuming { success: true, data: {...wallet} }
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message || err?.message || "Error fetching wallet";
-      setError(message);
-    } finally {
+    } catch (err: unknown) {
+  let message = "Error fetching wallet";
+
+  if (typeof err === "object" && err !== null) {
+    const maybeError = err as { message?: string; response?: { data?: { message?: string } } };
+    message =
+      maybeError.response?.data?.message ||
+      maybeError.message ||
+      message;
+  }
+
+  setError(message);
+}
+finally {
       setLoading(false);
     }
   };
