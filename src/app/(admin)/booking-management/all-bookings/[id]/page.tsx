@@ -96,9 +96,21 @@ const AllBookingsDetails = () => {
   }, [id]);
 
   // Fetch service customer
+  // useEffect(() => {
+  //   console.log("--------",checkoutDetails?.serviceCustomer)
+  //   if (checkoutDetails?.serviceCustomer) {
+  //     fetchServiceCustomer(checkoutDetails.serviceCustomer?._id );
+  //   }
+  // }, [checkoutDetails]);
+
   useEffect(() => {
-    if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer?._id);
+    const customer = checkoutDetails?.serviceCustomer;
+
+    if (customer) {
+      const customerId = typeof customer === 'string' ? customer : customer._id;
+      if (customerId) {
+        fetchServiceCustomer(customerId);
+      }
     }
   }, [checkoutDetails]);
 
@@ -421,7 +433,7 @@ const AllBookingsDetails = () => {
                 ? JSON.parse(formData.get("leads") as string)?.[0]?.statusType
                 : null;
 
-                console.log("status type : ", statusType);
+              console.log("status type : ", statusType);
 
               if (statusType === "Lead completed") {
                 const res = await fetch("https://biz-booster.vercel.app/api/distributeLeadCommission", {
