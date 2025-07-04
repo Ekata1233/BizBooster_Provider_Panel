@@ -102,7 +102,7 @@ const OngoingBookingDetails = () => {
   // Fetch service customer
   useEffect(() => {
     if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer);
+      fetchServiceCustomer(checkoutDetails.serviceCustomer?._id);
     }
   }, [checkoutDetails]);
 
@@ -334,7 +334,7 @@ const OngoingBookingDetails = () => {
       }
     }}
     checkoutId={checkoutDetails._id}
-    serviceCustomerId={checkoutDetails.serviceCustomer}
+    serviceCustomerId={checkoutDetails.serviceCustomer?._id}
     serviceManId={checkoutDetails.serviceMan ?? ""}
     serviceId={checkoutDetails.service?._id ?? ""}
     amount={checkoutDetails.totalAmount?.toString() || "000"}

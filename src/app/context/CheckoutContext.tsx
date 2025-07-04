@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
+import { ServiceCustomer } from "../(admin)/booking-management/accepted-requests/page";
 
 export interface ServiceType {
   _id: string;
@@ -21,7 +22,7 @@ export interface CheckoutType {
   bookingId: string;
   user: string;
   service: ServiceType;
-  serviceCustomer: string;
+  serviceCustomer: ServiceCustomer;
   provider: string;
   coupon?: string;
   subtotal: number;
@@ -94,8 +95,6 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
   const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
   const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
 
-  
-  
   const fetchCheckoutsByProviderId = async (providerId: string) => {
     setLoadingCheckouts(true);
     try {

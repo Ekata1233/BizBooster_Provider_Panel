@@ -17,10 +17,7 @@ interface ServiceCustomer {
   city: string;
 }
 
-
-
 interface BookingRow {
-
   _id: string;
   bookingId: string;
   serviceCustomer: ServiceCustomer;
@@ -29,10 +26,8 @@ interface BookingRow {
   scheduleDate?: string;
   bookingDate: string;
   orderStatus: string;
-  
+
 }
-
-
 
 const AllBookings = () => {
   const { provider } = useAuth();
@@ -56,7 +51,10 @@ const AllBookings = () => {
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
 
-  
+  // Filter based on Booking ID
+  // const filteredCheckouts = checkouts.filter((checkout) =>
+  //   checkout.bookingId?.toLowerCase().includes(search.toLowerCase())
+  // );
 
   const columns = [
     {
@@ -147,10 +145,10 @@ const AllBookings = () => {
       render: (row: BookingRow) => (
         <div className="flex gap-2">
           <Link href={`/booking-management/all-bookings/${row._id}`} passHref>
-              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-                <EyeIcon />
-              </button>
-            </Link>
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
           {/* <button
             onClick={() => alert(`Viewing booking ID: ${row.bookingId}`)}
             className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
@@ -174,16 +172,18 @@ const AllBookings = () => {
     },
   ];
 
-const data: BookingRow[] = checkouts.map((checkout) => ({
-  bookingId: checkout.bookingId,
-  serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
-  totalAmount: checkout.totalAmount,
-  paymentStatus: checkout.paymentStatus,
-  scheduleDate: checkout.createdAt,
-  bookingDate: checkout.createdAt,
-  orderStatus: checkout.orderStatus,
-  _id: checkout._id,
-}));
+  const data: BookingRow[] = checkouts.map((checkout) => ({
+    bookingId: checkout.bookingId,
+    serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
+    totalAmount: checkout.totalAmount,
+    paymentStatus: checkout.paymentStatus,
+    scheduleDate: checkout.createdAt,
+    bookingDate: checkout.createdAt,
+    orderStatus: checkout.orderStatus,
+    _id: checkout._id,
+  }));
+
+
 
   return (
     <div>

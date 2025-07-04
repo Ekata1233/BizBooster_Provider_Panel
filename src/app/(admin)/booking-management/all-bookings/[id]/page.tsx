@@ -98,7 +98,7 @@ const AllBookingsDetails = () => {
   // Fetch service customer
   useEffect(() => {
     if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer);
+      fetchServiceCustomer(checkoutDetails.serviceCustomer?._id);
     }
   }, [checkoutDetails]);
 
@@ -143,7 +143,7 @@ const AllBookingsDetails = () => {
       });
 
       alert("Booking Accepted Successfully");
-      router.push("/booking-management/accepted-requests");
+      router.push("/booking-management/all-bookings");
     } catch (error) {
       alert("Failed to accept booking");
       console.error("Error while accepting booking:", error);
@@ -300,8 +300,8 @@ const AllBookingsDetails = () => {
                 {[
                   ['Subtotal', lead?.newAmount ?? checkoutDetails?.service?.price],
                   ['Discount', lead?.newAmount != null
-                          ? '0'
-                          : `${checkoutDetails?.service?.discountedPrice}`],
+                    ? '0'
+                    : `${checkoutDetails?.service?.discountedPrice}`],
                   ['Campaign Discount', 0],
                   ['Coupon Discount', checkoutDetails.couponDiscount || 0],
                   ['VAT', 0],
@@ -416,6 +416,28 @@ const AllBookingsDetails = () => {
           onSubmit={async (formData) => {
             try {
               await createLead(formData);
+
+              const statusType = formData.get("leads")
+                ? JSON.parse(formData.get("leads") as string)?.[0]?.statusType
+                : null;
+
+                console.log("status type : ", statusType);
+
+              if (statusType === "Lead completed") {
+                const res = await fetch("https://biz-booster.vercel.app/api/distributeLeadCommission", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ checkoutId: checkoutDetails._id }),
+                });
+
+                console.log("response of api hitt : ", res)
+                const data = await res.json();
+                console.log("data of api hitt : ", data)
+                if (!res.ok) throw new Error(data.message || "Commission distribution failed.");
+
+                alert("Commission distributed successfully.");
+              }
+
               alert("Lead status updated Successfully.");
               closeModal();
             } catch (err) {
@@ -425,7 +447,7 @@ const AllBookingsDetails = () => {
             }
           }}
           checkoutId={checkoutDetails._id}
-          serviceCustomerId={checkoutDetails.serviceCustomer}
+          serviceCustomerId={checkoutDetails.serviceCustomer?._id}
           serviceManId={checkoutDetails.serviceMan ?? ""}
           serviceId={checkoutDetails.service?._id ?? ""}
           amount={checkoutDetails.totalAmount?.toString() || "000"}

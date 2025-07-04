@@ -19,6 +19,8 @@ const Page = () => {
   if (error) return <p>Error: {error}</p>;
   if (!wallet) return <p>No wallet found.</p>;
 
+  console.log("wallet : ", wallet)
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Account Information" />
@@ -28,8 +30,8 @@ const Page = () => {
           wallet={{
             receivableBalance: wallet.receivableBalance,
             cashInHand: wallet.cashInHand,
-            withdrawableBalance: wallet.withdrawableBalance,
-            pendingWithdraw: wallet.pendingWithdraw,
+            withdrawableBalance: wallet.balance,
+            pendingWithdraw: wallet.balance,
             alreadyWithdrawn: wallet.alreadyWithdrawn,
             totalEarning: wallet.totalEarning,
           }}
