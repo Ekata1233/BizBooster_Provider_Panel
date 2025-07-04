@@ -459,7 +459,11 @@ const AllBookingsDetails = () => {
             }
           }}
           checkoutId={checkoutDetails._id}
-          serviceCustomerId={checkoutDetails.serviceCustomer?._id}
+          serviceCustomerId={
+            typeof checkoutDetails.serviceCustomer === 'string'
+              ? checkoutDetails.serviceCustomer
+              : checkoutDetails.serviceCustomer?._id
+          }
           serviceManId={checkoutDetails.serviceMan ?? ""}
           serviceId={checkoutDetails.service?._id ?? ""}
           amount={checkoutDetails.totalAmount?.toString() || "000"}
