@@ -71,7 +71,7 @@ console.log(linkType);
     const formData = new FormData();
     formData.append("checkout", checkoutId);
     formData.append("serviceCustomer", serviceCustomerId);
-    formData.append("serviceMan", serviceManId ?? "");
+    if (serviceManId) formData.append("serviceMan", serviceManId);
     formData.append("service", serviceId ?? "");
     formData.append("amount", amount);
 
