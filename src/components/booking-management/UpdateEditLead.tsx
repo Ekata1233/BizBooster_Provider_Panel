@@ -177,7 +177,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
                 </label>
                 <input
                   type="text"
-                  value={`₹${checkoutDetails?.subtotal ?? ''}`}
+                  value={`₹${checkoutDetails?.service?.price ?? ''}`}
                   disabled
                   className="w-[90%] p-2 border rounded-md bg-gray-100"
                 />
@@ -189,7 +189,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
                 </label>
                 <input
                   type="text"
-                  value={`₹${checkoutDetails?.serviceDiscount ?? ''}`}
+                  value={`₹${checkoutDetails?.service?.discountedPrice ?? ''}`}
                   disabled
                   className="w-[90%] p-2 border rounded-md bg-gray-100"
                 />
