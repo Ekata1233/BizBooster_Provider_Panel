@@ -180,7 +180,7 @@ const AcceptedRequests = () => {
   ];
 
 const data: BookingRow[] = checkouts
-  .filter((checkout) => checkout.isAccepted === true)
+  .filter((checkout) => checkout.isAccepted === true && checkout.isCompleted === false)
   .map((checkout) => {
     const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
     return {

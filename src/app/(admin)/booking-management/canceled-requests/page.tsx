@@ -9,12 +9,13 @@ import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import Link from 'next/link';
+import { ServiceCustomer } from '../accepted-requests/page';
 
 
 type BookingRow = {
   _id: string;
   bookingId: string;
-  serviceCustomer: string;
+  serviceCustomer: ServiceCustomer;
   totalAmount: number;
   paymentStatus: 'paid' | 'unpaid' | string;
   scheduleDate: string | Date | null;
@@ -23,7 +24,7 @@ type BookingRow = {
 };
 interface Checkout {
   bookingId: string;
-  serviceCustomer: string;
+  serviceCustomer: ServiceCustomer;
   totalAmount: number;
   paymentStatus: string;
   createdAt: string;
@@ -63,15 +64,15 @@ const CanceledRequests = () => {
       header: 'Booking ID',
       accessor: 'bookingId',
     },
-    {
+   {
       header: 'Customer Info',
       accessor: 'customerInfo',
       render: (row: BookingRow) => {
-        console.log("Customer Info Row:", row); // 👈 This will log the entire row object
+        console.log("Customer Info Row:", row); 
         return (
           <div className="text-sm">
-            <p className="font-medium text-gray-900">{row.serviceCustomer || 'N/A'}</p>
-            <p className="text-gray-500">{row.serviceCustomer || ''}</p>
+            <p className="font-medium text-gray-900">{row.serviceCustomer?.fullName || 'N/A'}</p>
+            <p className="text-gray-500">{row.serviceCustomer?.email || ''}</p>
           </div>
         );
       },
@@ -167,18 +168,21 @@ const CanceledRequests = () => {
     },
   ];
 
-  const data = checkouts
-  .filter((checkout: Checkout) => checkout.isCanceled === true)
-  .map((checkout: Checkout) => ({
-    bookingId: checkout.bookingId,
-    serviceCustomer: checkout.serviceCustomer,
-    totalAmount: checkout.totalAmount,
-    paymentStatus: checkout.paymentStatus,
-    scheduleDate: checkout.createdAt,
-    bookingDate: checkout.createdAt,
-    orderStatus: checkout.orderStatus,
-    _id: checkout._id,
-  }));
+const data: BookingRow[] = checkouts
+  .filter((checkout) => checkout.isAccepted === true)
+  .map((checkout) => {
+    const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
+    return {
+      bookingId: checkout.bookingId,
+      serviceCustomer: customer,
+      totalAmount: checkout.totalAmount,
+      paymentStatus: checkout.paymentStatus,
+      scheduleDate: checkout.createdAt,
+      bookingDate: checkout.createdAt,
+      orderStatus: checkout.orderStatus,
+      _id: checkout._id,
+    };
+  });
 
 
 
