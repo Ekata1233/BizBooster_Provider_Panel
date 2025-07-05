@@ -54,8 +54,13 @@ const AcceptedBookingDetails = () => {
 
   // Fetch service customer
   useEffect(() => {
-    if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer);
+    const customer = checkoutDetails?.serviceCustomer;
+
+    if (customer) {
+      const customerId = typeof customer === 'string' ? customer : customer._id;
+      if (customerId) {
+        fetchServiceCustomer(customerId);
+      }
     }
   }, [checkoutDetails]);
 
@@ -330,7 +335,11 @@ const AcceptedBookingDetails = () => {
 
           }}
           checkoutId={checkoutDetails._id}
-          serviceCustomerId={checkoutDetails.serviceCustomer}
+          serviceCustomerId={
+            typeof checkoutDetails.serviceCustomer === 'string'
+              ? checkoutDetails.serviceCustomer
+              : checkoutDetails.serviceCustomer?._id
+          }
           serviceManId={checkoutDetails.serviceMan ?? ""}
           serviceId={checkoutDetails.service?._id ?? ""}
           amount={checkoutDetails.discountedPrice?.toString() || "150"}

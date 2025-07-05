@@ -25,8 +25,10 @@ const AllBookingsDetails = () => {
   const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
-  const { createLead, loadingLeads, } = useLead();
+  const { createLead, loadingLeads } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
+  const [lead, setLead] = useState<LeadType | null>(null);
+  console.log("lead details for distribution : ", lead)
 
   const params = useParams();
   const id = params?.id as string;
@@ -40,7 +42,7 @@ const AllBookingsDetails = () => {
   } = useCheckout();
 
   const { getLeadByCheckoutId } = useLead();
-  const [lead, setLead] = useState<LeadType | null>(null);
+
 
 
   useEffect(() => {
@@ -239,7 +241,7 @@ const AllBookingsDetails = () => {
               <div className="flex flex-col md:flex-row justify-between gap-6">
                 <div className="flex-1 space-y-2">
                   <p className="text-gray-700"><strong>Payment Method:</strong> {checkoutDetails.paymentMethod?.join(', ')}</p>
-                  <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
+                  <p className="text-gray-700"><strong>Total Amount:</strong> {formatPrice(grandTotal || 0)}</p>
                 </div>
                 <div className="flex-1 space-y-2">
                   <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
@@ -268,68 +270,88 @@ const AllBookingsDetails = () => {
                     <tr>
                       <td className="border px-4 py-2">{checkoutDetails?.service?.serviceName || 'N/A'}</td>
                       <td className="border px-4 py-2">{formatPrice(lead?.newAmount ?? checkoutDetails?.service?.price ?? 0)}</td>
-                      <td className="border px-4 py-2">
-                        {lead?.newAmount != null
+                      {/* <td className="border px-4 py-2">
+                        {lead?.newDiscountAmount != null
                           ? '₹0'
                           : `₹${checkoutDetails?.service?.discountedPrice || 0}`}
-                      </td>
-                      <td className="border px-4 py-2">{formatPrice(lead?.newAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
+                      </td> */}
+                      <td className="border px-4 py-2">{formatPrice(lead?.newDiscountAmount ?? checkoutDetails?.service?.discountedPrice ?? 0)}</td>
+                      <td className="border px-4 py-2">{formatPrice(lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0)}</td>
                     </tr>
                   </tbody>
                 </table>
 
-                {hasExtraServices && (
-                  <>
-                    <h4 className="text-sm font-semibold text-gray-700 my-3">Extra Services</h4>
-                    <table className="w-full table-auto border border-gray-200 text-sm mb-5">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="border px-4 py-2 text-left">SL</th>
-                          <th className="border px-4 py-2 text-left">Service Name</th>
-                          <th className="border px-4 py-2 text-left">Price</th>
-                          <th className="border px-4 py-2 text-left">Discount</th>
-                          <th className="border px-4 py-2 text-left">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {lead!.extraService!.map((service, index) => (
-                          <tr key={index}>
-                            <td className="border px-4 py-2 text-left">{index + 1}</td>
-                            <td className="border px-4 py-2 text-left">{service.serviceName}</td>
-                            <td className="border px-4 py-2 text-left">{formatPrice(service.price)}</td>
-                            <td className="border px-4 py-2 text-left">{formatPrice(service.discount)}</td>
-                            <td className="border px-4 py-2 text-left">{formatPrice(service.total)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </>
-                )}
+
               </div>
 
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
                 {[
                   ['Subtotal', lead?.newAmount ?? checkoutDetails?.service?.price],
-                  ['Discount', lead?.newAmount != null
-                    ? '0'
-                    : `${checkoutDetails?.service?.discountedPrice}`],
+                  ['Discount', lead?.newDiscountAmount ?? (checkoutDetails?.service?.price - checkoutDetails?.service?.discountedPrice) ?? 0],
                   ['Campaign Discount', 0],
                   ['Coupon Discount', checkoutDetails.couponDiscount || 0],
                   ['VAT', 0],
                   ['Platform Fee', 0],
+                  ['Total ', lead?.afterDicountAmount ?? checkoutDetails?.service?.discountedPrice],
                 ].map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
                     <span className="font-medium">{label} :</span>
                     <span>₹{amount}</span>
                   </div>
                 ))}
-                {lead?.extraService?.map((service, index) => (
-                  <div key={index} className="flex justify-between font-semibold">
-                    <span>Extra Service</span>
-                    <span>{formatPrice(service.total)}</span>
-                  </div>
-                ))}
+
+
+                {hasExtraServices && (() => {
+                  const extraServices = lead!.extraService!;
+                  const subtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
+                  const totalDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
+                  const grandTotal = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
+
+                  return (
+                    <>
+                      <h4 className="text-sm font-semibold text-gray-700 my-3">Extra Services</h4>
+                      <table className="w-full table-auto border border-gray-200 text-sm mb-5">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="border px-4 py-2 text-left">SL</th>
+                            <th className="border px-4 py-2 text-left">Service Name</th>
+                            <th className="border px-4 py-2 text-left">Price</th>
+                            <th className="border px-4 py-2 text-left">Discount</th>
+                            <th className="border px-4 py-2 text-left">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {extraServices.map((service, index) => (
+                            <tr key={index}>
+                              <td className="border px-4 py-2 text-left">{index + 1}</td>
+                              <td className="border px-4 py-2 text-left">{service.serviceName}</td>
+                              <td className="border px-4 py-2 text-left">{formatPrice(service.price)}</td>
+                              <td className="border px-4 py-2 text-left">{formatPrice(service.discount)}</td>
+                              <td className="border px-4 py-2 text-left">{formatPrice(service.total)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      {/* Summary section */}
+                      {[
+                        ['Subtotal', subtotal],
+                        ['Discount', totalDiscount],
+                        ['Campaign Discount', 0],
+                        ['Coupon Discount', checkoutDetails.couponDiscount || 0],
+                        ['VAT', 0],
+                        ['Platform Fee', 0],
+                        ['Extra Service Total', grandTotal],
+                      ].map(([label, amount]) => (
+                        <div className="flex justify-between mb-1" key={label}>
+                          <span className="font-medium">{label}:</span>
+                          <span>{formatPrice(amount)}</span>
+                        </div>
+                      ))}
+                    </>
+                  );
+                })()}
 
                 <div className="flex justify-between font-bold text-blue-600">
                   <span>Total</span>
@@ -391,7 +413,7 @@ const AllBookingsDetails = () => {
               <div className="flex flex-col md:flex-row justify-between gap-6">
                 <div className="flex-1 space-y-2">
                   <p className="text-gray-700"><strong>Payment Method:</strong> {checkoutDetails.paymentMethod?.join(', ')}</p>
-                  <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
+                  <p className="text-gray-700"><strong>Total Amount:</strong> {formatPrice(grandTotal || 0)}</p>
                 </div>
                 <div className="flex-1 space-y-2">
                   <p className="text-gray-700"><strong>Payment Status:</strong> {checkoutDetails.paymentStatus}</p>
@@ -433,7 +455,6 @@ const AllBookingsDetails = () => {
                 ? JSON.parse(formData.get("leads") as string)?.[0]?.statusType
                 : null;
 
-              console.log("status type : ", statusType);
 
               if (statusType === "Lead completed") {
                 const res = await fetch("https://biz-booster.vercel.app/api/distributeLeadCommission", {
@@ -442,9 +463,8 @@ const AllBookingsDetails = () => {
                   body: JSON.stringify({ checkoutId: checkoutDetails._id }),
                 });
 
-                console.log("response of api hitt : ", res)
+                
                 const data = await res.json();
-                console.log("data of api hitt : ", data)
                 if (!res.ok) throw new Error(data.message || "Commission distribution failed.");
 
                 alert("Commission distributed successfully.");

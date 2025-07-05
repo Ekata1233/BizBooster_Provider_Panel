@@ -18,8 +18,6 @@ export default function InvoiceDownload({ checkoutDetails, serviceCustomer, lead
   const invoiceRef = useRef<HTMLDivElement>(null);
   const { providerDetails } = useAuth()
 
-  console.log("lead details : ", leadDetails);
-
   const handleDownload = async () => {
     const element = invoiceRef.current;
     if (!element) return;
