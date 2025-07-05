@@ -123,11 +123,16 @@ const AllBookingsDetails = () => {
     }
   }, [provider]);
 
-  const getStatusLabel = () => {
-    if (checkoutDetails?.isCompleted) return 'Done';
-    if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
-    return 'Pending';
+  const getStatusStyle = () => {
+    if (checkoutDetails?.isCompleted)
+      return { label: 'Completed', color: 'text-green-700 border-green-400 bg-green-50' };
+    if (checkoutDetails?.orderStatus === 'processing')
+      return { label: 'Processing', color: 'text-yellow-700 border-yellow-400 bg-yellow-50' };
+    return { label: 'Pending', color: 'text-gray-700 border-gray-400 bg-gray-50' };
   };
+
+  const status = getStatusStyle();
+
   const getStatusColor = () => {
     const status = checkoutDetails?.paymentStatus?.toLowerCase();
     if (status === 'paid') return 'text-green-600';
@@ -140,7 +145,7 @@ const AllBookingsDetails = () => {
     Array.isArray(lead?.extraService) &&
     lead.extraService.length > 0;
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
-  const baseAmount = lead?.newAmount ?? checkoutDetails?.totalAmount ?? 0;
+  const baseAmount = lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0;
   const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
   const grandTotal = baseAmount + extraAmount;
 
@@ -182,18 +187,25 @@ const AllBookingsDetails = () => {
               <h2 className="text-lg font-semibold">
                 Booking ID: <span className="text-blue-600">{checkoutDetails.bookingId}</span>
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Status: <span className="font-medium">{getStatusLabel()}</span>
+              <p className="text-md text-gray-600 mt-2 flex items-center gap-1">
+                Status:
+                <span
+                  className={`font-medium px-2 py-0.5 rounded-full text-md border ${status.color}`}
+                >
+                  {status.label}
+                </span>
               </p>
+
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-4">
-              <button
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
+              {checkoutDetails.isCompleted === false ? (<button
                 className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 transition duration-300"
                 onClick={() => setIsEditOpen(true)}
               >
                 Edit Lead
-              </button>
+              </button>) : <></>}
+
 
               {isEditOpen && (
                 <UpdateEditLead
@@ -354,7 +366,7 @@ const AllBookingsDetails = () => {
                 })()}
 
                 <div className="flex justify-between font-bold text-blue-600">
-                  <span>Total</span>
+                  <span>Grand Total</span>
                   <span>{formatPrice(grandTotal || 0)}</span>
                 </div>
               </div>
@@ -362,7 +374,7 @@ const AllBookingsDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+             {checkoutDetails.isCompleted === false ? ( <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
@@ -389,7 +401,7 @@ const AllBookingsDetails = () => {
                 )}
 
 
-              </div>
+              </div>):(<></>)}
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
@@ -463,7 +475,7 @@ const AllBookingsDetails = () => {
                   body: JSON.stringify({ checkoutId: checkoutDetails._id }),
                 });
 
-                
+
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || "Commission distribution failed.");
 
