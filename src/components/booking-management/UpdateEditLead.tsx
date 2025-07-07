@@ -62,7 +62,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
           console.error("Error fetching lead:", errorMessage);
         }
       } finally {
-        setLoadingLead(false); // Stop loading regardless of result
+        setLoadingLead(false); 
       }
 
     };
