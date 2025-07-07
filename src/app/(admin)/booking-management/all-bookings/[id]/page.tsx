@@ -358,7 +358,8 @@ const AllBookingsDetails = () => {
                       ].map(([label, amount]) => (
                         <div className="flex justify-between mb-1" key={label}>
                           <span className="font-medium">{label}:</span>
-                          <span>{formatPrice(amount)}</span>
+                          <span>{formatPrice(Number(amount))}</span>
+
                         </div>
                       ))}
                     </>
