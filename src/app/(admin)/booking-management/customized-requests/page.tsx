@@ -22,18 +22,6 @@ type BookingRow = {
   bookingDate: string;
   orderStatus: string;
 };
-
-
-type CheckoutType = {
-  bookingId: string;
-  serviceCustomer: ServiceCustomer;
-  totalAmount: number;
-  paymentStatus: string;
-  createdAt: string;
-  orderStatus: string;
-  _id: string;
-  isVerified: boolean;
-};
 const CustomizedRequests = () => {
    const { provider } = useAuth();
   const {

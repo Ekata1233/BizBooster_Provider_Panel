@@ -22,16 +22,6 @@ type BookingRow = {
   bookingDate: string | Date;
   orderStatus: 'processing' | 'completed' | 'canceled' | string;
 };
-interface Checkout {
-  bookingId: string;
-  serviceCustomer: ServiceCustomer;
-  totalAmount: number;
-  paymentStatus: string;
-  createdAt: string;
-  orderStatus: string;
-  _id: string;
-  isCanceled: boolean;
-}
 const CanceledRequests = () => {
   const { provider } = useAuth();
   const {

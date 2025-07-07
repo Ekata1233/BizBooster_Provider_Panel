@@ -20,17 +20,6 @@ interface BookingRow {
   bookingDate: string | Date;
   orderStatus: 'processing' | 'completed' | 'canceled' | string;
 }
-interface Checkout {
-  bookingId: string;
-  serviceCustomer: ServiceCustomer;
-  totalAmount: number;
-  paymentStatus: string;
-  createdAt: string; // or Date, depending on actual type
-  orderStatus: string;
-  _id: string;
-  isAccepted: boolean;
-  isCompleted: boolean;
-}
 const OngoingRequests = () => {
   const { provider } = useAuth();
   const {

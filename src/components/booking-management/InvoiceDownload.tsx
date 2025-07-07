@@ -263,7 +263,7 @@ export default function InvoiceDownload({
         <div style={{ marginTop: '30px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
           <p><strong>Terms & Conditions</strong></p>
           <p>All service purchases are final and non-refundable once the project has been initiated or delivered.</p>
-          <p>Customers who opt for the "Assurity" option are eligible for 100% refund based on company review.</p>
+          <p>Customers who opt for the &quot;Assurity&quot; option are eligible for 100% refund based on company review.</p>
           <p>Please read full Terms & Conditions for complete details.</p>
         </div>
 

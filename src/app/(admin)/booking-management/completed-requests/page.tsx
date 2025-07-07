@@ -22,16 +22,6 @@ interface BookingRow {
   orderStatus: string;
   _id: string;
 }
-interface Checkout {
-  bookingId: string;
-  serviceCustomer: ServiceCustomer;
-  totalAmount: number;
-  paymentStatus: string;
-  createdAt: string; // or Date, depending on your data
-  orderStatus: string;
-  _id: string;
-  isCompleted: boolean;
-}
 
 const CompletedRequests = () => {
    const { provider } = useAuth();

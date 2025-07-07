@@ -26,18 +26,6 @@ interface BookingRow {
   bookingDate: string;
   orderStatus: string;
 }
-type CheckoutType = {
-  bookingId: string;
-  serviceCustomer: ServiceCustomer;
-  totalAmount: number;
-  paymentStatus: string;
-  createdAt: string;
-  orderStatus: string;
-  isAccepted: boolean;
-  _id: string;
-};
-
-
 const AcceptedRequests = () => {
   const { provider } = useAuth();
   const {
