@@ -1,15 +1,11 @@
 'use client';
 import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
 import React, { useEffect } from "react";
-import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
 import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
 import StatisticsChart from "@/components/ecommerce/StatisticsChart";
 import RecentOrders from "@/components/ecommerce/RecentOrders";
-import DemographicCard from "@/components/ecommerce/DemographicCard";
-import { Modal } from "@/components/ui/modal";
 import { useModal } from "@/hooks/useModal";
 import { useAuth } from "../context/AuthContext";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 // export const metadata: Metadata = {
@@ -38,10 +34,10 @@ export default function Ecommerce() {
 
   console.log("provider details : ", providerDetails);
 
-  const handleLogout = () => {
-    logout();
-    router.push("/signin"); // Redirect to signin page after logout
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   router.push("/signin"); // Redirect to signin page after logout
+  // };
 
   return (
   <div className="grid grid-cols-12 gap-4 md:gap-6">
