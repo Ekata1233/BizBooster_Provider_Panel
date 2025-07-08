@@ -15,8 +15,8 @@ import { useRouter } from "next/navigation";
 // };
 
 export default function Ecommerce() {
-  const { providerDetails, logout } = useAuth();
-  const { isOpen, openModal, closeModal } = useModal();
+  const { providerDetails } = useAuth();
+  const { openModal } = useModal();
   const router = useRouter();
 
   useEffect(() => {
