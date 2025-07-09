@@ -94,6 +94,24 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
 
     }
   }, [checkoutDetails]);
+useEffect(() => {
+  if (checkoutDetails?.service) {
+    const { price, discountedPrice } = checkoutDetails.service;
+
+    if (!editPrice) {
+      setEditPrice(price?.toString() || "0");
+    }
+
+    if (!editDiscountPrice) {
+      setEditDiscountPrice((price - discountedPrice).toString() || "0");
+    }
+
+    if (!afterDicountAmount) {
+      setAfterDicountAmount(discountedPrice?.toString() || "0");
+    }
+  }
+}, [checkoutDetails]);
+
 
   const addAdditionalRequirement = () => {
     setAdditionalFields([
