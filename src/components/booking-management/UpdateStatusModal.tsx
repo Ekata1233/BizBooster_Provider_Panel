@@ -35,14 +35,21 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [paymentType, setPaymentType] = useState("");
   const [document, setDocument] = useState<File | null>(null);
   const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-console.log(linkType);
+
+
+  console.log(linkType);
 
 
   const {
     fetchCheckoutsDetailsById,
     checkoutDetails,
-    
+
   } = useCheckout();
 
   useEffect(() => {
@@ -134,6 +141,57 @@ console.log(linkType);
     }
   };
 
+  const handleFinalSubmit = () => {
+
+    alert("Please select a status type.");
+
+  };
+
+  const handleOtpVerify = async () => {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length !== 6) {
+      setOtpError("Please enter all 6 digits.");
+      return;
+    }
+
+    setVerifyingOtp(true);
+    setOtpError("");
+    setOtpSuccess(false);
+
+    try {
+      const res = await fetch("https://biz-booster.vercel.app/api/provider/lead/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ checkoutId, otp: enteredOtp }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setOtpSuccess(true);
+        setTimeout(() => {
+          setIsOtpModalOpen(false);
+          handleSubmit(); // Trigger main submit
+        }, 1000);
+      } else {
+        setOtpError(data.message || "Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      setOtpError("Something went wrong. Please try again.");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d?$/.test(value)) return; // Only allow digits
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
       <div className="relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
@@ -142,40 +200,47 @@ console.log(linkType);
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Status Type</Label>
           <select
-  className="w-full p-2 rounded-md border"
-  value={statusType}
-  onChange={(e) => setStatusType(e.target.value)}
->
-  <option value="">Select</option>
-  <option value="Lead request">Lead request</option>
-  <option value="Initial contact">Initial contact</option>
-  <option value="Need understand requirement">Need understand requirement</option>
-  
-  <option
-    value="Payment request (partial/full)"
-    disabled={
-      checkoutDetails?.paymentStatus === "paid" &&
-      checkoutDetails?.remainingPaymentStatus === "paid"
-    }
-    style={
-      checkoutDetails?.paymentStatus === "paid" &&
-      checkoutDetails?.remainingPaymentStatus === "paid"
-        ? { backgroundColor: "#fca5a5" }
-        : {}
-    }
-  >
-    Payment request (partial/full)
-  </option>
+            className="w-full p-2 rounded-md border"
+            value={statusType}
+            // onChange={(e) => setStatusType(e.target.value)}
+            onChange={(e) => {
+              const selected = e.target.value;
+              setStatusType(selected);
+              if (selected === "Lead completed") {
+                setIsOtpModalOpen(true);
+              }
+            }}
+          >
+            <option value="">Select</option>
+            <option value="Lead request">Lead request</option>
+            <option value="Initial contact">Initial contact</option>
+            <option value="Need understand requirement">Need understand requirement</option>
 
-  <option value="Payment verified">Payment verified</option>
-  <option value="Lead accepted">Lead accepted</option>
-  <option value="Lead requested documents">Lead requested documents</option>
-  <option value="Lead started">Lead started</option>
-  <option value="Lead ongoing">Lead ongoing</option>
-  <option value="Lead completed">Lead completed</option>
-  <option value="Lead cancel">Lead cancel</option>
-  <option value="Refund">Refund</option>
-</select>
+            <option
+              value="Payment request (partial/full)"
+              disabled={
+                checkoutDetails?.paymentStatus === "paid" &&
+                checkoutDetails?.remainingPaymentStatus === "paid"
+              }
+              style={
+                checkoutDetails?.paymentStatus === "paid" &&
+                  checkoutDetails?.remainingPaymentStatus === "paid"
+                  ? { backgroundColor: "#fca5a5" }
+                  : {}
+              }
+            >
+              Payment request (partial/full)
+            </option>
+
+            <option value="Payment verified">Payment verified</option>
+            <option value="Lead accepted">Lead accepted</option>
+            <option value="Lead requested documents">Lead requested documents</option>
+            <option value="Lead started">Lead started</option>
+            <option value="Lead ongoing">Lead ongoing</option>
+            <option value="Lead completed">Lead completed</option>
+            <option value="Lead cancel">Lead cancel</option>
+            <option value="Refund">Refund</option>
+          </select>
 
         </div>
 
@@ -269,6 +334,40 @@ console.log(linkType);
               : "Submit"}
           </button>
         </div>
+
+        <Modal isOpen={isOtpModalOpen} onClose={() => setIsOtpModalOpen(false)} className="max-w-sm">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">Enter OTP</h2>
+
+            <div className="flex justify-center space-x-2 mb-4 mt-4">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  className="w-10 h-10 text-center border rounded-md"
+                />
+              ))}
+            </div>
+
+            {otpError && <p className="text-red-500 text-sm text-center mb-2">{otpError}</p>}
+            {otpSuccess && <p className="text-green-500 text-sm text-center mb-2">OTP verified successfully!</p>}
+
+            <div className="text-right">
+              <button
+                onClick={handleOtpVerify}
+                disabled={verifyingOtp}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                {verifyingOtp ? "Verifying..." : "Submit"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+
       </div>
     </Modal>
   );
