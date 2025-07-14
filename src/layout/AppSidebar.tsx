@@ -19,6 +19,7 @@ import {
   // UserCircleIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
+import { Megaphone } from "lucide-react";
 
 type NavItem = {
   name: string;
@@ -63,6 +64,17 @@ const userItems: NavItem[] = [
     ],
   },
 ];
+const advertiseItems: NavItem[] = [
+  {
+    icon: <Megaphone />,
+    name: "Advertise",
+    subItems: [
+      { name: "Add Advertise", path: "/advertise-management/add-advertise", pro: false },
+      { name: "Advertise List", path: "/advertise-management/advertise-list", pro: false },
+
+    ],
+  },
+];
 
 const AccountItems: NavItem[] = [
    {
@@ -99,7 +111,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others" | "booking" | "user" | "account"
+    menuType: "main" | "others" | "booking" | "user" | "account" | "advertise"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -215,7 +227,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "booking" | "user" | "account";
+    type: "main" | "others" | "booking" | "user" | "account" |"advertise";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -229,7 +241,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others", "booking", "user", "account"].forEach((menuType) => {
+    ["main", "others", "booking", "user", "account", "advertise"].forEach((menuType) => {
       const items =
         menuType === "main"
           ? navItems
@@ -237,6 +249,8 @@ const AppSidebar: React.FC = () => {
             ? othersItems
             : menuType === "user"
               ? userItems
+              : menuType === "advertise"
+              ? advertiseItems
               : menuType === "account"
                 ? AccountItems
                 : bookingItems;
@@ -245,7 +259,7 @@ const AppSidebar: React.FC = () => {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others" | "booking" | "user" | "account",
+                type: menuType as "main" | "others" | "booking" | "user" | "account"|"advertise",
                 index,
               });
               submenuMatched = true;
@@ -274,7 +288,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" |"advertise") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -396,6 +410,19 @@ const AppSidebar: React.FC = () => {
                 )}
               </h2>
               {renderMenuItems(userItems, "user")}
+            </div>
+             <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+                  }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Advertise Management"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(advertiseItems, "advertise")}
             </div>
 
              <div className="">
