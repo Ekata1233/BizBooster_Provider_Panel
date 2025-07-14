@@ -92,6 +92,7 @@ const AllBookingsDetails = () => {
     error,
   } = useServiceCustomer();
 
+  console.log("custiner info : ", serviceCustomer)
   // Fetch checkout by ID
   useEffect(() => {
     if (id) fetchCheckoutsDetailsById(id);
