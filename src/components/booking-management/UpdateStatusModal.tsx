@@ -174,6 +174,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       }
     } catch (error) {
       setOtpError("Something went wrong. Please try again.");
+      console.log(error);
+      
     } finally {
       setVerifyingOtp(false);
     }
