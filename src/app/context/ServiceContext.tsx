@@ -61,6 +61,7 @@ export interface Service {
     tags?: string[];
     serviceDetails: ServiceDetails;
     franchiseDetails: FranchiseDetails;
+    isDeleted: boolean;
 }
 
 interface ServiceContextType {

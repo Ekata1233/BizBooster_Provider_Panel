@@ -141,11 +141,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   };
 
-  const handleFinalSubmit = () => {
-
-    alert("Please select a status type.");
-
-  };
+  
 
   const handleOtpVerify = async () => {
     const enteredOtp = otp.join("");
@@ -178,6 +174,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       }
     } catch (error) {
       setOtpError("Something went wrong. Please try again.");
+      console.log(error);
+      
     } finally {
       setVerifyingOtp(false);
     }
