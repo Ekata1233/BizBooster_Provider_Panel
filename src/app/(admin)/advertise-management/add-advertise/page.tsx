@@ -8,7 +8,7 @@ import Button from '@/components/ui/button/Button';
 import ComponentCard from '@/components/common/ComponentCard';
 import { useAdContext } from '@/app/context/AdContext';
 import { useCategory } from '@/app/context/CategoryContext';
-import { useService } from '@/app/context/ServiceContext';
+import { Service, useService } from '@/app/context/ServiceContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { uploadToImageKit } from '@/utils/uploadToImageKit';
 
@@ -21,7 +21,8 @@ const AddAd = () => {
 
   const [addType, setAddType] = useState<'image' | 'video'>('image');
   const [category, setCategory] = useState('');
-  const [filteredServices, setFilteredServices] = useState([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+
   const [service, setService] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -31,7 +32,8 @@ const AddAd = () => {
   const [loading, setLoading] = useState(false);
 
   console.log('provider in add : ', provider?._id);
-
+    console.log(ads);
+    
   useEffect(() => {
     if (provider) {
       console.log('🔐 Logged-in Provider:', provider);
@@ -39,19 +41,20 @@ const AddAd = () => {
   }, [provider]);
 
   useEffect(() => {
-    if (category && provider?.subscribedServices?.length) {
-      const filtered = services.filter(
-        (s) =>
-          s.category?._id === category &&
-          s.isDeleted === false &&
-          provider.subscribedServices.includes(s._id)
-      );
-      setFilteredServices(filtered);
-    } else {
-      setFilteredServices([]);
-    }
-    setService('');
-  }, [category, services, provider]);
+  if (category && (provider?.subscribedServices?.length ?? 0) > 0) {
+    const filtered = services.filter(
+      (s) =>
+        s.category?._id === category &&
+        s.isDeleted === false &&
+        (provider?.subscribedServices ?? []).includes(s._id)
+    );
+    setFilteredServices(filtered);
+  } else {
+    setFilteredServices([]);
+  }
+  setService('');
+}, [category, services, provider]);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

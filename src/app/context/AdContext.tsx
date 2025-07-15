@@ -12,6 +12,7 @@ export interface AdType {
   title: string;
   description: string;
   fileUrl: string;
+  isExpired?: boolean;
 }
 
 interface AdContextType {

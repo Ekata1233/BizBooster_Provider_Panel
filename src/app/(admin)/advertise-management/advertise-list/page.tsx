@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useEffect, useState, ChangeEvent } from 'react';
-import { useAdContext } from '@/app/context/AdContext';
+import { AdType, useAdContext } from '@/app/context/AdContext';
 import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
-import { PencilIcon, TrashBinIcon, EyeIcon } from '@/icons';
+import { TrashBinIcon, EyeIcon } from '@/icons';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/modal';
 
@@ -22,6 +22,7 @@ interface AdTableData {
   title: string;
   status: string;
 }
+
 
 const AdvertiseList = () => {
   const { ads } = useAdContext();
@@ -45,23 +46,23 @@ const AdvertiseList = () => {
     setModalContent(null);
   };
 
-  useEffect(() => {
-    if (ads && ads.length > 0) {
-      const formatted = ads.map((ad: any) => ({
-        id: ad._id || '',
-        addType: ad.addType || '—',
-        category: ad.category?.name || '—',
-        serviceName: ad.service?.serviceName || '—',
-        description: ad.description || '—',
-        startDate: ad.startDate?.slice(0, 10) || '—',
-        endDate: ad.endDate?.slice(0, 10) || '—',
-        fileUrl: ad.fileUrl || '',
-        title: ad.title || '—',
-        status: ad.isExpired ? 'Inactive' : 'Active',
-      }));
-      setTableData(formatted);
-    }
-  }, [ads]);
+useEffect(() => {
+  if (ads && ads.length > 0) {
+    const formatted = ads.map((ad: AdType) => ({
+      id: ad._id || '',
+      addType: ad.addType || '—',
+      category: ad.category || '—', // ✅ category is a string in your context
+      serviceName: ad.service || '—', // ✅ service is a string in your context
+      description: ad.description || '—',
+      startDate: ad.startDate?.slice(0, 10) || '—',
+      endDate: ad.endDate?.slice(0, 10) || '—',
+      fileUrl: ad.fileUrl || '',
+      title: ad.title || '—',
+      status: ad.isExpired ? 'Inactive' : 'Active',
+    }));
+    setTableData(formatted);
+  }
+}, [ads]);
 
   useEffect(() => {
     const lowerSearch = searchQuery.toLowerCase();
@@ -82,7 +83,6 @@ const AdvertiseList = () => {
     return filteredData;
   };
 
-  const handleEdit = (id: string) => router.push(`/advertise-management/edit/${id}`);
   const handleView = (id: string) => router.push(`/advertise-management/view/${id}`);
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this ad?')) {
