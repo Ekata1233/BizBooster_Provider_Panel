@@ -55,12 +55,9 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [price, setPrice] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-    console.log(selectedServiceId);
 
+    // console.log("selected service Id: ", selectedServiceId)
     const [localServices, setLocalServices] = useState<Service[]>(services);
-    console.log("services data : ", services)
-
-    console.log("providerSubscribedIds data : ", providerSubscribedIds)
 
     useEffect(() => {
         setLocalServices(services);
@@ -79,8 +76,13 @@ const AllServices: React.FC<AllServicesProps> = ({
 
     const handleUpdateData = async (e: React.MouseEvent<HTMLButtonElement>, selectedServiceId?: string,) => {
 
+        // console.log("function called ")
+        console.log(" service id in update funciton  : ", selectedServiceId)
+        // console.log("selected provider id : ", provider?._id)
         e.preventDefault();
         if (!selectedServiceId || !provider?._id) return;
+
+
 
         setIsSubmitting(true);
 
@@ -151,16 +153,10 @@ const AllServices: React.FC<AllServicesProps> = ({
                             success: false,
                         };
 
-                        console.log("service Id : ", service._id)
-                        console.log("providerSubscribedIds : ", providerSubscribedIds)
                         const isAlreadySubscribed = providerSubscribedIds.some(
                             (subscribedService) => (subscribedService as unknown as { _id: string })._id === service._id
                         );
 
-
-
-                        console.log("is alredy subscribed : ", isAlreadySubscribed)
-                        // ---- new per-row provider-price logic --------------------------
                         const providerEntry = service.providerPrices?.find(
                             pp => pp.provider?._id === provider?._id
                         );
@@ -307,7 +303,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                 </Button>
                                 <button
                                     type="button"
-                                    onClick={handleUpdateData}
+                                    onClick={(e) => handleUpdateData(e, selectedServiceId ?? undefined)}
                                     disabled={isSubmitting}
                                     style={{
                                         padding: "0.5rem 1rem",
