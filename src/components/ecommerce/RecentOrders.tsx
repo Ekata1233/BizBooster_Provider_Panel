@@ -8,10 +8,10 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
-import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCheckout } from "@/app/context/CheckoutContext";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RecentOrders() {
   const { providerDetails } = useAuth();
@@ -21,6 +21,12 @@ export default function RecentOrders() {
     loadingCheckouts,
     errorCheckouts,
   } = useCheckout();
+  const router = useRouter();
+
+
+  const handleClick = () => {
+    router.push('/booking-management/all-bookings');
+  };
 
   useEffect(() => {
     if (providerDetails?._id) {
@@ -44,7 +50,7 @@ export default function RecentOrders() {
           <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
             Filter
           </button>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+          <button onClick={handleClick} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
             See all
           </button>
         </div>
@@ -70,19 +76,10 @@ export default function RecentOrders() {
           </TableHeader>
 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {checkouts.map((checkout) => (
+            {checkouts.slice(0, 4).map((checkout) => (
               <TableRow key={checkout._id}>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
-                    {/* <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <Image
-                        width={50}
-                        height={50}
-                        src="/images/product/placeholder.png"
-                        className="h-[50px] w-[50px]"
-                        alt="Customer"
-                      />
-                    </div> */}
                     <div>
                       <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                         {checkout.serviceCustomer?.fullName || "Unknown"}
