@@ -16,12 +16,13 @@ export default function StatisticsChart() {
   const { providerDetails } = useAuth();
   const { fetchWalletByProvider, wallet } = useProviderWallet();
 
-  const [series, setSeries] = useState([
-    {
-      name: "Earnings",
-      data: [],
-    },
-  ]);
+const [series, setSeries] = useState<{ name: string; data: number[] }[]>([
+  {
+    name: "Earnings",
+    data: [],
+  },
+]);
+
 
   const [categories, setCategories] = useState<string[]>([]);
 
