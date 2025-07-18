@@ -4,6 +4,21 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useServiceMan } from '@/app/context/ServiceManContext';
 
+type ServiceMan = {
+  _id: string;
+  name: string;
+  lastName: string;
+  phoneNo: string;
+  email: string;
+  generalImage?: string;
+  businessInformation?: {
+    identityType?: string;
+    identityNumber?: string;
+    identityImage?: string;
+  };
+};
+
+
 export default function UpdateServiceManPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -20,7 +35,8 @@ export default function UpdateServiceManPage() {
     identityImage: null as File | null,
   });
 
-  const [existingData, setExistingData] = useState<any>(null);
+  const [existingData, setExistingData] = useState<ServiceMan | null>(null);
+
 
   useEffect(() => {
     if (serviceMenByProvider.length === 0) return;

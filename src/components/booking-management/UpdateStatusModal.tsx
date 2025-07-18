@@ -44,6 +44,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
+console.log(linkType);
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -161,8 +162,10 @@ useEffect(() => {
         setOtpError(data.message || "Invalid OTP. Please try again.");
       }
     } catch (error) {
-      setOtpError("Something went wrong. Please try again.");
-    } finally {
+  console.error(error); // or log to external service
+  setOtpError("Something went wrong. Please try again.");
+}
+ finally {
       setVerifyingOtp(false);
     }
   };
