@@ -82,8 +82,13 @@ const CanceledBookingDetails = () => {
 
   // Fetch service customer
   useEffect(() => {
-    if (checkoutDetails?.serviceCustomer) {
-      fetchServiceCustomer(checkoutDetails.serviceCustomer?._id);
+   const customer = checkoutDetails?.serviceCustomer;
+
+    if (customer) {
+      const customerId = typeof customer === 'string' ? customer : customer._id;
+      if (customerId) {
+        fetchServiceCustomer(customerId);
+      }
     }
   }, [checkoutDetails]);
 
