@@ -7,9 +7,10 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { useRouter } from 'next/navigation';
 import Input from '@/components/form/input/InputField';
-import Link from 'next/link';
-import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import { PencilIcon, TrashBinIcon } from '@/icons';
 import { useAuth } from '@/app/context/AuthContext';
+import { Modal } from '@/components/ui/modal';
+
 interface ServiceManTableData {
   id: string;
   name: string;
@@ -17,7 +18,13 @@ interface ServiceManTableData {
   phoneNo: string;
   email: string;
   status: string;
+  businessInfo?: {
+    identityType?: string;
+    identityNumber?: string;
+    identityImage?: string;
+  };
 }
+
 interface ServiceMan {
   _id?: string;
   name?: string;
@@ -25,8 +32,12 @@ interface ServiceMan {
   phoneNo?: string;
   email?: string;
   isDeleted?: boolean;
+  businessInformation?: {
+    identityType?: string;
+    identityNumber?: string;
+    identityImage?: string;
+  };
 }
-
 
 const ServicemanListPage = () => {
   const { provider } = useAuth();
@@ -35,6 +46,8 @@ const ServicemanListPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState<ServiceManTableData[]>([]);
   const [activeTab, setActiveTab] = useState('all');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // ✅
+  const [isOpen, setIsOpen] = useState(false); // ✅
   const router = useRouter();
 
   useEffect(() => {
@@ -52,6 +65,7 @@ const ServicemanListPage = () => {
         phoneNo: man.phoneNo || '—',
         email: man.email || '—',
         status: man.isDeleted ? 'Inactive' : 'Active',
+        businessInfo: man.businessInformation || {},
       }));
 
       setTableData(formatted);
@@ -77,11 +91,21 @@ const ServicemanListPage = () => {
     return filteredData;
   };
 
-  const handleEdit = (id: string) => router.push(`/admin/serviceman/edit/${id}`);
+  const handleEdit = (id: string) => router.push(`/user-management/serviceman-list/${id}`);
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this serviceman?')) {
       await deleteServiceMan(id);
     }
+  };
+
+  const openModal = (image: string) => {
+    setSelectedImage(image);
+    setIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setSelectedImage(null);
   };
 
   const columns = [
@@ -90,18 +114,37 @@ const ServicemanListPage = () => {
     { header: 'Phone Number', accessor: 'phoneNo' },
     { header: 'Email', accessor: 'email' },
     {
+      header: 'Identity Info',
+      accessor: 'businessInfo',
+      render: (row: ServiceManTableData) => {
+        const { identityType, identityNumber, identityImage } = row.businessInfo || {};
+        return (
+          <div className="text-sm space-y-1">
+            <div><strong>Type:</strong> {identityType || '—'}</div>
+            <div><strong>Number:</strong> {identityNumber || '—'}</div>
+            {identityImage && (
+              <img
+                src={identityImage}
+                alt="ID"
+                className="w-12 h-12 rounded border mt-1 cursor-pointer hover:opacity-80"
+                onClick={() => openModal(identityImage)}
+              />
+            )}
+          </div>
+        );
+      },
+    },
+    {
       header: 'Status',
       accessor: 'status',
       render: (row: ServiceManTableData) => {
         const colorClass =
           row.status === 'Inactive'
             ? 'text-red-500 bg-red-100 border border-red-300'
-            : 'text-green-600 bg-green-100 border border-green-300';
+            : 'text-green-600 bg-green-100 border-green-300';
 
         return (
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${colorClass}`}
-          >
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${colorClass}`}>
             {row.status}
           </span>
         );
@@ -124,11 +167,6 @@ const ServicemanListPage = () => {
           >
             <TrashBinIcon />
           </button>
-          <Link href={`/admin/serviceman/view/${row.id}`} passHref>
-            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-              <EyeIcon />
-            </button>
-          </Link>
         </div>
       ),
     },
@@ -182,6 +220,21 @@ const ServicemanListPage = () => {
           )}
         </ComponentCard>
       </div>
+
+      {/* ✅ Image Modal */}
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[800px] max-h-[95vh] m-4">
+        {selectedImage && (
+          <div className="flex justify-center items-center m-3">
+            <img
+              src={selectedImage}
+              alt="Identity Preview"
+              className="h-[500px] w-auto object-contain rounded"
+            />
+          </div>
+        )}
+      </Modal>
+
+
     </div>
   );
 };

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
@@ -41,29 +43,18 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-
-
-  console.log(linkType);
-
-
-  const {
-    fetchCheckoutsDetailsById,
-    checkoutDetails,
-
-  } = useCheckout();
+  const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
       fetchCheckoutsDetailsById(checkoutId);
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
-
-  useEffect(() => {
+useEffect(() => {
     if (checkoutDetails) {
       console.log("✅ Checkout details fetched:", checkoutDetails);
     }
   }, [checkoutDetails]);
-
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setDocument(e.target.files[0]);
@@ -75,6 +66,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       alert("Please select a status type.");
       return;
     }
+
     const formData = new FormData();
     formData.append("checkout", checkoutId);
     formData.append("serviceCustomer", serviceCustomerId);
@@ -98,14 +90,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       formData.append("document", document);
     }
 
-    console.log("Submitting Lead of formdata :", {
-      checkoutId,
-      serviceCustomerId,
-      serviceManId,
-      serviceId,
-      amount,
-      leadStatus,
-    });
     onSubmit(formData);
     setStatusType("");
     setDescription("");
@@ -119,17 +103,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const createPaymentLink = async (amountToPay: number) => {
     setGeneratingPaymentLink(true);
     try {
-      const res = await fetch("https://biz-booster.vercel.app/api/payment/generate-payment-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: amountToPay,
-          customerId: serviceCustomerId,
-          customerName: "Customer Name",
-          customerEmail: "customer@example.com",
-          customerPhone: "9999999999"
-        }),
-      });
+      const res = await fetch(
+        "https://biz-booster.vercel.app/api/payment/generate-payment-link",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: amountToPay,
+            customerId: serviceCustomerId,
+            customerName: "Customer Name",
+            customerEmail: "customer@example.com",
+            customerPhone: "9999999999",
+          }),
+        }
+      );
 
       const data = await res.json();
       setPaymentLink(data.paymentLink || "");
@@ -140,8 +127,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       setGeneratingPaymentLink(false);
     }
   };
-
-  
 
   const handleOtpVerify = async () => {
     const enteredOtp = otp.join("");
@@ -155,11 +140,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     setOtpSuccess(false);
 
     try {
-      const res = await fetch("https://biz-booster.vercel.app/api/provider/lead/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ checkoutId, otp: enteredOtp }),
-      });
+      const res = await fetch(
+        "https://biz-booster.vercel.app/api/provider/lead/verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ checkoutId, otp: enteredOtp }),
+        }
+      );
 
       const data = await res.json();
 
@@ -167,24 +155,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
         setOtpSuccess(true);
         setTimeout(() => {
           setIsOtpModalOpen(false);
-          handleSubmit(); // Trigger main submit
+          handleSubmit();
         }, 1000);
       } else {
         setOtpError(data.message || "Invalid OTP. Please try again.");
       }
     } catch (error) {
       setOtpError("Something went wrong. Please try again.");
-      console.log(error);
-      
     } finally {
       setVerifyingOtp(false);
     }
   };
 
-
-
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d?$/.test(value)) return; // Only allow digits
+    if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -193,19 +177,45 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
       <div className="relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Update Status</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+          Update Status
+        </h2>
 
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Status Type</Label>
           <select
             className="w-full p-2 rounded-md border"
             value={statusType}
-            // onChange={(e) => setStatusType(e.target.value)}
             onChange={(e) => {
               const selected = e.target.value;
-              setStatusType(selected);
+
               if (selected === "Lead completed") {
-                setIsOtpModalOpen(true);
+                if (
+                  checkoutDetails?.paymentStatus === "paid" &&
+                  checkoutDetails?.remainingPaymentStatus === "paid"
+                ) {
+                  setStatusType(selected);
+                  setIsOtpModalOpen(true);
+                } else {
+                  alert(
+                    "Payment is not completed. Please complete payment before marking as completed."
+                  );
+                  setStatusType("Payment request (partial/full)");
+
+                  if (
+                    checkoutDetails?.remainingPaymentStatus !== "paid"
+                  ) {
+                    setPaymentType("remaining");
+                    createPaymentLink(
+                      Number(checkoutDetails?.partialPaymentLater || 0)
+                    );
+                  } else {
+                    setPaymentType("full");
+                    createPaymentLink(Number(amount));
+                  }
+                }
+              } else {
+                setStatusType(selected);
               }
             }}
           >
@@ -213,23 +223,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             <option value="Lead request">Lead request</option>
             <option value="Initial contact">Initial contact</option>
             <option value="Need understand requirement">Need understand requirement</option>
-
-            <option
-              value="Payment request (partial/full)"
-              disabled={
-                checkoutDetails?.paymentStatus === "paid" &&
-                checkoutDetails?.remainingPaymentStatus === "paid"
-              }
-              style={
-                checkoutDetails?.paymentStatus === "paid" &&
-                  checkoutDetails?.remainingPaymentStatus === "paid"
-                  ? { backgroundColor: "#fca5a5" }
-                  : {}
-              }
-            >
-              Payment request (partial/full)
-            </option>
-
+            <option value="Payment request (partial/full)">Payment request (partial/full)</option>
             <option value="Payment verified">Payment verified</option>
             <option value="Lead accepted">Lead accepted</option>
             <option value="Lead requested documents">Lead requested documents</option>
@@ -239,7 +233,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             <option value="Lead cancel">Lead cancel</option>
             <option value="Refund">Refund</option>
           </select>
-
         </div>
 
         <div className="mb-4">
@@ -254,7 +247,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
         </div>
 
         <div className="mb-4">
-          {(statusType === "Payment request (partial/full)" || statusType === "Need understand requirement") && (
+          {(statusType === "Payment request (partial/full)" ||
+            statusType === "Need understand requirement") && (
             <Label className="block mb-1 font-medium">Add Link</Label>
           )}
 
@@ -270,36 +264,54 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
           {statusType === "Payment request (partial/full)" && (
             <>
-              <div className="flex gap-4 my-3">
-                <Label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="paymentType"
-                    value="full"
-                    checked={paymentType === "full"}
-                    onChange={() => {
-                      setPaymentType("full");
-                      createPaymentLink(Number(amount));
-                    }}
-                  />
-                  Full Payment
-                </Label>
-                <Label className="text-red-700">RS {amount}</Label>
-                <Label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="paymentType"
-                    value="partial"
-                    checked={paymentType === "partial"}
-                    onChange={() => {
-                      setPaymentType("partial");
-                      createPaymentLink(Number(amount) / 2);
-                    }}
-                  />
-                  Partial Payment
-                </Label>
-                <Label className="text-red-700">RS {Number(amount) / 2}</Label>
-              </div>
+              {paymentType === "remaining" || paymentType === "full" ? (
+                <div className="my-3">
+                  <Label className="block mb-1 font-medium">
+                    {paymentType === "remaining"
+                      ? "Remaining Payment Amount"
+                      : "Full Payment Amount"}
+                  </Label>
+                  <Label className="text-red-700 block">
+                    ₹{" "}
+                    {paymentType === "remaining"
+                      ? checkoutDetails?.partialPaymentLater || 0
+                      : amount}
+                  </Label>
+                </div>
+              ) : (
+                <div className="flex gap-4 my-3">
+                  <Label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      value="full"
+                      checked={paymentType === "full"}
+                      onChange={() => {
+                        setPaymentType("full");
+                        createPaymentLink(Number(amount));
+                      }}
+                    />
+                    Full Payment
+                  </Label>
+                  <Label className="text-red-700">RS {amount}</Label>
+                  <Label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      value="partial"
+                      checked={paymentType === "partial"}
+                      onChange={() => {
+                        setPaymentType("partial");
+                        createPaymentLink(Number(amount) / 2);
+                      }}
+                    />
+                    Partial Payment
+                  </Label>
+                  <Label className="text-red-700">
+                    RS {Number(amount) / 2}
+                  </Label>
+                </div>
+              )}
 
               <input
                 type="text"
@@ -327,15 +339,23 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                 (generatingPaymentLink || !paymentLink))
             }
           >
-            {loading || (statusType === "Payment request (partial/full)" && generatingPaymentLink)
+            {loading ||
+            (statusType === "Payment request (partial/full)" &&
+              generatingPaymentLink)
               ? "Processing..."
               : "Submit"}
           </button>
         </div>
 
-        <Modal isOpen={isOtpModalOpen} onClose={() => setIsOtpModalOpen(false)} className="max-w-sm">
+        <Modal
+          isOpen={isOtpModalOpen}
+          onClose={() => setIsOtpModalOpen(false)}
+          className="max-w-sm"
+        >
           <div className="p-4">
-            <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">Enter OTP</h2>
+            <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
+              Enter OTP
+            </h2>
 
             <div className="flex justify-center space-x-2 mb-4 mt-4">
               {otp.map((digit, index) => (
@@ -350,8 +370,16 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               ))}
             </div>
 
-            {otpError && <p className="text-red-500 text-sm text-center mb-2">{otpError}</p>}
-            {otpSuccess && <p className="text-green-500 text-sm text-center mb-2">OTP verified successfully!</p>}
+            {otpError && (
+              <p className="text-red-500 text-sm text-center mb-2">
+                {otpError}
+              </p>
+            )}
+            {otpSuccess && (
+              <p className="text-green-500 text-sm text-center mb-2">
+                OTP verified successfully!
+              </p>
+            )}
 
             <div className="text-right">
               <button
@@ -364,8 +392,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             </div>
           </div>
         </Modal>
-
-
       </div>
     </Modal>
   );

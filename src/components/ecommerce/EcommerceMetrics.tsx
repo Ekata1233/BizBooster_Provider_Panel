@@ -31,7 +31,7 @@ export const EcommerceMetrics = () => {
 
   const {
     fetchWalletByProvider,
-    wallet,
+   
     loading,
     error,
   } = useProviderWallet();
