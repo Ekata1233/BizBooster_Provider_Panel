@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState} from "react";
 import axios from "axios";
 
 export interface GalleryContextType {
@@ -34,9 +34,15 @@ export const ProviderGalleryProvider = ({ children }: { children: React.ReactNod
     try {
       const res = await axios.get(`${BASE_URL}/${providerId}/gallery`);
       setGalleryImages(res.data.galleryImages || []);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to fetch gallery");
-    } finally {
+   } catch (err: unknown) {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const axiosError = err as { response?: { data?: { message?: string } } };
+    setError(axiosError.response?.data?.message || "Failed to fetch gallery");
+  } else {
+    setError("Failed to fetch gallery");
+  }
+}
+finally {
       setLoading(false);
     }
   };
@@ -52,9 +58,14 @@ export const ProviderGalleryProvider = ({ children }: { children: React.ReactNod
         headers: { "Content-Type": "multipart/form-data" },
       });
       setGalleryImages(res.data.data);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Upload failed");
-    } finally {
+    } catch (err: unknown) {
+  if (err instanceof Error && 'response' in err) {
+    const axiosError = err as { response?: { data?: { message?: string } } };
+    setError(axiosError.response?.data?.message || "Upload failed");
+  } else {
+    setError("Upload failed");
+  }
+} finally {
       setLoading(false);
     }
   };
@@ -70,9 +81,11 @@ export const ProviderGalleryProvider = ({ children }: { children: React.ReactNod
         headers: { "Content-Type": "multipart/form-data" },
       });
       setGalleryImages(res.data.updatedImages);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Replace failed");
-    } finally {
+    } catch (err: unknown) {
+  const error = err as { response?: { data?: { message?: string } } };
+  setError(error?.response?.data?.message || "Replace failed");
+}
+finally {
       setLoading(false);
     }
   };
@@ -83,9 +96,11 @@ export const ProviderGalleryProvider = ({ children }: { children: React.ReactNod
     try {
       const res = await axios.delete(`${BASE_URL}/${providerId}/gallery/${index}`);
       setGalleryImages(res.data.updatedImages);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Delete failed");
-    } finally {
+    } catch (err: unknown) {
+  const error = err as { response?: { data?: { message?: string } } };
+  setError(error?.response?.data?.message || "Delete failed");
+}
+ finally {
       setLoading(false);
     }
   };

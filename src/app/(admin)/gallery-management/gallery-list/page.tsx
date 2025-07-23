@@ -3,13 +3,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
-import Input from '@/components/form/input/InputField';
 
 const Page = () => {
   const {
     galleryImages,
     fetchGallery,
-    uploadGalleryImages,
+    
     replaceGalleryImage,
     deleteGalleryImage,
     loading,

@@ -3,7 +3,6 @@
 import React, { useState, useRef } from 'react';
 import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
-import Input from '@/components/form/input/InputField';
 
 const AddGalleryImage = () => {
   const { uploadGalleryImages, fetchGallery, loading, error } = useProviderGallery();
@@ -33,6 +32,8 @@ const AddGalleryImage = () => {
       }
     } catch (err) {
       alert("Upload failed ❌");
+      console.log(err);
+      
     }
   };
 
@@ -46,8 +47,9 @@ const AddGalleryImage = () => {
   accept="image/*"
   multiple
   onChange={handleFileChange}
-  className="mb-3"
+  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm  hover:file:bg-blue-100 my-3"
 />
+
 
 
       <button
