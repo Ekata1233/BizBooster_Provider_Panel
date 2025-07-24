@@ -44,14 +44,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
-console.log(linkType);
+  console.log(linkType);
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
       fetchCheckoutsDetailsById(checkoutId);
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
-useEffect(() => {
+  useEffect(() => {
     if (checkoutDetails) {
       console.log("✅ Checkout details fetched:", checkoutDetails);
     }
@@ -162,10 +162,10 @@ useEffect(() => {
         setOtpError(data.message || "Invalid OTP. Please try again.");
       }
     } catch (error) {
-  console.error(error); // or log to external service
-  setOtpError("Something went wrong. Please try again.");
-}
- finally {
+      console.error(error); // or log to external service
+      setOtpError("Something went wrong. Please try again.");
+    }
+    finally {
       setVerifyingOtp(false);
     }
   };
@@ -210,7 +210,7 @@ useEffect(() => {
                   ) {
                     setPaymentType("remaining");
                     createPaymentLink(
-                      Number(checkoutDetails?.partialPaymentLater || 0)
+                      Number(checkoutDetails?.remainingAmount || 0)
                     );
                   } else {
                     setPaymentType("full");
@@ -252,8 +252,8 @@ useEffect(() => {
         <div className="mb-4">
           {(statusType === "Payment request (partial/full)" ||
             statusType === "Need understand requirement") && (
-            <Label className="block mb-1 font-medium">Add Link</Label>
-          )}
+              <Label className="block mb-1 font-medium">Add Link</Label>
+            )}
 
           {statusType === "Need understand requirement" && (
             <input
@@ -276,10 +276,11 @@ useEffect(() => {
                   </Label>
                   <Label className="text-red-700 block">
                     ₹{" "}
-                    {paymentType === "remaining"
-                      ? checkoutDetails?.partialPaymentLater || 0
-                      : amount}
+                    {(paymentType === "remaining"
+                      ? checkoutDetails?.remainingAmount ?? 0
+                      : amount ?? 0).toString()}
                   </Label>
+
                 </div>
               ) : (
                 <div className="flex gap-4 my-3">
@@ -343,8 +344,8 @@ useEffect(() => {
             }
           >
             {loading ||
-            (statusType === "Payment request (partial/full)" &&
-              generatingPaymentLink)
+              (statusType === "Payment request (partial/full)" &&
+                generatingPaymentLink)
               ? "Processing..."
               : "Submit"}
           </button>

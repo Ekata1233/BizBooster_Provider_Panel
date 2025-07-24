@@ -186,10 +186,10 @@ const AllBookingsDetails = () => {
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-lg font-semibold">
-                Booking ID: <span className="text-blue-600">{checkoutDetails.bookingId}</span>
+                Booking ID : <span className="text-blue-600">{checkoutDetails.bookingId}</span>
               </h2>
               <p className="text-md text-gray-600 mt-2 flex items-center gap-1">
-                Status:
+                Status :
                 <span
                   className={`font-medium px-2 py-0.5 rounded-full text-md border ${status.color}`}
                 >
