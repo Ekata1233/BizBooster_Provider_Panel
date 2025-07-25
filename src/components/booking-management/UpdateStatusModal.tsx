@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
@@ -42,6 +42,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpError, setOtpError] = useState("");
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [isCashInHand, setIsCashInHand] = useState(false);
+  // Create a ref array to manage input focus
+  const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
   console.log(linkType);
@@ -51,11 +55,22 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       fetchCheckoutsDetailsById(checkoutId);
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
+
   useEffect(() => {
-    if (checkoutDetails) {
-      console.log("✅ Checkout details fetched:", checkoutDetails);
+    if (
+      statusType === "Payment request (partial/full)" &&
+      isCashInHand &&
+      checkoutDetails?.paymentStatus !== "paid"
+    ) {
+
+      setStatusType("Lead completed");
+      setPaymentLink("");
+      setDescription("Cash in hand collected by provider from customer");
+      setIsOtpModalOpen(true);
     }
-  }, [checkoutDetails]);
+  }, [statusType, isCashInHand, checkoutDetails?.paymentStatus]);
+
+
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setDocument(e.target.files[0]);
@@ -154,6 +169,26 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
       if (data.success) {
         setOtpSuccess(true);
+
+        if (isCashInHand) {
+          try {
+            const cashRes = await fetch(
+              `https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`,
+              {
+                method: "PUT",
+              }
+            );
+            const cashData = await cashRes.json();
+            if (!cashData.success) {
+              console.error("Cash-in-hand update failed:", cashData.message);
+              alert("Warning: Cash-in-hand status not saved.");
+            }
+          } catch (cashError) {
+            console.error("Cash-in-hand API error:", cashError);
+            alert("Warning: Could not mark cash-in-hand on server.");
+          }
+        }
+
         setTimeout(() => {
           setIsOtpModalOpen(false);
           handleSubmit();
@@ -175,6 +210,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
+    if (value && index < otp.length - 1) {
+      otpRefs.current[index + 1]?.focus();
+    }
   };
 
   return (
@@ -194,19 +233,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
               if (selected === "Lead completed") {
                 if (
-                  checkoutDetails?.paymentStatus === "paid" &&
-                  checkoutDetails?.remainingPaymentStatus === "paid"
-                ) {
+                  checkoutDetails &&
+                  checkoutDetails.paymentStatus == "paid") {
                   setStatusType(selected);
                   setIsOtpModalOpen(true);
-                } else {
+                }
+                else {
                   alert(
                     "Payment is not completed. Please complete payment before marking as completed."
                   );
                   setStatusType("Payment request (partial/full)");
 
+
                   if (
-                    checkoutDetails?.remainingPaymentStatus !== "paid"
+                    checkoutDetails?.paymentStatus !== "paid"
                   ) {
                     setPaymentType("remaining");
                     createPaymentLink(
@@ -324,6 +364,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                 value={paymentLink}
                 disabled
               />
+
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="confirmPaymentLink"
+                  className="w-4 h-4"
+                  checked={isCashInHand}
+                  onChange={(e) => setIsCashInHand(e.target.checked)}
+                />
+                <Label htmlFor="confirmPaymentLink" className="text-sm text-gray-700">
+                  Payment received from customer
+                </Label>
+              </div>
+
             </>
           )}
         </div>
@@ -361,7 +415,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               Enter OTP
             </h2>
 
-            <div className="flex justify-center space-x-2 mb-4 mt-4">
+            {/* <div className="flex justify-center space-x-2 mb-4 mt-4">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -372,7 +426,28 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                   className="w-10 h-10 text-center border rounded-md"
                 />
               ))}
+            </div> */}
+            <div className="flex justify-center space-x-2 mb-4 mt-4">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace" && !otp[index] && index > 0) {
+                      otpRefs.current[index - 1]?.focus();
+                    }
+                  }}
+                  ref={(el) => {
+                    otpRefs.current[index] = el;
+                  }}
+                  className="w-10 h-10 text-center border rounded-md"
+                />
+              ))}
             </div>
+
 
             {otpError && (
               <p className="text-red-500 text-sm text-center mb-2">

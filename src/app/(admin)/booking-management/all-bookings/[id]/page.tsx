@@ -30,6 +30,7 @@ const AllBookingsDetails = () => {
   const [lead, setLead] = useState<LeadType | null>(null);
   console.log("lead details for distribution : ", lead)
 
+
   const params = useParams();
   const id = params?.id as string;
 
@@ -376,7 +377,7 @@ const AllBookingsDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-             {checkoutDetails.isCompleted === false ? ( <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+              {checkoutDetails.isCompleted === false ? (<div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
@@ -403,7 +404,7 @@ const AllBookingsDetails = () => {
                 )}
 
 
-              </div>):(<></>)}
+              </div>) : (<></>)}
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
@@ -485,6 +486,8 @@ const AllBookingsDetails = () => {
               }
 
               alert("Lead status updated Successfully.");
+
+              router.push("/booking-management/all-bookings");
               closeModal();
             } catch (err) {
               console.error("Failed to save lead:", err);
