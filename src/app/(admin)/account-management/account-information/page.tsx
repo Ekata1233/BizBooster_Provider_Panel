@@ -30,8 +30,8 @@ const Page = () => {
           wallet={{
             receivableBalance: wallet.receivableBalance,
             cashInHand: wallet.cashInHand,
-            withdrawableBalance: wallet.balance,
-            pendingWithdraw: wallet.balance,
+            withdrawableBalance: wallet.withdrawableBalance,
+            pendingWithdraw: wallet.pendingWithdraw,
             alreadyWithdrawn: wallet.alreadyWithdrawn,
             totalEarning: wallet.totalEarning,
           }}
