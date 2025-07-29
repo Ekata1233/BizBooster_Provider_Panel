@@ -124,7 +124,7 @@ const CustomizedBookingDetails = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                    <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
+                  <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt
@@ -137,7 +137,7 @@ const CustomizedBookingDetails = () => {
               {/* Booking Table */}
               <div className="my-5">
                 <h3 className="text-md font-semibold text-gray-700 mb-2">Booking Summary</h3>
-                 <table className="w-full table-auto border border-gray-200 text-sm">
+                <table className="w-full table-auto border border-gray-200 text-sm">
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="border px-4 py-2 text-left">Service</th>
@@ -160,12 +160,13 @@ const CustomizedBookingDetails = () => {
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
                 {[
-                  ['Subtotal', checkoutDetails.subtotal],
-                  ['Discount', checkoutDetails.serviceDiscount],
-                  ['Campaign Discount', 0],
+                  ['Price', checkoutDetails.subtotal],
+                  ['Service Discount', checkoutDetails.serviceDiscount],
                   ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                  ['VAT', 0],
-                  ['Platform Fee', 0],
+                  ['Campaign Discount', checkoutDetails.champaignDiscount || 0],
+                  ['Service GST', checkoutDetails.gst || 0],
+                  ['Platform Fee', checkoutDetails.platformFee || 0],
+                  ['Fetch True Assurity Charges', checkoutDetails.assurityfee || 0],
                 ].map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
                     <span className="font-medium">{label} :</span>
@@ -197,7 +198,7 @@ const CustomizedBookingDetails = () => {
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
-              checkoutId={checkoutDetails?._id}
+                checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}

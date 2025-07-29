@@ -61,7 +61,7 @@ const CompletedBookingDetails = () => {
     if (checkoutDetails?.orderStatus === 'processing') return 'Processing';
     return 'Pending';
   };
-const getStatusColor = () => {
+  const getStatusColor = () => {
     const status = checkoutDetails?.paymentStatus?.toLowerCase();
     if (status === 'paid') return 'text-green-600';
     if (status === 'failed') return 'text-red-600';
@@ -124,7 +124,7 @@ const getStatusColor = () => {
                   <p className="text-gray-700"><strong>Total Amount:</strong> ₹{checkoutDetails.totalAmount}</p>
                 </div>
                 <div className="flex-1 space-y-2">
-                 <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
+                  <p className="text-gray-700"><strong>Payment Status:</strong> <span className={getStatusColor()}>{checkoutDetails.paymentStatus}</span></p>
                   <p className="text-gray-700">
                     <strong>Schedule Date:</strong>{' '}
                     {checkoutDetails.createdAt
@@ -160,12 +160,14 @@ const getStatusColor = () => {
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
                 {[
-                  ['Subtotal', checkoutDetails.subtotal],
-                  ['Discount', checkoutDetails.serviceDiscount],
-                  ['Campaign Discount', 0],
+                  ['Price', checkoutDetails.subtotal],
+                  ['Service Discount', checkoutDetails.serviceDiscount],
                   ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                  ['VAT', 0],
+
+                  ['Campaign Discount', 0],
+                  ['Service GST', 0],
                   ['Platform Fee', 0],
+                  ['Fetch True Assurity Charges', 0],
                 ].map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
                     <span className="font-medium">{label} :</span>
@@ -185,12 +187,12 @@ const getStatusColor = () => {
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
-                
+
               </div>
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
-              checkoutId={checkoutDetails?._id}
+                checkoutId={checkoutDetails?._id}
                 visibleServiceMen={visibleServiceMen}
                 totalServiceMen={serviceMenByProvider.length}
                 showAll={showAll}
