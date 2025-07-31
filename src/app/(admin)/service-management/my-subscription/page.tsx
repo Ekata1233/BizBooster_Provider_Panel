@@ -20,20 +20,19 @@ interface TableData {
 interface ProviderPrice {
   provider?: { _id: string };
   providerPrice: number;
-  // …other fields you actually use can stay optional
 }
-// interface ProviderDetails {
-//   subscribedServices: { _id: string }[];
-// }
+
 
 const MySubscriptionPage = () => {
   const { services, loadingServices, errorServices } = useService();
-  const { providerDetails } = useAuth();
+  const { providerDetails, refreshProviderDetails } = useAuth();
   console.log("proivder details: ", providerDetails)
 
   const [tableData, setTableData] = useState<TableData[]>([]);
   const [search, setSearch] = useState('');
   const [filteredData, setFilteredData] = useState<TableData[]>([]);
+  const [unsubscribing, setUnsubscribing] = useState<string | null>(null);
+
 
   /* Flatten services to tableData when services or providerDetails change */
   useEffect(() => {
@@ -42,11 +41,9 @@ const MySubscriptionPage = () => {
       return;
     }
 
-const idSet = new Set<string>(
-  (providerDetails.subscribedServices as unknown as { _id: string }[]).map((s) => s._id)
-);
-
-
+    const idSet = new Set<string>(
+      (providerDetails.subscribedServices as unknown as { _id: string }[]).map((s) => s._id)
+    );
 
     const flattened = services
       .filter((srv) => idSet.has(srv._id))
@@ -97,6 +94,45 @@ const idSet = new Set<string>(
     setFilteredData(filtered);
   }, [search, tableData]);
 
+  const handleUnsubscribe = async (serviceId: string) => {
+    if (!providerDetails?._id) return;
+
+    setUnsubscribing(serviceId);
+    try {
+      const response = await fetch('https://biz-booster.vercel.app/api/provider/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          providerId: providerDetails._id,
+          serviceId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.success) {
+        await refreshProviderDetails(); // ✅ ← this refetches updated data
+        setTableData((prev) => prev.filter((item) => item.id !== serviceId));
+      } else {
+        console.error("Unsubscribe failed:", data.message);
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.message || 'Unsubscribe failed');
+      }
+
+
+    } catch (error) {
+      console.error('Unsubscribe error:', error);
+      alert('Failed to unsubscribe. Please try again.');
+    } finally {
+      setUnsubscribing(null);
+    }
+  };
+
+
   const onSearch = (e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
 
   /* Table columns */
@@ -117,16 +153,17 @@ const idSet = new Set<string>(
       cell: (row: { providerPrice: number | null }) =>
         row.providerPrice != null ? `₹${row.providerPrice}` : '—',
     },
-
     {
-      header: 'Status',
-      accessor: 'status',
-      render: () => (
+      header: 'Action',
+      accessor: 'action',
+      render: (row: TableData) => (
         <button
-          disabled
-          className="bg-green-500 text-white px-3 py-1 text-xs rounded shadow cursor-not-allowed"
+          onClick={() => handleUnsubscribe(row.id)}
+          disabled={unsubscribing === row.id}
+          className={`${unsubscribing === row.id ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'
+            } text-white px-4 py-2 rounded-md transition duration-200`}
         >
-          Subscribed
+          {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}
         </button>
       ),
     },

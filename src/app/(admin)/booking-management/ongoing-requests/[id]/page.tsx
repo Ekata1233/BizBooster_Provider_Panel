@@ -239,12 +239,14 @@ const OngoingBookingDetails = () => {
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
                 {[
-                  ['Subtotal', checkoutDetails.subtotal],
-                  ['Discount', checkoutDetails.serviceDiscount],
+                  ['Price', checkoutDetails.subtotal],
+                  ['Service Discount', checkoutDetails.serviceDiscount],
+                                    ['Coupon Discount', checkoutDetails.couponDiscount || 0],
+
                   ['Campaign Discount', 0],
-                  ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                  ['VAT', 0],
+                  ['Service GST', 0],
                   ['Platform Fee', 0],
+                   ['Fetch True Assurity Charges', 0],
                 ].map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
                     <span className="font-medium">{label} :</span>

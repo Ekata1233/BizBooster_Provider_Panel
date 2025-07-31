@@ -30,8 +30,9 @@ export interface CheckoutType {
   couponDiscount: number;
   champaignDiscount: number;
   vat: number;
+   gst: number;
   platformFee: number;
-  garrentyFee: number;
+  assurityfee: number;
   tax: number;
   totalAmount: number;
   termsCondition: boolean;

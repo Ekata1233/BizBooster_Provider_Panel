@@ -28,7 +28,7 @@ const AllBookingsDetails = () => {
   const { createLead, loadingLeads } = useLead();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
   const [lead, setLead] = useState<LeadType | null>(null);
-  console.log("lead details for distribution : ", lead)
+
 
   const params = useParams();
   const id = params?.id as string;
@@ -92,7 +92,7 @@ const AllBookingsDetails = () => {
     error,
   } = useServiceCustomer();
 
-  console.log("custiner info : ", serviceCustomer)
+  // console.log("custiner info : ", serviceCustomer)
   // Fetch checkout by ID
   useEffect(() => {
     if (id) fetchCheckoutsDetailsById(id);
@@ -147,8 +147,11 @@ const AllBookingsDetails = () => {
     lead.extraService.length > 0;
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
   const baseAmount = lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0;
-  const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
-  const grandTotal = baseAmount + extraAmount;
+  // const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
+  // const grandTotal = baseAmount + extraAmount;
+
+
+
 
   const handleAccept = async () => {
     if (!checkoutDetails?._id) {
@@ -170,6 +173,46 @@ const AllBookingsDetails = () => {
     }
   };
 
+  console.log("checkout details in all bookings  : ", checkoutDetails)
+
+  const serviceGSTPercent = checkoutDetails?.gst || 0;
+  const platformFeePercent = checkoutDetails?.platformFee || 0;
+  const assurityFeePercent = checkoutDetails?.assurityfee || 0;
+
+  const value = checkoutDetails?.subtotal ?? 0;
+  const gstValue = (serviceGSTPercent / 100) * value;
+  const platformFeeValue = (platformFeePercent / 100) * value;
+  const assurityFeeValue = (assurityFeePercent / 100) * value;
+
+  // const extraServices = lead?.extraService ?? [];
+
+  // const extraSubtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
+  // const extraDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
+
+  // const couponDiscount = checkoutDetails?.couponDiscount || 0;
+  // const champaignDiscount = checkoutDetails?.champaignDiscount || 0;
+  // const extraAmount = extraSubtotal - extraDiscount - couponDiscount - champaignDiscount + gstValue + platformFeeValue + assurityFeeValue;
+
+  const extraServices = lead?.extraService ?? [];
+
+  const extraSubtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
+  const extraDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
+
+  const couponDiscount = checkoutDetails?.couponDiscount || 0;
+  const champaignDiscount = checkoutDetails?.champaignDiscount || 0;
+
+  let extraAmount = 0;
+
+  // Only calculate if extra services exist
+  if (lead?.extraService && lead.extraService.length > 0) {
+    extraAmount = extraSubtotal - extraDiscount - couponDiscount - champaignDiscount + gstValue + platformFeeValue + assurityFeeValue;
+  }
+
+  // Final grand total (base + extra)
+  const grandTotal = baseAmount + extraAmount;
+
+
+
   if (loadingCheckoutDetails) return <p>Loading...</p>;
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
@@ -186,10 +229,10 @@ const AllBookingsDetails = () => {
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-lg font-semibold">
-                Booking ID: <span className="text-blue-600">{checkoutDetails.bookingId}</span>
+                Booking ID : <span className="text-blue-600">{checkoutDetails.bookingId}</span>
               </h2>
               <p className="text-md text-gray-600 mt-2 flex items-center gap-1">
-                Status:
+                Status :
                 <span
                   className={`font-medium px-2 py-0.5 rounded-full text-md border ${status.color}`}
                 >
@@ -299,15 +342,17 @@ const AllBookingsDetails = () => {
 
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
-                {[
-                  ['Subtotal', lead?.newAmount ?? checkoutDetails?.service?.price],
-                  ['Discount', lead?.newDiscountAmount ?? (checkoutDetails?.service?.price - checkoutDetails?.service?.discountedPrice) ?? 0],
-                  ['Campaign Discount', 0],
+                {([
+                  ['Price', lead?.newAmount ?? checkoutDetails?.service?.price],
+                  ['Service Discount', lead?.newDiscountAmount ?? (checkoutDetails?.service?.price - checkoutDetails?.service?.discountedPrice) ?? 0],
                   ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                  ['VAT', 0],
-                  ['Platform Fee', 0],
-                  ['Total ', lead?.afterDicountAmount ?? checkoutDetails?.service?.discountedPrice],
-                ].map(([label, amount]) => (
+                  ['Campaign Discount', checkoutDetails.champaignDiscount || 0],
+                  ['Service GST', gstValue || 0],
+                  ['Platform Fee', platformFeeValue || 0],
+                  ['Fetch True Assurity Charges', assurityFeeValue || 0],
+                  ['Total ', lead?.afterDicountAmount ?? checkoutDetails?.totalAmount],
+                ] as [string, number][]
+                ).map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
                     <span className="font-medium">{label} :</span>
                     <span>₹{amount}</span>
@@ -319,7 +364,19 @@ const AllBookingsDetails = () => {
                   const extraServices = lead!.extraService!;
                   const subtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
                   const totalDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
-                  const grandTotal = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
+                  const champaignDiscount = checkoutDetails.champaignDiscount || 0;
+                  const serviceGST = gstValue || 0;
+                  const platformFee = platformFeeValue || 0;
+                  const assurityFee = assurityFeeValue || 0;
+                  const grandTotal = subtotal - totalDiscount - (checkoutDetails.couponDiscount || 0) - champaignDiscount + serviceGST + platformFee + assurityFee;
+
+                  console.log("subtotal : ", subtotal)
+                  console.log("champaignDiscount : ", champaignDiscount)
+                  console.log("champaignDiscount : ", champaignDiscount)
+                  console.log("serviceGST : ", serviceGST)
+                  console.log("platformFee : ", platformFee)
+                  console.log("assurityFee : ", assurityFee)
+                  console.log("grandTotal : ", grandTotal)
 
                   return (
                     <>
@@ -348,15 +405,17 @@ const AllBookingsDetails = () => {
                       </table>
 
                       {/* Summary section */}
-                      {[
-                        ['Subtotal', subtotal],
-                        ['Discount', totalDiscount],
-                        ['Campaign Discount', 0],
+                      {([
+                        ['Price', subtotal],
+                        ['Service Discount', totalDiscount],
                         ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                        ['VAT', 0],
-                        ['Platform Fee', 0],
+                        ['Campaign Discount', champaignDiscount || 0],
+                        ['Service GST', gstValue || 0],
+                        ['Platform Fee', platformFeeValue || 0],
+                        ['Fetch True Assurity Charges', assurityFeeValue || 0],
                         ['Extra Service Total', grandTotal],
-                      ].map(([label, amount]) => (
+                      ] as [string, number][]
+                      ).map(([label, amount]) => (
                         <div className="flex justify-between mb-1" key={label}>
                           <span className="font-medium">{label}:</span>
                           <span>{formatPrice(Number(amount))}</span>
@@ -376,7 +435,7 @@ const AllBookingsDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-             {checkoutDetails.isCompleted === false ? ( <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+              {checkoutDetails.isCompleted === false ? (<div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
@@ -403,7 +462,7 @@ const AllBookingsDetails = () => {
                 )}
 
 
-              </div>):(<></>)}
+              </div>) : (<></>)}
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
@@ -485,6 +544,8 @@ const AllBookingsDetails = () => {
               }
 
               alert("Lead status updated Successfully.");
+
+              router.push("/booking-management/all-bookings");
               closeModal();
             } catch (err) {
               console.error("Failed to save lead:", err);

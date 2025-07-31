@@ -180,6 +180,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setProviderDetails(data);
         localStorage.setItem("providerDetails", JSON.stringify(data));
       }
+      if (res.ok && data?.provider) {
+        setProviderDetails(data.provider);
+        localStorage.setItem("providerDetails", JSON.stringify(data.provider));
+      }
     } catch (error) {
       console.error("🔁 Error refreshing provider details:", error);
     }
@@ -188,13 +192,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // ✅ Logout Function
   const logout = async () => {
     try {
-    await fetch("https://biz-booster.vercel.app/api/provider/logout", {
-      method: "POST",
-      credentials: "include", // Clear the cookie
-    });
-  } catch (err) {
-    console.error("Logout failed:", err);
-  }
+      await fetch("https://biz-booster.vercel.app/api/provider/logout", {
+        method: "POST",
+        credentials: "include", // Clear the cookie
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
     // Clear state
     setProvider(null);
     setProviderDetails(null);
