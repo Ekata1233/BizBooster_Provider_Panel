@@ -8,10 +8,12 @@ import { useSubcategory } from "@/app/context/SubCategoryContext";
 import { useSubscribe } from "@/app/context/SubscribeContext";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import AllServices from "@/components/service/AllServices";
-import { ChevronDownIcon } from "@/icons";
+import { ChevronDownIcon} from "@/icons";
+import { SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 
@@ -25,6 +27,7 @@ const Page = () => {
     const [selectedModule, setSelectedModule] = useState<string>('');
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const { subscribeToService, subscribeStates } = useSubscribe();
 
     const { modules, loadingModules, errorModules } = useModule();
@@ -34,7 +37,6 @@ const Page = () => {
   
     const { providerDetails,refreshProviderDetails  } = useAuth();
 
-    // console.log("Provider details : ", providerDetails)
     // 🔹 Module Options
     const modulesOptions: OptionType[] = modules.map((mod: ModuleType) => ({
         value: mod._id,
@@ -79,12 +81,16 @@ const Page = () => {
         setSelectedSubcategory(value);
     };
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+    };
 
     const filteredServices = services.filter(service => {
-
         if (selectedCategory && service.category?._id !== selectedCategory) return false;
 
         if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
+
+        if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
         return true;
     });
@@ -99,19 +105,19 @@ const Page = () => {
             await subscribeToService(serviceId);
             alert("Subscribed successfully!");
         } catch (error: unknown) {
-    if (error instanceof Error) {
-        alert(`Subscription failed: ${error.message}`);
-    } else {
-        alert(`Subscription failed: ${String(error)}`);
-    }
-}
+            if (error instanceof Error) {
+                alert(`Subscription failed: ${error.message}`);
+            } else {
+                alert(`Subscription failed: ${String(error)}`);
+            }
+        }
     };
 
       useEffect(() => {
-    refreshProviderDetails();
-  }, [refreshProviderDetails]);
+        refreshProviderDetails();
+      }, [refreshProviderDetails]);
 
-  if (!providerDetails) return <div>Loading...</div>;
+      if (!providerDetails) return <div>Loading...</div>;
 
     if (loadingModules || loadingCategories || loadingSubcategories || loadingServices) return <p>Loading...</p>;
     if (errorModules) return <p>{errorModules}</p>;
@@ -174,10 +180,26 @@ const Page = () => {
                                 </span>
                             </div>
                         </div>
+
+                        {/* Search Input */}
+                        <div>
+                            <Label>Search Services</Label>
+                            <div className="relative">
+                                <Input
+                                    type="text"
+                                    placeholder="Search by service name"
+                                    className="w-full px-4 py-2 border rounded-md dark:bg-dark-900 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                />
+                                <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                    {/* <SearchIcon /> */}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </ComponentCard>
             </div>
-
 
             <AllServices
                 services={filteredServices}
@@ -186,7 +208,6 @@ const Page = () => {
                 onSubscribe={handleSubscribeClick}
                 onView={handleClick}
             />
-
         </div>
     );
 };
