@@ -13,7 +13,6 @@ import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import AllServices from "@/components/service/AllServices";
 import { ChevronDownIcon} from "@/icons";
-import { SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 
