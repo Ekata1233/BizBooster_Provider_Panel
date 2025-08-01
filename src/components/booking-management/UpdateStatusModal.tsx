@@ -62,19 +62,19 @@ console.log(leads);
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
 
-  useEffect(() => {
-    if (
-      statusType === "Payment request (partial/full)" &&
-      isCashInHand &&
-      checkoutDetails?.paymentStatus !== "paid"
-    ) {
+  // useEffect(() => {
+  //   if (
+  //     statusType === "Payment request (partial/full)" &&
+  //     isCashInHand &&
+  //     checkoutDetails?.paymentStatus !== "paid"
+  //   ) {
 
-      setStatusType("Lead completed");
-      setPaymentLink("");
-      setDescription("Cash in hand collected by provider from customer");
-      setIsOtpModalOpen(true);
-    }
-  }, [statusType, isCashInHand, checkoutDetails?.paymentStatus]);
+  //     setStatusType("Lead completed");
+  //     setPaymentLink("");
+  //     setDescription("Cash in hand collected by provider from customer");
+  //     setIsOtpModalOpen(true);
+  //   }
+  // }, [statusType, isCashInHand, checkoutDetails?.paymentStatus]);
 
 useEffect(() => {
   const fetchLead = async () => {
@@ -92,71 +92,92 @@ useEffect(() => {
   fetchLead();
 }, [checkoutId]);
 
+
+
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setDocument(e.target.files[0]);
     }
   };
 
-  const handleSubmit = () => {
-    if (!statusType) {
-      alert("Please select a status type.");
-      return;
+ const handleSubmit = async () => {
+  if (!statusType) {
+    alert("Please select a status type.");
+    return;
+  }
+
+  if (isCashInHand) {
+    try {
+      const cashRes = await fetch(
+        `https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`,
+        {
+          method: "PUT",
+        }
+      );
+      const cashData = await cashRes.json();
+      if (!cashData.success) {
+        console.error("Cash-in-hand update failed:", cashData.message);
+        alert("Warning: Cash-in-hand status not saved.");
+      }
+    } catch (cashError) {
+      console.error("Cash-in-hand API error:", cashError);
+      alert("Warning: Could not mark cash-in-hand on server.");
     }
+  }
 
-    const formData = new FormData();
-    formData.append("checkout", checkoutId);
-    formData.append("serviceCustomer", serviceCustomerId);
-    formData.append("serviceMan", serviceManId ?? "null");
-    formData.append("service", serviceId ?? "");
-    formData.append("amount", amount);
+  const formData = new FormData();
+  formData.append("checkout", checkoutId);
+  formData.append("serviceCustomer", serviceCustomerId);
+  formData.append("serviceMan", serviceManId ?? "null");
+  formData.append("service", serviceId ?? "");
+  formData.append("amount", amount);
 
-    const leadStatus: Record<string, unknown> = {
-      statusType,
-      description,
-    };
-
-    leadStatus.zoomLink = zoomLink;
-
-    if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
-    if (paymentType) leadStatus.paymentType = paymentType;
-
-    formData.append("leads", JSON.stringify([leadStatus]));
-
-    if (document) {
-      formData.append("document", document);
-    }
-const oneTimeStatuses = [
-  "Lead accepted",
-  "Lead requested documents",
-  "Lead started",
-  "Lead ongoing",
-  "Lead completed",
-  "Lead cancel",
-  "Refund",
-];
-
-if (
-  oneTimeStatuses.includes(statusType) &&
-  leadStatusList.some((lead: { statusType?: string }) =>
-    lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
-  )
-) {
-  alert(`The status "${statusType}" has already been added.`);
-  return;
-}
-
-
-
-    onSubmit(formData);
-    setStatusType("");
-    setDescription("");
-    setLinkType("");
-    setZoomLink("");
-    setPaymentLink("");
-    setPaymentType("");
-    setDocument(null);
+  const leadStatus: Record<string, unknown> = {
+    statusType,
+    description,
   };
+
+  leadStatus.zoomLink = zoomLink;
+
+  if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
+  if (paymentType) leadStatus.paymentType = paymentType;
+
+  formData.append("leads", JSON.stringify([leadStatus]));
+
+  if (document) {
+    formData.append("document", document);
+  }
+
+  const oneTimeStatuses = [
+    "Lead accepted",
+    "Lead requested documents",
+    "Lead started",
+    "Lead ongoing",
+    "Lead completed",
+    "Lead cancel",
+    "Refund",
+  ];
+
+  if (
+    oneTimeStatuses.includes(statusType) &&
+    leadStatusList.some((lead: { statusType?: string }) =>
+      lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
+    )
+  ) {
+    alert(`The status "${statusType}" has already been added.`);
+    return;
+  }
+
+  onSubmit(formData);
+  setStatusType("");
+  setDescription("");
+  setLinkType("");
+  setZoomLink("");
+  setPaymentLink("");
+  setPaymentType("");
+  setDocument(null);
+};
+
 
   const createPaymentLink = async (amountToPay: number) => {
     setGeneratingPaymentLink(true);
@@ -258,6 +279,16 @@ if (
       otpRefs.current[index + 1]?.focus();
     }
   };
+useEffect(() => {
+  if (
+    statusType === "Payment request (partial/full)" &&
+    isCashInHand &&
+    paymentLink &&
+    !generatingPaymentLink
+  ) {
+    handleSubmit();
+  }
+}, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -277,13 +308,12 @@ if (
     if (selected === "Lead completed") {
       if (checkoutDetails?.paymentStatus === "paid") {
         setStatusType(selected);
-        setIsOtpModalOpen(true);
+        setIsOtpModalOpen(true); // ✅ Only "Lead completed" triggers OTP modal
       } else {
         alert("Payment is not completed. Please complete payment before marking as completed.");
         setStatusType("Payment request (partial/full)");
 
- if ((checkoutDetails?.paymentStatus as string) === "paid")
- { 
+        if ((checkoutDetails?.paymentStatus as string) === "paid") {
           setPaymentType("remaining");
           createPaymentLink(Number(checkoutDetails?.remainingAmount || 0));
         } else {
@@ -304,7 +334,6 @@ if (
     "Need understand requirement",
     "Payment request (partial/full)",
     "Payment verified",
-   
   ].map((status) => (
     <option key={status} value={status}>
       {status}
@@ -312,35 +341,34 @@ if (
   ))}
 
   {/* One-time status types */}
- {[
-  "Lead accepted",
-  "Lead requested documents",
-  "Lead started",
-  "Lead ongoing",
-  "Lead completed",
-  "Lead cancel",
-  "Refund",
-].map((status) => {
-  const alreadyUsed = leadStatusList.some(
-  (lead:  { statusType?: string } ) =>
-    typeof lead?.statusType === "string" &&
-    lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
-);
+  {[
+    "Lead accepted",
+    "Lead requested documents",
+    "Lead started",
+    "Lead ongoing",
+    "Lead completed",
+    "Lead cancel",
+    "Refund",
+  ].map((status) => {
+    const alreadyUsed = leadStatusList.some(
+      (lead: { statusType?: string }) =>
+        typeof lead?.statusType === "string" &&
+        lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
+    );
 
-
-  return (
-    <option
-      key={status}
-      value={status}
-      disabled={alreadyUsed}
-      className={alreadyUsed ? "text-gray-400" : ""}
-    >
-      {status}
-    </option>
-  );
-})}
-
+    return (
+      <option
+        key={status}
+        value={status}
+        disabled={alreadyUsed}
+        className={alreadyUsed ? "text-gray-400" : ""}
+      >
+        {status}
+      </option>
+    );
+  })}
 </select>
+
 
 </div>
 
@@ -457,20 +485,21 @@ if (
 
         <div className="text-right">
           <button
-            className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleSubmit}
-            disabled={
-              loading ||
-              (statusType === "Payment request (partial/full)" &&
-                (generatingPaymentLink || !paymentLink))
-            }
-          >
-            {loading ||
-              (statusType === "Payment request (partial/full)" &&
-                generatingPaymentLink)
-              ? "Processing..."
-              : "Submit"}
-          </button>
+  className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+  onClick={handleSubmit}
+  disabled={
+    loading ||
+    (statusType === "Payment request (partial/full)" &&
+      !isCashInHand &&
+      (generatingPaymentLink || !paymentLink))
+  }
+>
+  {loading ||
+  (statusType === "Payment request (partial/full)" && generatingPaymentLink)
+    ? "Processing..."
+    : "Submit"}
+</button>
+
         </div>
 
         <Modal
