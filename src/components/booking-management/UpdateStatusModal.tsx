@@ -5,6 +5,7 @@ import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
+import { IStatus, useLead } from "@/app/context/LeadContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -46,8 +47,12 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   // Create a ref array to manage input focus
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
+const { getLeadByCheckoutId } = useLead();
+const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
+  const leads = Array.isArray(checkoutDetails?.leads) ? checkoutDetails.leads : [];
+
   console.log(linkType);
 
   useEffect(() => {
@@ -70,6 +75,21 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   }, [statusType, isCashInHand, checkoutDetails?.paymentStatus]);
 
+useEffect(() => {
+  const fetchLead = async () => {
+    if (!checkoutId) return;
+    const leadData = await getLeadByCheckoutId(checkoutId);
+
+    if (leadData && Array.isArray(leadData.leads)) {
+      setLeadStatusList(leadData.leads);
+      console.log("✅ Existing Lead Statuses:", leadData.leads);
+    } else {
+      console.warn("⚠️ No leads available or not an array");
+    }
+  };
+
+  fetchLead();
+}, [checkoutId]);
 
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -105,6 +125,26 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     if (document) {
       formData.append("document", document);
     }
+const oneTimeStatuses = [
+  "Lead accepted",
+  "Lead requested documents",
+  "Lead started",
+  "Lead ongoing",
+  "Lead completed",
+  "Lead cancel",
+  "Refund",
+];
+
+if (
+  oneTimeStatuses.includes(statusType) &&
+  leadStatusList.some((lead: any) =>
+    lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
+  )
+) {
+  alert(`The status "${statusType}" has already been added.`);
+  return;
+}
+
 
     onSubmit(formData);
     setStatusType("");
@@ -143,6 +183,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       setGeneratingPaymentLink(false);
     }
   };
+
 
   const handleOtpVerify = async () => {
     const enteredOtp = otp.join("");
@@ -223,60 +264,85 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           Update Status
         </h2>
 
-        <div className="mb-4">
-          <Label className="block mb-1 font-medium">Status Type</Label>
-          <select
-            className="w-full p-2 rounded-md border"
-            value={statusType}
-            onChange={(e) => {
-              const selected = e.target.value;
+      <div className="mb-4">
+  <Label className="block mb-1 font-medium">Status Type</Label>
+  <select
+  className="w-full p-2 rounded-md border"
+  value={statusType}
+  onChange={(e) => {
+    const selected = e.target.value;
 
-              if (selected === "Lead completed") {
-                if (
-                  checkoutDetails &&
-                  checkoutDetails.paymentStatus == "paid") {
-                  setStatusType(selected);
-                  setIsOtpModalOpen(true);
-                }
-                else {
-                  alert(
-                    "Payment is not completed. Please complete payment before marking as completed."
-                  );
-                  setStatusType("Payment request (partial/full)");
+    if (selected === "Lead completed") {
+      if (checkoutDetails?.paymentStatus === "paid") {
+        setStatusType(selected);
+        setIsOtpModalOpen(true);
+      } else {
+        alert("Payment is not completed. Please complete payment before marking as completed.");
+        setStatusType("Payment request (partial/full)");
+
+ if ((checkoutDetails?.paymentStatus as string) === "paid")
+ { 
+          setPaymentType("remaining");
+          createPaymentLink(Number(checkoutDetails?.remainingAmount || 0));
+        } else {
+          setPaymentType("full");
+          createPaymentLink(Number(amount));
+        }
+      }
+    } else {
+      setStatusType(selected);
+    }
+  }}
+>
+  <option value="">Select</option>
+
+  {/* Multi-select status types */}
+  {[
+    "Initial contact",
+    "Need understand requirement",
+    "Payment request (partial/full)",
+    "Payment verified",
+   
+  ].map((status) => (
+    <option key={status} value={status}>
+      {status}
+    </option>
+  ))}
+
+  {/* One-time status types */}
+ {[
+  "Lead accepted",
+  "Lead requested documents",
+  "Lead started",
+  "Lead ongoing",
+  "Lead completed",
+  "Lead cancel",
+  "Refund",
+].map((status) => {
+  const alreadyUsed = leadStatusList.some(
+  (lead: any) =>
+    typeof lead?.statusType === "string" &&
+    lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
+);
 
 
-                  if (
-                    checkoutDetails?.paymentStatus !== "paid"
-                  ) {
-                    setPaymentType("remaining");
-                    createPaymentLink(
-                      Number(checkoutDetails?.remainingAmount || 0)
-                    );
-                  } else {
-                    setPaymentType("full");
-                    createPaymentLink(Number(amount));
-                  }
-                }
-              } else {
-                setStatusType(selected);
-              }
-            }}
-          >
-            <option value="">Select</option>
-            <option value="Lead request">Lead request</option>
-            <option value="Initial contact">Initial contact</option>
-            <option value="Need understand requirement">Need understand requirement</option>
-            <option value="Payment request (partial/full)">Payment request (partial/full)</option>
-            <option value="Payment verified">Payment verified</option>
-            <option value="Lead accepted">Lead accepted</option>
-            <option value="Lead requested documents">Lead requested documents</option>
-            <option value="Lead started">Lead started</option>
-            <option value="Lead ongoing">Lead ongoing</option>
-            <option value="Lead completed">Lead completed</option>
-            <option value="Lead cancel">Lead cancel</option>
-            <option value="Refund">Refund</option>
-          </select>
-        </div>
+  return (
+    <option
+      key={status}
+      value={status}
+      disabled={alreadyUsed}
+      className={alreadyUsed ? "text-gray-400" : ""}
+    >
+      {status}
+    </option>
+  );
+})}
+
+</select>
+
+</div>
+
+
 
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Description</Label>
@@ -414,19 +480,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
               Enter OTP
             </h2>
-
-            {/* <div className="flex justify-center space-x-2 mb-4 mt-4">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  className="w-10 h-10 text-center border rounded-md"
-                />
-              ))}
-            </div> */}
             <div className="flex justify-center space-x-2 mb-4 mt-4">
               {otp.map((digit, index) => (
                 <input
