@@ -52,6 +52,7 @@ const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
   const leads = Array.isArray(checkoutDetails?.leads) ? checkoutDetails.leads : [];
+console.log(leads);
 
   console.log(linkType);
 
@@ -137,13 +138,14 @@ const oneTimeStatuses = [
 
 if (
   oneTimeStatuses.includes(statusType) &&
-  leadStatusList.some((lead: any) =>
+  leadStatusList.some((lead: { statusType?: string }) =>
     lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
   )
 ) {
   alert(`The status "${statusType}" has already been added.`);
   return;
 }
+
 
 
     onSubmit(formData);
@@ -320,7 +322,7 @@ if (
   "Refund",
 ].map((status) => {
   const alreadyUsed = leadStatusList.some(
-  (lead: any) =>
+  (lead:  { statusType?: string } ) =>
     typeof lead?.statusType === "string" &&
     lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
 );
