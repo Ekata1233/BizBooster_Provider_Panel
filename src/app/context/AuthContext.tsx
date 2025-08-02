@@ -171,23 +171,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
-      console.log("repsonse of provider details : ", res);
-
       const data = await res.json();
 
-      console.log("data of provider details : ", data);
-      if (res.ok) {
-        setProviderDetails(data);
-        localStorage.setItem("providerDetails", JSON.stringify(data));
-      }
-      if (res.ok && data?.provider) {
-        setProviderDetails(data.provider);
-        localStorage.setItem("providerDetails", JSON.stringify(data.provider));
+      if (res.ok && data.success && data.data) {
+        setProviderDetails(data.data); // ✅ Correct
+        localStorage.setItem("providerDetails", JSON.stringify(data.data)); // ✅ Correct
+      } else {
+        console.warn("⚠️ Failed to refresh provider details:", data.message);
       }
     } catch (error) {
       console.error("🔁 Error refreshing provider details:", error);
     }
   }, [provider?._id, token]);
+
 
   // ✅ Logout Function
   const logout = async () => {
