@@ -108,12 +108,12 @@ useEffect(() => {
 
   if (isCashInHand) {
     try {
-      const cashRes = await fetch(
-        `https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`,
-        {
-          method: "PUT",
-        }
-      );
+      const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ statusType }), // ✅ Send statusType
+});
+
       const cashData = await cashRes.json();
       if (!cashData.success) {
         console.error("Cash-in-hand update failed:", cashData.message);
@@ -334,6 +334,7 @@ useEffect(() => {
     "Need understand requirement",
     "Payment request (partial/full)",
     "Payment verified",
+    "Lead requested documents",
   ].map((status) => (
     <option key={status} value={status}>
       {status}
@@ -343,7 +344,7 @@ useEffect(() => {
   {/* One-time status types */}
   {[
     "Lead accepted",
-    "Lead requested documents",
+    
     "Lead started",
     "Lead ongoing",
     "Lead completed",
