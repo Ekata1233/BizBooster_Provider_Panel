@@ -71,6 +71,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshProviderDetails: () => Promise<void>;
+  loading: boolean;
 };
 
 // ✅ Create Context
@@ -225,7 +226,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails }}
+      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails,loading, }}
     >
       {children}
     </AuthContext.Provider>

@@ -21,6 +21,7 @@ const CompletedBookingDetails = () => {
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
   const [lead, setLead] = useState<LeadType | null>(null);
+  console.log("set lead : ", setLead)
 
   const params = useParams();
   const id = params?.id as string;

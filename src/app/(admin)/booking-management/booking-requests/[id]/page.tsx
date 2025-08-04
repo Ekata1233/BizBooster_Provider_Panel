@@ -25,6 +25,8 @@ const BookingRequestDetails = () => {
   const params = useParams();
   const id = params?.id as string;
 
+  console.log("set lead : ", setLead)
+
   const {
     checkoutDetails,
     loadingCheckoutDetails,
