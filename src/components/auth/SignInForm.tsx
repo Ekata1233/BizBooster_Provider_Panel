@@ -40,6 +40,8 @@ export default function SignInForm() {
 
   // ✅ Redirect to dashboard after successful login (when providerDetails is ready)
   useEffect(() => {
+    console.log("DEBUG: providerDetails:", providerDetails);
+    console.log("DEBUG: loading:", loading);
     if (providerDetails && !loading) {
       router.push("/");
     }

@@ -81,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // ✅ Load from localStorage on mount
   useEffect(() => {
@@ -105,6 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setProvider(null);
     setProviderDetails(null);
     setToken(null);
+    setLoading(true);
     localStorage.clear(); // or remove specific keys
 
     try {
@@ -144,15 +146,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const detailsData = await providerDetailsRes.json();
 
-      if (providerDetailsRes.ok && detailsData.success) {
-        setProviderDetails(detailsData.data);
-        localStorage.setItem("providerDetails", JSON.stringify(detailsData.data));
-      } else {
+      console.log("details dat : ", detailsData)
+
+      // if (providerDetailsRes.ok && detailsData.success) {
+      //   setProviderDetails(detailsData.data);
+      //   localStorage.setItem("providerDetails", JSON.stringify(detailsData.data));
+      // } 
+      if (providerDetailsRes.ok && detailsData._id) {
+        setProviderDetails(detailsData);
+        localStorage.setItem("providerDetails", JSON.stringify(detailsData));
+      }
+
+      else {
         console.warn("⚠️ Provider details fetch failed");
       }
     } catch (error) {
       console.error("❌ Login error:", error);
       throw new Error("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 

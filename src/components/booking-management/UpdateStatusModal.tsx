@@ -5,6 +5,7 @@ import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
+import { IStatus, useLead } from "@/app/context/LeadContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -46,8 +47,13 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   // Create a ref array to manage input focus
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
+const { getLeadByCheckoutId } = useLead();
+const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
+  const leads = Array.isArray(checkoutDetails?.leads) ? checkoutDetails.leads : [];
+console.log(leads);
+
   console.log(linkType);
 
   useEffect(() => {
@@ -56,19 +62,36 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
 
-  useEffect(() => {
-    if (
-      statusType === "Payment request (partial/full)" &&
-      isCashInHand &&
-      checkoutDetails?.paymentStatus !== "paid"
-    ) {
+  // useEffect(() => {
+  //   if (
+  //     statusType === "Payment request (partial/full)" &&
+  //     isCashInHand &&
+  //     checkoutDetails?.paymentStatus !== "paid"
+  //   ) {
 
-      setStatusType("Lead completed");
-      setPaymentLink("");
-      setDescription("Cash in hand collected by provider from customer");
-      setIsOtpModalOpen(true);
+  //     setStatusType("Lead completed");
+  //     setPaymentLink("");
+  //     setDescription("Cash in hand collected by provider from customer");
+  //     setIsOtpModalOpen(true);
+  //   }
+  // }, [statusType, isCashInHand, checkoutDetails?.paymentStatus]);
+
+useEffect(() => {
+  const fetchLead = async () => {
+    if (!checkoutId) return;
+    const leadData = await getLeadByCheckoutId(checkoutId);
+
+    if (leadData && Array.isArray(leadData.leads)) {
+      setLeadStatusList(leadData.leads);
+      console.log("✅ Existing Lead Statuses:", leadData.leads);
+    } else {
+      console.warn("⚠️ No leads available or not an array");
     }
-  }, [statusType, isCashInHand, checkoutDetails?.paymentStatus]);
+  };
+
+  fetchLead();
+}, [checkoutId]);
+
 
 
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,44 +100,84 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   };
 
-  const handleSubmit = () => {
-    if (!statusType) {
-      alert("Please select a status type.");
-      return;
+ const handleSubmit = async () => {
+  if (!statusType) {
+    alert("Please select a status type.");
+    return;
+  }
+
+  if (isCashInHand) {
+    try {
+      const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ statusType }), // ✅ Send statusType
+});
+
+      const cashData = await cashRes.json();
+      if (!cashData.success) {
+        console.error("Cash-in-hand update failed:", cashData.message);
+        alert("Warning: Cash-in-hand status not saved.");
+      }
+    } catch (cashError) {
+      console.error("Cash-in-hand API error:", cashError);
+      alert("Warning: Could not mark cash-in-hand on server.");
     }
+  }
 
-    const formData = new FormData();
-    formData.append("checkout", checkoutId);
-    formData.append("serviceCustomer", serviceCustomerId);
-    formData.append("serviceMan", serviceManId ?? "null");
-    formData.append("service", serviceId ?? "");
-    formData.append("amount", amount);
+  const formData = new FormData();
+  formData.append("checkout", checkoutId);
+  formData.append("serviceCustomer", serviceCustomerId);
+  formData.append("serviceMan", serviceManId ?? "null");
+  formData.append("service", serviceId ?? "");
+  formData.append("amount", amount);
 
-    const leadStatus: Record<string, unknown> = {
-      statusType,
-      description,
-    };
-
-    leadStatus.zoomLink = zoomLink;
-
-    if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
-    if (paymentType) leadStatus.paymentType = paymentType;
-
-    formData.append("leads", JSON.stringify([leadStatus]));
-
-    if (document) {
-      formData.append("document", document);
-    }
-
-    onSubmit(formData);
-    setStatusType("");
-    setDescription("");
-    setLinkType("");
-    setZoomLink("");
-    setPaymentLink("");
-    setPaymentType("");
-    setDocument(null);
+  const leadStatus: Record<string, unknown> = {
+    statusType,
+    description,
   };
+
+  leadStatus.zoomLink = zoomLink;
+
+  if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
+  if (paymentType) leadStatus.paymentType = paymentType;
+
+  formData.append("leads", JSON.stringify([leadStatus]));
+
+  if (document) {
+    formData.append("document", document);
+  }
+
+  const oneTimeStatuses = [
+    "Lead accepted",
+    "Lead requested documents",
+    "Lead started",
+    "Lead ongoing",
+    "Lead completed",
+    "Lead cancel",
+    "Refund",
+  ];
+
+  if (
+    oneTimeStatuses.includes(statusType) &&
+    leadStatusList.some((lead: { statusType?: string }) =>
+      lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
+    )
+  ) {
+    alert(`The status "${statusType}" has already been added.`);
+    return;
+  }
+
+  onSubmit(formData);
+  setStatusType("");
+  setDescription("");
+  setLinkType("");
+  setZoomLink("");
+  setPaymentLink("");
+  setPaymentType("");
+  setDocument(null);
+};
+
 
   const createPaymentLink = async (amountToPay: number) => {
     setGeneratingPaymentLink(true);
@@ -143,6 +206,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       setGeneratingPaymentLink(false);
     }
   };
+
 
   const handleOtpVerify = async () => {
     const enteredOtp = otp.join("");
@@ -215,6 +279,16 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       otpRefs.current[index + 1]?.focus();
     }
   };
+useEffect(() => {
+  if (
+    statusType === "Payment request (partial/full)" &&
+    isCashInHand &&
+    paymentLink &&
+    !generatingPaymentLink
+  ) {
+    handleSubmit();
+  }
+}, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -223,60 +297,83 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           Update Status
         </h2>
 
-        <div className="mb-4">
-          <Label className="block mb-1 font-medium">Status Type</Label>
-          <select
-            className="w-full p-2 rounded-md border"
-            value={statusType}
-            onChange={(e) => {
-              const selected = e.target.value;
+      <div className="mb-4">
+  <Label className="block mb-1 font-medium">Status Type</Label>
+  <select
+  className="w-full p-2 rounded-md border"
+  value={statusType}
+  onChange={(e) => {
+    const selected = e.target.value;
 
-              if (selected === "Lead completed") {
-                if (
-                  checkoutDetails &&
-                  checkoutDetails.paymentStatus == "paid") {
-                  setStatusType(selected);
-                  setIsOtpModalOpen(true);
-                }
-                else {
-                  alert(
-                    "Payment is not completed. Please complete payment before marking as completed."
-                  );
-                  setStatusType("Payment request (partial/full)");
+    if (selected === "Lead completed") {
+      if (checkoutDetails?.paymentStatus === "paid") {
+        setStatusType(selected);
+        setIsOtpModalOpen(true); // ✅ Only "Lead completed" triggers OTP modal
+      } else {
+        alert("Payment is not completed. Please complete payment before marking as completed.");
+        setStatusType("Payment request (partial/full)");
+
+        if ((checkoutDetails?.paymentStatus as string) === "paid") {
+          setPaymentType("remaining");
+          createPaymentLink(Number(checkoutDetails?.remainingAmount || 0));
+        } else {
+          setPaymentType("full");
+          createPaymentLink(Number(amount));
+        }
+      }
+    } else {
+      setStatusType(selected);
+    }
+  }}
+>
+  <option value="">Select</option>
+
+  {/* Multi-select status types */}
+  {[
+    "Initial contact",
+    "Need understand requirement",
+    "Payment request (partial/full)",
+    "Payment verified",
+    "Lead requested documents",
+  ].map((status) => (
+    <option key={status} value={status}>
+      {status}
+    </option>
+  ))}
+
+  {/* One-time status types */}
+  {[
+    "Lead accepted",
+    
+    "Lead started",
+    "Lead ongoing",
+    "Lead completed",
+    "Lead cancel",
+    "Refund",
+  ].map((status) => {
+    const alreadyUsed = leadStatusList.some(
+      (lead: { statusType?: string }) =>
+        typeof lead?.statusType === "string" &&
+        lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
+    );
+
+    return (
+      <option
+        key={status}
+        value={status}
+        disabled={alreadyUsed}
+        className={alreadyUsed ? "text-gray-400" : ""}
+      >
+        {status}
+      </option>
+    );
+  })}
+</select>
 
 
-                  if (
-                    checkoutDetails?.paymentStatus !== "paid"
-                  ) {
-                    setPaymentType("remaining");
-                    createPaymentLink(
-                      Number(checkoutDetails?.remainingAmount || 0)
-                    );
-                  } else {
-                    setPaymentType("full");
-                    createPaymentLink(Number(amount));
-                  }
-                }
-              } else {
-                setStatusType(selected);
-              }
-            }}
-          >
-            <option value="">Select</option>
-            <option value="Lead request">Lead request</option>
-            <option value="Initial contact">Initial contact</option>
-            <option value="Need understand requirement">Need understand requirement</option>
-            <option value="Payment request (partial/full)">Payment request (partial/full)</option>
-            <option value="Payment verified">Payment verified</option>
-            <option value="Lead accepted">Lead accepted</option>
-            <option value="Lead requested documents">Lead requested documents</option>
-            <option value="Lead started">Lead started</option>
-            <option value="Lead ongoing">Lead ongoing</option>
-            <option value="Lead completed">Lead completed</option>
-            <option value="Lead cancel">Lead cancel</option>
-            <option value="Refund">Refund</option>
-          </select>
-        </div>
+</div>
+
+
 
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Description</Label>
@@ -389,20 +486,21 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
         <div className="text-right">
           <button
-            className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleSubmit}
-            disabled={
-              loading ||
-              (statusType === "Payment request (partial/full)" &&
-                (generatingPaymentLink || !paymentLink))
-            }
-          >
-            {loading ||
-              (statusType === "Payment request (partial/full)" &&
-                generatingPaymentLink)
-              ? "Processing..."
-              : "Submit"}
-          </button>
+  className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+  onClick={handleSubmit}
+  disabled={
+    loading ||
+    (statusType === "Payment request (partial/full)" &&
+      !isCashInHand &&
+      (generatingPaymentLink || !paymentLink))
+  }
+>
+  {loading ||
+  (statusType === "Payment request (partial/full)" && generatingPaymentLink)
+    ? "Processing..."
+    : "Submit"}
+</button>
+
         </div>
 
         <Modal
@@ -414,19 +512,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
             <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
               Enter OTP
             </h2>
-
-            {/* <div className="flex justify-center space-x-2 mb-4 mt-4">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  className="w-10 h-10 text-center border rounded-md"
-                />
-              ))}
-            </div> */}
             <div className="flex justify-center space-x-2 mb-4 mt-4">
               {otp.map((digit, index) => (
                 <input
