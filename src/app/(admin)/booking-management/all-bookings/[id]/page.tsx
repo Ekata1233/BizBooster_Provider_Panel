@@ -245,7 +245,7 @@ const AllBookingsDetails = () => {
                 className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 transition duration-300"
                 onClick={() => setIsEditOpen(true)}
               >
-                Edit Lead
+                + Add on Service
               </button>) : <></>}
 
 
@@ -362,6 +362,8 @@ const AllBookingsDetails = () => {
                   const extraServices = lead!.extraService!;
                   const subtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
                   const totalDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
+                  const priceAfterDiscount = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
+
                   const champaignDiscount = checkoutDetails.champaignDiscount || 0;
                   const serviceGST = gstValue || 0;
                   const platformFee = platformFeeValue || 0;
@@ -406,7 +408,7 @@ const AllBookingsDetails = () => {
                       {([
                         ['Listing Price', subtotal],
                         ['Service Discount', totalDiscount],
-                        ['Price After Discount', checkoutDetails?.service?.discountedPrice || 0 || 0],
+                        ['Price After Discount', priceAfterDiscount || 0 || 0],
                         ['Coupon Discount', checkoutDetails.couponDiscount || 0],
                         ['Service GST', gstValue || 0],
                         ['Platform Fee', platformFeeValue || 0],

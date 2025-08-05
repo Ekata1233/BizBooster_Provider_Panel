@@ -11,24 +11,12 @@ interface EditLeadPageProps {
 }
 
 export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLeadPageProps) {
-  const [editPrice, setEditPrice] = useState("");
-  const [editDiscountPrice, setEditDiscountPrice] = useState("");
-  const [afterDicountAmount, setAfterDicountAmount] = useState("");
-  const [lead, setLead] = useState<LeadType | null>(null);
   const [additionalFields, setAdditionalFields] = useState<
     { serviceName: string; price: string; discount: string; total: string }[]
-  >([]);
+  >([{ serviceName: "", price: "", discount: "", total: "" }]); // Initialize with one field
   const [loadingLead, setLoadingLead] = useState(true);
-
   const { updateLeadByCheckoutId, getLeadByCheckoutId } = useLead();
-
-  useEffect(() => {
-    const price = parseFloat(editPrice || "0");
-    const discount = parseFloat(editDiscountPrice || "0");
-    const afterDiscount = price - discount;
-    setAfterDicountAmount(afterDiscount.toFixed(2));
-  }, [editPrice, editDiscountPrice]);
-
+  const [lead, setLead] = useState<LeadType | null>(null);
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -64,61 +52,23 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
       } finally {
         setLoadingLead(false); 
       }
-
     };
 
     fetchLead();
   }, [checkoutId]);
 
-  console.log("lead for the edit lead : ", lead)
-
   const {
-    fetchCheckoutsDetailsById,
-    checkoutDetails,
+    // checkoutDetails,
     loadingCheckoutDetails,
     errorCheckoutDetails,
   } = useCheckout();
 
-  // ⬇️ Fetch on mount or when `checkoutId` changes
-  useEffect(() => {
-    if (checkoutId && !checkoutDetails?._id) {
-      fetchCheckoutsDetailsById(checkoutId);
-    }
-  }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
-  console.log("checkout details", checkoutDetails);
-
-
-  // ⬇️ Log details once fetched
-  useEffect(() => {
-    if (checkoutDetails) {
-
-    }
-  }, [checkoutDetails]);
-useEffect(() => {
-  if (checkoutDetails?.service) {
-    const { price, discountedPrice } = checkoutDetails.service;
-
-    if (!editPrice) {
-      setEditPrice(price?.toString() || "0");
-    }
-
-    if (!editDiscountPrice) {
-      setEditDiscountPrice((price - discountedPrice).toString() || "0");
-    }
-
-    if (!afterDicountAmount) {
-      setAfterDicountAmount(discountedPrice?.toString() || "0");
-    }
-  }
-}, [checkoutDetails]);
-
-
-  const addAdditionalRequirement = () => {
-    setAdditionalFields([
-      ...additionalFields,
-      { serviceName: "", price: "", discount: "", total: "" },
-    ]);
-  };
+  // const addAdditionalRequirement = () => {
+  //   setAdditionalFields([
+  //     ...additionalFields,
+  //     { serviceName: "", price: "", discount: "", total: "" },
+  //   ]);
+  // };
 
   const handleFieldChange = (
     index: number,
@@ -135,12 +85,15 @@ useEffect(() => {
     setAdditionalFields(newFields);
   };
 
+  const removeField = (index: number) => {
+    const newFields = [...additionalFields];
+    newFields.splice(index, 1);
+    setAdditionalFields(newFields);
+  };
+
   const handleUpdate = async () => {
     try {
       const payload = {
-        newAmount: parseFloat(editPrice || "0"),
-        newDiscountAmount: parseFloat(editDiscountPrice || "0"),
-        afterDicountAmount: parseFloat(afterDicountAmount || "0"),
         extraService: additionalFields.map((field) => ({
           serviceName: field.serviceName,
           price: parseFloat(field.price || "0"),
@@ -172,7 +125,6 @@ useEffect(() => {
     return <div className="text-red-500">Something went wrong while loading data.</div>;
   }
 
-
   return (
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
       <div className="relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
@@ -186,145 +138,80 @@ useEffect(() => {
           </div>
         ) : (
           <>
-            {/* Edit Price */}
-
-            <div className="flex flex-wrap ">
-              <div className="w-full md:w-1/2 mb-4">
-                <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-                  Previous Service Price
-                </label>
-                <input
-                  type="text"
-                  value={`₹${checkoutDetails?.service?.price ?? ''}`}
-                  disabled
-                  className="w-[90%] p-2 border rounded-md bg-gray-100"
-                />
-              </div>
-
-              <div className="w-full md:w-1/2 mb-4">
-                <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-                  Previous Service Discount
-                </label>
-                <input
-                  type="text"
-                  value={`₹${checkoutDetails?.service?.discountedPrice ?? ''}`}
-                  disabled
-                  className="w-[90%] p-2 border rounded-md bg-gray-100"
-                />
-              </div>
-            </div>
-
-
-
-            <div className="mb-4">
-              <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-                Edit Price
-              </label>
-              <input
-                type="text"
-                value={editPrice}
-                onChange={(e) => setEditPrice(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block mb-1 font-medium text-gray-700 dark:text-white">
-                Add Discount
-              </label>
-              <input
-                type="text"
-                value={editDiscountPrice}
-                onChange={(e) => setEditDiscountPrice(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                After Discount Price
-              </label>
-              <input
-                type="text"
-                value={`₹${afterDicountAmount}`}
-                disabled
-                className="w-full p-2 border rounded-md bg-gray-100"
-              />
-            </div>
-
-            {/* Show Add Button only if no fields yet */}
-            {additionalFields.length === 0 && (
-              <button
-                onClick={addAdditionalRequirement}
-                className="mt-4 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
-              >
-                + Add Additional Requirements
-              </button>
-            )}
-
-            {/* Additional Fields */}
-            {additionalFields.length > 0 && (
-              <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 mt-4">
-                {additionalFields.map((field, index) => (
-                  <div key={index} className="p-4 border rounded-md bg-gray-50">
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Service Name
-                      </label>
-                      <input
-                        type="text"
-                        value={field.serviceName}
-                        onChange={(e) => handleFieldChange(index, "serviceName", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        value={field.price}
-                        onChange={(e) => handleFieldChange(index, "price", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Discount
-                      </label>
-                      <input
-                        type="number"
-                        value={field.discount}
-                        onChange={(e) => handleFieldChange(index, "discount", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                        Total
-                      </label>
-                      <input
-                        type="text"
-                        value={field.total}
-                        disabled
-                        className="w-full p-2 border rounded-md bg-gray-100"
-                      />
-                    </div>
-
-                    {index === additionalFields.length - 1 && (
-                      <button
-                        onClick={addAdditionalRequirement}
-                        className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded"
-                      >
-                        + Add Additional Requirements
-                      </button>
-                    )}
+            {/* Additional Fields - Always shown with at least one field */}
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+              {additionalFields.map((field, index) => (
+                <div key={index} className="p-4 border rounded-md bg-gray-50 relative">
+                  {index > 0 && (
+                    <button
+                      onClick={() => removeField(index)}
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  )}
+                  
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                      Service Name
+                    </label>
+                    <input
+                      type="text"
+                      value={field.serviceName}
+                      onChange={(e) => handleFieldChange(index, "serviceName", e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Enter service name"
+                    />
                   </div>
-                ))}
-              </div>
-            )}
+
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                      Price
+                    </label>
+                    <input
+                      type="number"
+                      value={field.price}
+                      onChange={(e) => handleFieldChange(index, "price", e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Enter price"
+                    />
+                  </div>
+
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                      Discount
+                    </label>
+                    <input
+                      type="number"
+                      value={field.discount}
+                      onChange={(e) => handleFieldChange(index, "discount", e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Enter discount"
+                    />
+                  </div>
+
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium text-gray-800 dark:text-white">
+                      Total
+                    </label>
+                    <input
+                      type="text"
+                      value={field.total}
+                      disabled
+                      className="w-full p-2 border rounded-md bg-gray-100"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Additional Requirements Button - Always shown */}
+            {/* <button
+              onClick={addAdditionalRequirement}
+              className="mt-4 bg-gray-200 hover:bg-gray-300 text-sm px-3 py-2 rounded w-full"
+            >
+              + Add Additional Requirements
+            </button> */}
 
             {/* Action Buttons */}
             <div className="flex justify-end mt-6">
@@ -341,7 +228,8 @@ useEffect(() => {
                 Update
               </button>
             </div>
-          </>)}
+          </>
+        )}
       </div>
     </Modal>
   );
