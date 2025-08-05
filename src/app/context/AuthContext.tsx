@@ -71,6 +71,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshProviderDetails: () => Promise<void>;
+  loading: boolean;
 };
 
 // ✅ Create Context
@@ -81,6 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // ✅ Load from localStorage on mount
   useEffect(() => {
@@ -105,6 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setProvider(null);
     setProviderDetails(null);
     setToken(null);
+    setLoading(true);
     localStorage.clear(); // or remove specific keys
 
     try {
@@ -144,15 +147,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const detailsData = await providerDetailsRes.json();
 
-      if (providerDetailsRes.ok && detailsData.success) {
-        setProviderDetails(detailsData.data);
-        localStorage.setItem("providerDetails", JSON.stringify(detailsData.data));
-      } else {
+      console.log("details dat : ", detailsData)
+
+      // if (providerDetailsRes.ok && detailsData.success) {
+      //   setProviderDetails(detailsData.data);
+      //   localStorage.setItem("providerDetails", JSON.stringify(detailsData.data));
+      // } 
+      if (providerDetailsRes.ok && detailsData._id) {
+        setProviderDetails(detailsData);
+        localStorage.setItem("providerDetails", JSON.stringify(detailsData));
+      }
+
+      else {
         console.warn("⚠️ Provider details fetch failed");
       }
     } catch (error) {
       console.error("❌ Login error:", error);
       throw new Error("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -171,23 +184,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
-      console.log("repsonse of provider details : ", res);
-
       const data = await res.json();
 
-      console.log("data of provider details : ", data);
-      if (res.ok) {
-        setProviderDetails(data);
-        localStorage.setItem("providerDetails", JSON.stringify(data));
-      }
-      if (res.ok && data?.provider) {
-        setProviderDetails(data.provider);
-        localStorage.setItem("providerDetails", JSON.stringify(data.provider));
+      if (res.ok && data.success && data.data) {
+        setProviderDetails(data.data); // ✅ Correct
+        localStorage.setItem("providerDetails", JSON.stringify(data.data)); // ✅ Correct
+      } else {
+        console.warn("⚠️ Failed to refresh provider details:", data.message);
       }
     } catch (error) {
       console.error("🔁 Error refreshing provider details:", error);
     }
   }, [provider?._id, token]);
+
 
   // ✅ Logout Function
   const logout = async () => {
@@ -217,7 +226,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails }}
+      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails,loading, }}
     >
       {children}
     </AuthContext.Provider>

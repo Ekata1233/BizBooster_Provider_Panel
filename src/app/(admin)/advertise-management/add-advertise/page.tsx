@@ -19,7 +19,7 @@ const AddAd = () => {
   const { services, loadingServices } = useService();
   const { provider } = useAuth();
 
-  const [addType, setAddType] = useState<'image' | 'video'>('image');
+  const [addType, setAddType] = useState<'image' >('image');
   const [category, setCategory] = useState('');
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
 
@@ -31,7 +31,6 @@ const AddAd = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  console.log('provider in add : ', provider?._id);
     console.log(ads);
     
   useEffect(() => {
@@ -120,11 +119,10 @@ const AddAd = () => {
           <Label>Ad Type</Label>
           <select
             value={addType}
-            onChange={(e) => setAddType(e.target.value as 'image' | 'video')}
+            onChange={(e) => setAddType(e.target.value as 'image')}
             className="w-full border px-3 py-2 rounded-md"
           >
             <option value="image">Image</option>
-            <option value="video">Video</option>
           </select>
         </div>
 
@@ -220,7 +218,7 @@ const AddAd = () => {
 
         {/* File Input */}
         <div>
-          <Label>Select Image / Video</Label>
+          <Label>Select Image </Label>
           <FileInput onChange={handleFileChange} />
           {selectedFile && (
             <p className="text-xs text-gray-500 mt-1">

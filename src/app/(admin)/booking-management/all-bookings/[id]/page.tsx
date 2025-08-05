@@ -43,8 +43,6 @@ const AllBookingsDetails = () => {
 
   const { getLeadByCheckoutId } = useLead();
 
-
-
   useEffect(() => {
     const fetchLead = async () => {
       if (!checkoutDetails?._id) return;
@@ -217,7 +215,7 @@ const AllBookingsDetails = () => {
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
 
-
+  console.log("checkout in proivder ---- : ", checkoutDetails)
 
   return (
     <div>
@@ -247,7 +245,7 @@ const AllBookingsDetails = () => {
                 className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 transition duration-300"
                 onClick={() => setIsEditOpen(true)}
               >
-              + Add on Service
+                + Add on Service
               </button>) : <></>}
 
 
@@ -343,14 +341,14 @@ const AllBookingsDetails = () => {
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
                 {([
-                  ['Price', lead?.newAmount ?? checkoutDetails?.service?.price],
-                  ['Service Discount', lead?.newDiscountAmount ?? (checkoutDetails?.service?.price - checkoutDetails?.service?.discountedPrice) ?? 0],
-                  ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                  ['Campaign Discount', checkoutDetails.champaignDiscount || 0],
-                  ['Service GST', gstValue || 0],
-                  ['Platform Fee', platformFeeValue || 0],
-                  ['Fetch True Assurity Charges', assurityFeeValue || 0],
-                  ['Total ', lead?.afterDicountAmount ?? checkoutDetails?.totalAmount],
+                  ['Listing Price', lead?.newAmount ?? checkoutDetails?.listingPrice],
+                  [`Service Discount (${checkoutDetails?.serviceDiscount ?? 0}%)`, -(lead?.newDiscountAmount ?? checkoutDetails?.serviceDiscountPrice ?? 0)],
+                  ['Price After Discount', checkoutDetails?.priceAfterDiscount ?? 0],
+                  [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}%)`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
+                  [`Service GST (${checkoutDetails?.gst ?? 0}%)`, checkoutDetails?.serviceGSTPrice ?? 0],
+                  [`Platform Fee `, checkoutDetails?.platformFeePrice ?? 0],
+                  [`Fetch True Assurity Charges (${checkoutDetails?.assurityfee ?? 0}%)`, checkoutDetails?.assurityChargesPrice ?? 0],
+                  ['Grand Total', checkoutDetails?.totalAmount ?? 0],
                 ] as [string, number][]
                 ).map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
@@ -364,6 +362,8 @@ const AllBookingsDetails = () => {
                   const extraServices = lead!.extraService!;
                   const subtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
                   const totalDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
+                  const priceAfterDiscount = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
+
                   const champaignDiscount = checkoutDetails.champaignDiscount || 0;
                   const serviceGST = gstValue || 0;
                   const platformFee = platformFeeValue || 0;
@@ -406,10 +406,10 @@ const AllBookingsDetails = () => {
 
                       {/* Summary section */}
                       {([
-                        ['Price', subtotal],
+                        ['Listing Price', subtotal],
                         ['Service Discount', totalDiscount],
+                        ['Price After Discount', priceAfterDiscount || 0 || 0],
                         ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                        ['Campaign Discount', champaignDiscount || 0],
                         ['Service GST', gstValue || 0],
                         ['Platform Fee', platformFeeValue || 0],
                         ['Fetch True Assurity Charges', assurityFeeValue || 0],

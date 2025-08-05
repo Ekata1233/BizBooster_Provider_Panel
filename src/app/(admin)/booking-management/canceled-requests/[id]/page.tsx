@@ -204,16 +204,17 @@ const CanceledBookingDetails = () => {
 
               {/* Summary Values */}
               <div className="mt-6 space-y-2 text-sm text-gray-800">
-                {[
-                  ['Price', checkoutDetails.subtotal],
-                  ['Service Discount', checkoutDetails.serviceDiscount],
-                  ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                                    ['Campaign Discount', 0],
-
-                  ['Service GST', 0],
-                  ['Platform Fee', 0],
-                  ['Fetch True Assurity Charges', 0],
-                ].map(([label, amount]) => (
+                {([
+                  ['Listing Price', lead?.newAmount ?? checkoutDetails?.listingPrice],
+                  [`Service Discount (${checkoutDetails?.serviceDiscount ?? 0}%)`, -(lead?.newDiscountAmount ?? checkoutDetails?.serviceDiscountPrice ?? 0)],
+                  ['Price After Discount', checkoutDetails?.priceAfterDiscount ?? 0],
+                  [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}%)`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
+                  [`Service GST (${checkoutDetails?.gst ?? 0}%)`, checkoutDetails?.serviceGSTPrice ?? 0],
+                  [`Platform Fee `, checkoutDetails?.platformFeePrice ?? 0],
+                  [`Fetch True Assurity Charges (${checkoutDetails?.assurityfee ?? 0}%)`, checkoutDetails?.assurityChargesPrice ?? 0],
+                  ['Grand Total', checkoutDetails?.totalAmount ?? 0],
+                ] as [string, number][]
+                ).map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
                     <span className="font-medium">{label} :</span>
                     <span>₹{amount}</span>
