@@ -41,6 +41,7 @@ export interface CheckoutType {
   paidByOtherMethodAmount: number;
   partialPaymentNow: number;
   partialPaymentLater: number;
+  remainingAmount?: number;
   remainingPaymentStatus: 'pending' | 'paid' | 'failed';
   paymentStatus: 'pending' | 'paid' | 'failed';
   orderStatus: 'processing' | 'in_progress' | 'completed' | 'cancelled';
