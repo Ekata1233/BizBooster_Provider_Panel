@@ -31,7 +31,6 @@ const AddAd = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  console.log('provider in add : ', provider?._id);
     console.log(ads);
     
   useEffect(() => {
