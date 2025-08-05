@@ -58,17 +58,17 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
   }, [checkoutId]);
 
   const {
-    checkoutDetails,
+    // checkoutDetails,
     loadingCheckoutDetails,
     errorCheckoutDetails,
   } = useCheckout();
 
-  const addAdditionalRequirement = () => {
-    setAdditionalFields([
-      ...additionalFields,
-      { serviceName: "", price: "", discount: "", total: "" },
-    ]);
-  };
+  // const addAdditionalRequirement = () => {
+  //   setAdditionalFields([
+  //     ...additionalFields,
+  //     { serviceName: "", price: "", discount: "", total: "" },
+  //   ]);
+  // };
 
   const handleFieldChange = (
     index: number,
