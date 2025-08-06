@@ -208,6 +208,7 @@ const AllBookingsDetails = () => {
 
   // Final grand total (base + extra)
   const grandTotal = baseAmount + extraAmount;
+let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
 
 
 
@@ -216,7 +217,6 @@ const AllBookingsDetails = () => {
   if (!checkoutDetails) return <p>No details found.</p>;
 
   console.log("checkout in proivder ---- : ", checkoutDetails)
-
   return (
     <div>
       <PageBreadcrumb pageTitle="All Bookings Details" />
@@ -240,29 +240,42 @@ const AllBookingsDetails = () => {
 
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
-              {checkoutDetails.isCompleted === false ? (<button
-                className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 transition duration-300"
-                onClick={() => setIsEditOpen(true)}
-              >
-                + Add on Service
-              </button>) : <></>}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
+  {checkoutDetails.isCompleted === false && (
+    <div className="flex flex-col">
+      <button
+        className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${
+          hasExtraServices 
+            ? 'bg-gray-400 cursor-not-allowed' 
+            : 'hover:bg-blue-900'
+        }`}
+        onClick={() => !hasExtraServices && setIsEditOpen(true)}
+        disabled={hasExtraServices}
+      >
+        + Add on Service
+      </button>
+      {hasExtraServices && (
+        <p className="text-xs text-gray-500 mt-1">
+          Already one additional service added
+        </p>
+      )}
+    </div>
+  )}
 
+  {isEditOpen && (
+    <UpdateEditLead
+      isOpen={isEditOpen}
+      closeModal={() => setIsEditOpen(false)}
+      checkoutId={checkoutDetails._id}
+    />
+  )}
 
-              {isEditOpen && (
-                <UpdateEditLead
-                  isOpen={isEditOpen}
-                  closeModal={() => setIsEditOpen(false)}
-                  checkoutId={checkoutDetails._id}
-                />
-              )}
-
-              <InvoiceDownload
-                leadDetails={lead}
-                checkoutDetails={checkoutDetails}
-                serviceCustomer={serviceCustomer}
-              />
-            </div>
+  <InvoiceDownload
+    leadDetails={lead}
+    checkoutDetails={checkoutDetails}
+    serviceCustomer={serviceCustomer}
+  />
+</div>
 
           </div>
         </ComponentCard>
@@ -348,7 +361,7 @@ const AllBookingsDetails = () => {
                   [`Service GST (${checkoutDetails?.gst ?? 0}%)`, checkoutDetails?.serviceGSTPrice ?? 0],
                   [`Platform Fee `, checkoutDetails?.platformFeePrice ?? 0],
                   [`Fetch True Assurity Charges (${checkoutDetails?.assurityfee ?? 0}%)`, checkoutDetails?.assurityChargesPrice ?? 0],
-                  ['Grand Total', checkoutDetails?.totalAmount ?? 0],
+                  ['Service Total', checkoutDetails?.totalAmount ?? 0],
                 ] as [string, number][]
                 ).map(([label, amount]) => (
                   <div className="flex justify-between" key={label}>
@@ -365,11 +378,18 @@ const AllBookingsDetails = () => {
                   const priceAfterDiscount = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
 
                   const champaignDiscount = checkoutDetails.champaignDiscount || 0;
-                  const serviceGST = gstValue || 0;
-                  const platformFee = platformFeeValue || 0;
-                  const assurityFee = assurityFeeValue || 0;
-                  const grandTotal = subtotal - totalDiscount - (checkoutDetails.couponDiscount || 0) - champaignDiscount + serviceGST + platformFee + assurityFee;
+                  const gstPercent = checkoutDetails?.gst ?? gstValue ?? 0;
 
+                  // GST calculated only on priceAfterDiscount
+                  const serviceGST = (gstPercent / 100) * priceAfterDiscount; const platformFee = platformFeeValue || 0;
+                  // percentage value (from checkoutDetails or fallback)
+                  const assurityFeePercent = checkoutDetails?.assurityfee ?? assurityFeeValue ?? 0;
+
+                  // ✅ calculated assurity fee amount
+                  const assurityFee = (assurityFeePercent / 100) * priceAfterDiscount;
+
+                  const grandTotal = subtotal - totalDiscount - (checkoutDetails.couponDiscount || 0) - champaignDiscount + serviceGST + assurityFee;
+                   finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
                   console.log("subtotal : ", subtotal)
                   console.log("champaignDiscount : ", champaignDiscount)
                   console.log("champaignDiscount : ", champaignDiscount)
@@ -407,30 +427,32 @@ const AllBookingsDetails = () => {
                       {/* Summary section */}
                       {([
                         ['Listing Price', subtotal],
-                        ['Service Discount', totalDiscount],
-                        ['Price After Discount', priceAfterDiscount || 0 || 0],
-                        ['Coupon Discount', checkoutDetails.couponDiscount || 0],
-                        ['Service GST', gstValue || 0],
-                        ['Platform Fee', platformFeeValue || 0],
-                        ['Fetch True Assurity Charges', assurityFeeValue || 0],
-                        ['Extra Service Total', grandTotal],
-                      ] as [string, number][]
-                      ).map(([label, amount]) => (
+                        [`Service Discount `, -(totalDiscount || 0)],
+                        [`Price After Discount`, priceAfterDiscount || 0],
+                        // show coupon if you want to include coupon for extra services — commented out to match previous code
+                        // [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}%)`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
+                        [`Service GST (${checkoutDetails?.gst ?? 0}%)`, serviceGST || 0],
+                        // [`Platform Fee`, platformFee || 0], // uncomment if platform fee applies to extra services
+                        [`Fetch True Assurity Charges (${assurityFeePercent}%)`, assurityFee || 0],
+                        ['Extra Service Total', grandTotal || 0],
+                      ] as [string, number][]).map(([label, amount]) => (
                         <div className="flex justify-between mb-1" key={label}>
                           <span className="font-medium">{label}:</span>
                           <span>{formatPrice(Number(amount))}</span>
-
                         </div>
                       ))}
+
                     </>
                   );
                 })()}
 
-                <div className="flex justify-between font-bold text-blue-600">
-                  <span>Grand Total</span>
-                  <span>{formatPrice(grandTotal || 0)}</span>
-                </div>
+               
               </div>
+              <hr className='mt-4'/>
+               <div className="flex justify-between font-bold text-blue-600 mt-2">
+                  <span>Grand Total</span>
+                  <span>{formatPrice(finalGrandTotal)}</span>
+                </div>
             </div>
 
             {/* RIGHT SIDE */}
