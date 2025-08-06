@@ -337,14 +337,16 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               "Lead requested documents",
             ].map((status) => {
               const isPaymentRequest = status === "Payment request (partial/full)";
+              const isPaymentVerified = status === "Payment verified";
               const isPaid = checkoutDetails?.paymentStatus === "paid";
+               const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
 
               return (
                 <option
                   key={status}
                   value={status}
-                  disabled={isPaymentRequest && isPaid}
-                  className={isPaymentRequest && isPaid ? "text-gray-400" : ""}
+                   disabled={isDisabled}
+      className={isDisabled ? "text-gray-400" : ""}
                 >
                   {status}
                 </option>
