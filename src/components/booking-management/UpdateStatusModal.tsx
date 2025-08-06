@@ -47,12 +47,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   // Create a ref array to manage input focus
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
+  console.log(linkType); //dont remove this
+
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
   const leads = Array.isArray(checkoutDetails?.leads) ? checkoutDetails.leads : [];
-  console.log("checdkout details for the payment : ", checkoutDetails);
+  console.log(leads);
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
