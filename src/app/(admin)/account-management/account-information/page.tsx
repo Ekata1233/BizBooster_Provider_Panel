@@ -22,6 +22,7 @@ interface Transaction {
   runningBalance?: number;
 }
 
+const tabs: Array<'all' | 'credit' | 'debit' | 'withdraw'> = ['all', 'credit', 'debit', 'withdraw'];
 
 const columnsWallet = [
   {
@@ -93,7 +94,7 @@ const Page = () => {
 
   useEffect(() => {
     if (providerId) fetchWalletByProvider(providerId);
-  }, [providerId,fetchWalletByProvider]);
+  }, [providerId]);
 
   if (loading) return <p>Loading wallet...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -151,10 +152,10 @@ const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) =
             ) : (
               <>
                 <div className="flex gap-2 mb-4">
-                  {['all', 'credit', 'debit', 'withdraw'].map((tab) => (
+                  {tabs.map((tab) => (
                     <button
                       key={tab}
-                      onClick={() => setActiveTab(tab as any)}
+                      onClick={() => setActiveTab(tab)}
                       className={`min-w-[120px] px-4 py-2 rounded-md text-sm font-medium border ${activeTab === tab
                           ? "bg-blue-600 text-white border-blue-600"
                           : "bg-white text-gray-700 border-gray-100 hover:bg-blue-50"
@@ -170,7 +171,7 @@ const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) =
                     <FaMoneyBillWave className="text-5xl mb-4 text-blue-400" />
                     <h2 className="text-xl font-semibold mb-2">No Transactions Found</h2>
                     <p className="text-sm max-w-md">
-                      This wallet doesn't have any transactions yet. Once transactions are made, they will appear here.
+                      This wallet doesn&rsquo;t have any transactions yet. Once transactions are made, they will appear here.
                     </p>
                   </div>
                 ) : (
