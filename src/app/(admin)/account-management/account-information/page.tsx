@@ -8,28 +8,43 @@ import WalletStats from "@/components/account-management/WalletStats";
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import { FaMoneyBillWave, FaWallet } from "react-icons/fa";
 
+
+interface Transaction {
+  _id: string;
+  transactionId?: string;
+  referenceId?: string;
+  type: "credit" | "debit";
+  source?: string;
+  description?: string;
+  createdAt: string;
+  amount: number;
+  leadId?: string;
+  runningBalance?: number;
+}
+
+
 const columnsWallet = [
   {
     header: "Transaction ID",
     accessor: "transactionId",
-    render: (row: any) => <span>{row.referenceId || "-"}</span>,
+    render: (row: Transaction) => <span>{row.referenceId || "-"}</span>,
   },
   {
     header: "Transaction Type",
     accessor: "type",
-    render: (row: any) => <span>{row.description}</span>,
+    render: (row: Transaction) => <span>{row.description}</span>,
   },
   {
     header: "Transaction Date",
     accessor: "date",
-    render: (row: any) => (
+    render: (row: Transaction) => (
       <span>{new Date(row.createdAt).toLocaleString()}</span>
     ),
   },
   {
     header: "Lead ID",
     accessor: "leadId",
-    render: (row: any) => (
+    render: (row: Transaction) => (
       <div className="flex flex-col">
         <span className="text-xs text-muted-foreground">
           Lead Id : {row.leadId || "-"}
@@ -43,25 +58,25 @@ const columnsWallet = [
   {
     header: "Debit",
     accessor: "debit",
-    render: (row: any) =>
+    render: (row: Transaction) =>
       row.type === "debit" ? `₹${row.amount}` : "-",
   },
   {
     header: "Credit",
     accessor: "credit",
-    render: (row: any) =>
+    render: (row: Transaction) =>
       row.type === "credit" ? `₹${row.amount}` : "-",
   },
   {
     header: "Withdraw",
     accessor: "withdraw",
-    render: (row: any) =>
+    render: (row: Transaction) =>
       row.source === "withdraw" ? `₹${row.amount}` : "-",
   },
   {
     header: "Balance",
     accessor: "balance",
-    render: (row: any & { runningBalance?: number }) => (
+    render: (row: Transaction & { runningBalance?: number }) => (
       <span>₹{row.runningBalance ?? "-"}</span>
     ),
   },
