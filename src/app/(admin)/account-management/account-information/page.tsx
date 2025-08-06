@@ -10,7 +10,7 @@ import { FaMoneyBillWave, FaWallet } from "react-icons/fa";
 
 
 interface Transaction {
-  _id: string;
+  _id?: string;
   transactionId?: string;
   referenceId?: string;
   type: "credit" | "debit";
@@ -103,7 +103,7 @@ const Page = () => {
 
   // Add running balance to each transaction (optional enhancement)
   let runningBalance = 0;
-  const transactionsWithBalance = allTransactions.map((txn: any) => {
+const transactionsWithBalance: Transaction[] = allTransactions.map((txn: Transaction) => {
     if (txn.type === "credit") {
       runningBalance += txn.amount;
     } else if (txn.type === "debit") {
@@ -113,7 +113,7 @@ const Page = () => {
   });
 
   // Filter transactions based on tab
-  const filteredTransactions = transactionsWithBalance.filter((txn: any) => {
+const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) => {
     if (activeTab === 'all') return true;
     if (activeTab === 'withdraw') return txn.source === 'withdraw';
     return txn.type === activeTab;
@@ -145,7 +145,7 @@ const Page = () => {
                 <FaWallet className="text-5xl mb-4 text-blue-400" />
                 <h2 className="text-xl font-semibold mb-2">No Wallet Found</h2>
                 <p className="text-sm max-w-md">
-                  This wallet doesn't have any transactions yet. Once transactions are made, they will appear here.
+                  This wallet doesn&rsquo;t have any transactions yet. Once transactions are made, they will appear here.
                 </p>
               </div>
             ) : (
@@ -155,11 +155,10 @@ const Page = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab as any)}
-                      className={`min-w-[120px] px-4 py-2 rounded-md text-sm font-medium border ${
-                        activeTab === tab
+                      className={`min-w-[120px] px-4 py-2 rounded-md text-sm font-medium border ${activeTab === tab
                           ? "bg-blue-600 text-white border-blue-600"
                           : "bg-white text-gray-700 border-gray-100 hover:bg-blue-50"
-                      }`}
+                        }`}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </button>
