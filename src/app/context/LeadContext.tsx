@@ -10,11 +10,15 @@ import React, {
 import axios from "axios";
 
 
-interface IExtraService {
+export interface IExtraService {
   serviceName: string;
   price: number;
   discount: number;
   total: number;
+   commission: string;
+  isLeadApproved: boolean | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IStatus {

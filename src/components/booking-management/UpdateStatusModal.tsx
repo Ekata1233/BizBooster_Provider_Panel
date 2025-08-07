@@ -5,7 +5,7 @@ import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
-import { IStatus, useLead } from "@/app/context/LeadContext";
+import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -18,6 +18,8 @@ interface UpdateStatusModalProps {
   amount: string;
   loading: boolean;
 }
+
+
 
 const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   isOpen,
@@ -51,10 +53,11 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
+  const [extraService, setExtraService] = useState<IExtraService[]>([]);
+
+  console.log("extra service price : ", extraService)
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
-  const leads = Array.isArray(checkoutDetails?.leads) ? checkoutDetails.leads : [];
-  console.log(leads);
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -74,6 +77,13 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
         console.log("✅ Existing Lead Statuses:", leadData.leads);
       } else {
         console.warn("⚠️ No leads available or not an array");
+      }
+
+      if (leadData && Array.isArray(leadData.extraService)) {
+        setExtraService(leadData.extraService);
+        console.log("✅ Extra Services:", leadData.extraService);
+      } else {
+        console.warn("⚠️ No extra services available or not an array");
       }
     };
 
@@ -341,14 +351,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               const isPaymentRequest = status === "Payment request (partial/full)";
               const isPaymentVerified = status === "Payment verified";
               const isPaid = checkoutDetails?.paymentStatus === "paid";
-               const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
+              const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
 
               return (
                 <option
                   key={status}
                   value={status}
-                   disabled={isDisabled}
-      className={isDisabled ? "text-gray-400" : ""}
+                  disabled={isDisabled}
+                  className={isDisabled ? "text-gray-400" : ""}
                 >
                   {status}
                 </option>
