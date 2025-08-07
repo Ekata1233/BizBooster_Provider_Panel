@@ -93,7 +93,7 @@ const Page = () => {
 
   useEffect(() => {
     if (providerId) fetchWalletByProvider(providerId);
-  }, [providerId,fetchWalletByProvider]);
+  }, [providerId]);
 
   if (loading) return <p>Loading wallet...</p>;
   if (error) return <p>Error: {error}</p>;
