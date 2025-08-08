@@ -50,7 +50,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
           console.error("Error fetching lead:", errorMessage);
         }
       } finally {
-        setLoadingLead(false); 
+        setLoadingLead(false);
       }
     };
 
@@ -62,13 +62,6 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
     loadingCheckoutDetails,
     errorCheckoutDetails,
   } = useCheckout();
-
-  // const addAdditionalRequirement = () => {
-  //   setAdditionalFields([
-  //     ...additionalFields,
-  //     { serviceName: "", price: "", discount: "", total: "" },
-  //   ]);
-  // };
 
   const handleFieldChange = (
     index: number,
@@ -99,6 +92,8 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
           price: parseFloat(field.price || "0"),
           discount: parseFloat(field.discount || "0"),
           total: parseFloat(field.total || "0"),
+          commission: "0",
+          isLeadApproved: false,
         })),
       };
 
@@ -150,7 +145,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
                       ×
                     </button>
                   )}
-                  
+
                   <div className="mb-2">
                     <label className="block text-sm font-medium text-gray-800 dark:text-white">
                       Service Name
