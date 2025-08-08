@@ -281,16 +281,16 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       otpRefs.current[index + 1]?.focus();
     }
   };
-  useEffect(() => {
-    if (
-      statusType === "Payment request (partial/full)" &&
-      isCashInHand &&
-      paymentLink &&
-      !generatingPaymentLink
-    ) {
-      handleSubmit();
-    }
-  }, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
+  // useEffect(() => {
+  //   if (
+  //     statusType === "Payment request (partial/full)" &&
+  //     isCashInHand &&
+  //     paymentLink &&
+  //     !generatingPaymentLink
+  //   ) {
+  //     handleSubmit();
+  //   }
+  // }, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -341,14 +341,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               const isPaymentRequest = status === "Payment request (partial/full)";
               const isPaymentVerified = status === "Payment verified";
               const isPaid = checkoutDetails?.paymentStatus === "paid";
-               const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
+              const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
 
               return (
                 <option
                   key={status}
                   value={status}
-                   disabled={isDisabled}
-      className={isDisabled ? "text-gray-400" : ""}
+                  disabled={isDisabled}
+                  className={isDisabled ? "text-gray-400" : ""}
                 >
                   {status}
                 </option>
