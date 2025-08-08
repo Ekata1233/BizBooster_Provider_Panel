@@ -85,7 +85,7 @@ const columnsWallet = [
 
 const Page = () => {
   const { providerDetails } = useAuth();
-  const { wallet, fetchWalletByProvider, loading, error } = useProviderWallet();
+  const { wallet, fetchWalletByProvider, loading } = useProviderWallet();
   const [activeTab, setActiveTab] = useState<'all' | 'credit' | 'debit' | 'withdraw'>('all');
 
   console.log("wallet of provider : ", wallet)
