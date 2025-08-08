@@ -15,25 +15,22 @@ import { useProviderWallet } from "@/app/context/WalletContext";
 
 export const EcommerceMetrics = () => {
   const { providerDetails } = useAuth();
+
   const {
     serviceMenByProvider,
     fetchServiceMenByProvider,
     loading: serviceManLoading,
-    error: serviceManError,
   } = useServiceMan();
 
   const {
     fetchCheckoutsByProviderId,
     checkouts,
     loadingCheckouts,
-    errorCheckouts,
   } = useCheckout();
 
   const {
     fetchWalletByProvider,
-   
     loading,
-    error,
   } = useProviderWallet();
 
   useEffect(() => {
@@ -44,15 +41,16 @@ export const EcommerceMetrics = () => {
     }
   }, [providerDetails?._id]);
 
-  // Handle loading and error states
+  // Show loading state only while fetching
   if (loading || loadingCheckouts || serviceManLoading) return <p>Loading...</p>;
-  if (error || errorCheckouts || serviceManError) return <p>Error occurred.</p>;
 
-  // Fallbacks
+  // Safe fallback values
   const subscribedServicesCount = providerDetails?.subscribedServices?.length || 0;
-  const serviceManCount = serviceMenByProvider?.length || 0;
-  const totalBookings = checkouts?.length || 0;
-  const totalRevenue = checkouts?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
+  const serviceManCount = Array.isArray(serviceMenByProvider) ? serviceMenByProvider.length : 0;
+  const totalBookings = Array.isArray(checkouts) ? checkouts.length : 0;
+  const totalRevenue = Array.isArray(checkouts)
+    ? checkouts.reduce((sum, item) => sum + (item.totalAmount || 0), 0)
+    : 0;
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">

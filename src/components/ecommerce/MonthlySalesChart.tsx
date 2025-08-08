@@ -9,7 +9,6 @@ import { Dropdown } from '../ui/dropdown/Dropdown';
 import { useAuth } from '@/app/context/AuthContext';
 import { useProviderWallet } from '@/app/context/WalletContext';
 
-
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 });
@@ -17,7 +16,7 @@ const ReactApexChart = dynamic(() => import('react-apexcharts'), {
 export default function MonthlySalesChart() {
   const [isOpen, setIsOpen] = useState(false);
   const { providerDetails } = useAuth();
-  const { fetchWalletByProvider, wallet, loading, error } = useProviderWallet();
+  const { fetchWalletByProvider, wallet, loading } = useProviderWallet();
 
   useEffect(() => {
     if (providerDetails?._id) {
@@ -100,7 +99,6 @@ export default function MonthlySalesChart() {
   ];
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error occurred.</p>;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">

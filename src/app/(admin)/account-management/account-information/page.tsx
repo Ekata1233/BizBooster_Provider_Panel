@@ -97,14 +97,27 @@ const Page = () => {
   }, [providerId]);
 
   if (loading) return <p>Loading wallet...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!wallet) return <p>No wallet found.</p>;
 
-  const allTransactions = wallet.transactions || [];
+  // Fallback to default wallet if not found
+  const fallbackWallet = {
+    receivableBalance: 0,
+    cashInHand: 0,
+    withdrawableBalance: 0,
+    pendingWithdraw: 0,
+    alreadyWithdrawn: 0,
+    totalEarning: 0,
+    transactions: [],
+  };
+
+  const safeWallet = wallet || fallbackWallet;
+  const allTransactions = safeWallet.transactions || [];
+
+
+  // const allTransactions = wallet.transactions || [];
 
   // Add running balance to each transaction (optional enhancement)
   let runningBalance = 0;
-const transactionsWithBalance: Transaction[] = allTransactions.map((txn: Transaction) => {
+  const transactionsWithBalance: Transaction[] = allTransactions.map((txn: Transaction) => {
     if (txn.type === "credit") {
       runningBalance += txn.amount;
     } else if (txn.type === "debit") {
@@ -114,7 +127,7 @@ const transactionsWithBalance: Transaction[] = allTransactions.map((txn: Transac
   });
 
   // Filter transactions based on tab
-const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) => {
+  const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) => {
     if (activeTab === 'all') return true;
     if (activeTab === 'withdraw') return txn.source === 'withdraw';
     return txn.type === activeTab;
@@ -128,15 +141,16 @@ const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) =
       <div className="space-y-6">
         {/* Wallet Stats */}
         <WalletStats
-          wallet={{
-            receivableBalance: wallet.receivableBalance,
-            cashInHand: wallet.cashInHand,
-            withdrawableBalance: wallet.withdrawableBalance,
-            pendingWithdraw: wallet.pendingWithdraw,
-            alreadyWithdrawn: wallet.alreadyWithdrawn,
-            totalEarning: wallet.totalEarning,
-          }}
-        />
+  wallet={{
+    receivableBalance: safeWallet.receivableBalance,
+    cashInHand: safeWallet.cashInHand,
+    withdrawableBalance: safeWallet.withdrawableBalance,
+    pendingWithdraw: safeWallet.pendingWithdraw,
+    alreadyWithdrawn: safeWallet.alreadyWithdrawn,
+    totalEarning: safeWallet.totalEarning,
+  }}
+/>
+
 
         {/* Transaction Table */}
         <ComponentCard title="Transaction Summary">
@@ -157,8 +171,8 @@ const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) =
                       key={tab}
                       onClick={() => setActiveTab(tab)}
                       className={`min-w-[120px] px-4 py-2 rounded-md text-sm font-medium border ${activeTab === tab
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white text-gray-700 border-gray-100 hover:bg-blue-50"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-700 border-gray-100 hover:bg-blue-50"
                         }`}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
