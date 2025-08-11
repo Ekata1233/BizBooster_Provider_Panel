@@ -301,6 +301,29 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   //     handleSubmit();
   //   }
   // }, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
+  // ✅ Extra Service Price Calculation
+  const extraServiceTotal = extraService.reduce(
+    (sum, item) => sum + (Number(item.total) || 0),
+    0
+  );
+console.log("dddd",extraServiceTotal);
+
+  const finalRemainingAmount = (() => {
+    const defaultRemaining = Number(checkoutDetails?.remainingAmount ?? 0);
+    if ((checkoutDetails?.paymentStatus as string) === "paid") {
+      // Default service paid → only extra service total remains
+      return extraServiceTotal;
+    }
+    // Default service not paid → default remaining + extra service total
+    return defaultRemaining + extraServiceTotal;
+  })();
+
+  const finalFullAmount = Number(amount) + extraServiceTotal;
+  console.log("1st service :",amount);
+  console.log("extra service :",extraServiceTotal);
+  
+  
+console.log("full payment :",finalFullAmount);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -327,10 +350,12 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
                   if ((checkoutDetails?.paymentStatus as string) === "paid") {
                     setPaymentType("remaining");
-                    createPaymentLink(Number(checkoutDetails?.remainingAmount || 0));
+                    createPaymentLink(finalRemainingAmount);
+
                   } else {
                     setPaymentType("full");
-                    createPaymentLink(Number(amount));
+                    createPaymentLink(finalFullAmount);
+
                   }
                 }
               } else {
@@ -439,12 +464,15 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                       checked={paymentType === "remaining"}
                       onChange={() => {
                         setPaymentType("remaining");
-                        createPaymentLink(Number(checkoutDetails?.remainingAmount ?? 0));
+                        createPaymentLink(finalRemainingAmount);
+
+
                       }}
                     />
                     <Label className="block mb-1 font-medium">Remaining Payment Amount</Label>
                     <Label className="text-red-700 block">
-                      ₹ {checkoutDetails?.remainingAmount ?? 0}
+                      ₹ {finalRemainingAmount}
+
                     </Label>
 
                   </div>
@@ -473,12 +501,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                       checked={paymentType === "full"}
                       onChange={() => {
                         setPaymentType("full");
-                        createPaymentLink(Number(amount));
+                        createPaymentLink(finalFullAmount);
+
                       }}
                     />
                     Full Payment
                   </Label>
-                  <Label className="text-red-700">RS {amount}</Label>
+                  <Label className="text-red-700">RS {finalFullAmount}
+                  </Label>
                   <Label className="flex items-center gap-2">
                     <input
                       type="radio"
@@ -487,12 +517,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                       checked={paymentType === "partial"}
                       onChange={() => {
                         setPaymentType("partial");
-                        createPaymentLink(Number(amount) / 2);
+                        createPaymentLink(finalFullAmount / 2);
+
                       }}
                     />
                     Partial Payment
                   </Label>
-                  <Label className="text-red-700">RS {Number(amount) / 2}</Label>
+                  <Label className="text-red-700">RS {finalFullAmount / 2}
+                  </Label>
                 </div>
               )}
 
