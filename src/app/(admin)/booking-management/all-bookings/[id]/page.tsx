@@ -207,8 +207,8 @@ const AllBookingsDetails = () => {
   }
 
   // Final grand total (base + extra)
-  const grandTotal = baseAmount + extraAmount;
-let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
+  const grandTotal = checkoutDetails?.grandTotal;
+  let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
 
 
 
@@ -240,42 +240,41 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
 
             </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
-  {checkoutDetails.isCompleted === false && (
-    <div className="flex flex-col">
-      <button
-        className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${
-          hasExtraServices 
-            ? 'bg-gray-400 cursor-not-allowed' 
-            : 'hover:bg-blue-900'
-        }`}
-        onClick={() => !hasExtraServices && setIsEditOpen(true)}
-        disabled={hasExtraServices}
-      >
-        + Add on Service
-      </button>
-      {hasExtraServices && (
-        <p className="text-xs text-gray-500 mt-1">
-          Already one additional service added
-        </p>
-      )}
-    </div>
-  )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
+              {checkoutDetails.isCompleted === false && (
+                <div className="flex flex-col">
+                  <button
+                    className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${hasExtraServices
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'hover:bg-blue-900'
+                      }`}
+                    onClick={() => !hasExtraServices && setIsEditOpen(true)}
+                    disabled={hasExtraServices}
+                  >
+                    + Add on Service
+                  </button>
+                  {hasExtraServices && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Already one additional service added
+                    </p>
+                  )}
+                </div>
+              )}
 
-  {isEditOpen && (
-    <UpdateEditLead
-      isOpen={isEditOpen}
-      closeModal={() => setIsEditOpen(false)}
-      checkoutId={checkoutDetails._id}
-    />
-  )}
+              {isEditOpen && (
+                <UpdateEditLead
+                  isOpen={isEditOpen}
+                  closeModal={() => setIsEditOpen(false)}
+                  checkoutId={checkoutDetails._id}
+                />
+              )}
 
-  <InvoiceDownload
-    leadDetails={lead}
-    checkoutDetails={checkoutDetails}
-    serviceCustomer={serviceCustomer}
-  />
-</div>
+              <InvoiceDownload
+                leadDetails={lead}
+                checkoutDetails={checkoutDetails}
+                serviceCustomer={serviceCustomer}
+              />
+            </div>
 
           </div>
         </ComponentCard>
@@ -389,7 +388,7 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
                   const assurityFee = (assurityFeePercent / 100) * priceAfterDiscount;
 
                   const grandTotal = subtotal - totalDiscount - (checkoutDetails.couponDiscount || 0) - champaignDiscount + serviceGST + assurityFee;
-                   finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
+                  finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
                   console.log("subtotal : ", subtotal)
                   console.log("champaignDiscount : ", champaignDiscount)
                   console.log("champaignDiscount : ", champaignDiscount)
@@ -446,13 +445,13 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
                   );
                 })()}
 
-               
+
               </div>
-              <hr className='mt-4'/>
-               <div className="flex justify-between font-bold text-blue-600 mt-2">
-                  <span>Grand Total</span>
-                  <span>{formatPrice(finalGrandTotal)}</span>
-                </div>
+              <hr className='mt-4' />
+              <div className="flex justify-between font-bold text-blue-600 mt-2">
+                <span>Grand Total</span>
+                <span>{formatPrice(finalGrandTotal)}</span>
+              </div>
             </div>
 
             {/* RIGHT SIDE */}
@@ -583,7 +582,14 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
           }
           serviceManId={checkoutDetails.serviceMan ?? ""}
           serviceId={checkoutDetails.service?._id ?? ""}
-          amount={checkoutDetails.totalAmount?.toString() || "000"}
+          // amount={checkoutDetails.totalAmount?.toString() || "000"}
+          amount={
+            (checkoutDetails.grandTotal && checkoutDetails.grandTotal > 0
+              ? checkoutDetails.grandTotal
+              : checkoutDetails.totalAmount
+            )?.toString() || "000"
+          }
+
           loading={loadingLeads}
         />
 

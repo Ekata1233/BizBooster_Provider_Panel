@@ -190,7 +190,9 @@ const AllBookings = () => {
     },
   ];
 
-  const data: BookingRow[] = checkouts.map((checkout) => ({
+  const data: BookingRow[] = [...checkouts] // clone to avoid mutating original
+  .reverse() // 👈 Show latest first
+  .map((checkout) => ({
     bookingId: checkout.bookingId,
     serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
     totalAmount: checkout.totalAmount,
@@ -202,6 +204,7 @@ const AllBookings = () => {
    isPartialPayment: checkout.isPartialPayment, 
   paidAmount: checkout.paidAmount,   
   }));
+
 
 
 

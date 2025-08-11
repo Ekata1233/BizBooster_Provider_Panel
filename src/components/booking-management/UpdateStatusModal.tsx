@@ -6,6 +6,7 @@ import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
 import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
+import axios from "axios";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -54,10 +55,12 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
   const [extraService, setExtraService] = useState<IExtraService[]>([]);
-
-  console.log("extra service price : ", extraService)
+  const [assurityFee, setAssurityFee] = useState<number>(0);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
+
+  console.log("extra service checkoutDetails : ", checkoutDetails)
+
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -65,7 +68,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
 
+  useEffect(() => {
+    const fetchCommission = async () => {
+      try {
+        const res = await axios.get("https://biz-booster.vercel.app/api/commission");
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setAssurityFee(res.data[0].assurityfee); // store in state variable
+        }
+      } catch (error) {
+        console.error("Error fetching commission data:", error);
+      }
+    };
 
+    fetchCommission();
+  }, []);
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -297,7 +313,44 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       otpRefs.current[index + 1]?.focus();
     }
   };
+  // useEffect(() => {
+  //   if (
+  //     statusType === "Payment request (partial/full)" &&
+  //     isCashInHand &&
+  //     paymentLink &&
+  //     !generatingPaymentLink
+  //   ) {
+  //     handleSubmit();
+  //   }
+  // }, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
+  // ✅ Extra Service Price Calculation
+  const extraServiceTotal = extraService.reduce(
+    (sum, item) => sum + (Number(item.total) || 0),
+    0
+  );
+  console.log("dddd", extraServiceTotal);
 
+  const finalRemainingAmount = (() => {
+    const defaultRemaining = Number(checkoutDetails?.remainingAmount ?? 0);
+    // if ((checkoutDetails?.paymentStatus as string) === "paid") {
+    //   return extraServiceTotal;
+    // }
+    // return defaultRemaining + extraServiceTotal;
+        return defaultRemaining 
+
+  })();
+
+  console.log("assurity fee from the dasta base  :", assurityFee);
+  console.log("extra service :", extraServiceTotal);
+
+  const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
+
+  const finalFullAmount =
+    (checkoutDetails?.grandTotal ?? 0) - (checkoutDetails?.paidAmount ?? 0);
+  console.log("1st service :", amount);
+
+
+  console.log("full payment :", finalFullAmount);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -324,10 +377,12 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
                   if ((checkoutDetails?.paymentStatus as string) === "paid") {
                     setPaymentType("remaining");
-                    createPaymentLink(Number(checkoutDetails?.remainingAmount || 0));
+                    createPaymentLink(finalRemainingAmount);
+
                   } else {
                     setPaymentType("full");
-                    createPaymentLink(Number(amount));
+                    createPaymentLink(finalFullAmount);
+
                   }
                 }
               } else {
@@ -436,12 +491,15 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                       checked={paymentType === "remaining"}
                       onChange={() => {
                         setPaymentType("remaining");
-                        createPaymentLink(Number(checkoutDetails?.remainingAmount ?? 0));
+                        createPaymentLink(finalRemainingAmount);
+
+
                       }}
                     />
                     <Label className="block mb-1 font-medium">Remaining Payment Amount</Label>
                     <Label className="text-red-700 block">
-                      ₹ {checkoutDetails?.remainingAmount ?? 0}
+                      ₹ {finalRemainingAmount}
+
                     </Label>
 
                   </div>
@@ -470,12 +528,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                       checked={paymentType === "full"}
                       onChange={() => {
                         setPaymentType("full");
-                        createPaymentLink(Number(amount));
+                        createPaymentLink(finalFullAmount);
+
                       }}
                     />
                     Full Payment
                   </Label>
-                  <Label className="text-red-700">RS {amount}</Label>
+                  <Label className="text-red-700">RS {finalFullAmount}
+                  </Label>
                   <Label className="flex items-center gap-2">
                     <input
                       type="radio"
@@ -484,12 +544,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                       checked={paymentType === "partial"}
                       onChange={() => {
                         setPaymentType("partial");
-                        createPaymentLink(Number(amount) / 2);
+                        createPaymentLink(finalFullAmount / 2);
+
                       }}
                     />
                     Partial Payment
                   </Label>
-                  <Label className="text-red-700">RS {Number(amount) / 2}</Label>
+                  <Label className="text-red-700">RS {finalFullAmount / 2}
+                  </Label>
                 </div>
               )}
 

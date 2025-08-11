@@ -35,6 +35,9 @@ export interface CheckoutType {
   assurityfee: number;
   tax: number;
   totalAmount: number;
+  extraServicePrice: number;
+  paidAmount: number;
+  grandTotal: number;
   termsCondition: boolean;
   paymentMethod: ('credit_card' | 'upi' | 'pac' | 'net_banking' | 'wallet')[];
   walletAmount: number;
