@@ -39,6 +39,7 @@ const AllBookings = () => {
   } = useCheckout();
 
   const [search, setSearch] = useState('');
+  console.log("part", checkouts);
 
   useEffect(() => {
     if (provider?._id) {
@@ -86,11 +87,26 @@ const AllBookings = () => {
     {
       header: 'Payment Status',
       accessor: 'paymentStatus',
-      render: (row: BookingRow) => {
-        const status = row.paymentStatus;
-        const statusColor = status === 'paid'
-          ? 'bg-green-100 text-green-700 border-green-300'
-          : 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      render: (row: BookingRow & { isPartialPayment?: boolean; paidAmount?: number }) => {
+        let status = row.paymentStatus;
+
+        // Rule 1: Unpaid if paidAmount is 0
+        if (row.paidAmount === 0) {
+          status = 'unpaid';
+        }
+        // Rule 2: Part payment if partial payment flag is true
+        else if (row.isPartialPayment) {
+          status = 'part pay';
+        }
+
+        const statusColor =
+          status === 'paid'
+            ? 'bg-green-100 text-green-700 border-green-300'
+            : status === 'unpaid'
+              ? 'bg-red-100 text-red-700 border-red-300'
+              : status === 'part pay'
+                ? 'bg-purple-100 text-purple-700 border-purple-300'
+                : 'bg-yellow-100 text-yellow-700 border-yellow-300';
 
         return (
           <span className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}>
@@ -99,6 +115,8 @@ const AllBookings = () => {
         );
       },
     },
+
+
     {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
@@ -181,6 +199,8 @@ const AllBookings = () => {
     bookingDate: checkout.createdAt,
     orderStatus: checkout.orderStatus,
     _id: checkout._id,
+   isPartialPayment: checkout.isPartialPayment, 
+  paidAmount: checkout.paidAmount,   
   }));
 
 

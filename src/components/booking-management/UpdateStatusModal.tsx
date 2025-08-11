@@ -104,24 +104,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-    if (isCashInHand) {
-      try {
-        const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ statusType }), // ✅ Send statusType
-        });
 
-        const cashData = await cashRes.json();
-        if (!cashData.success) {
-          console.error("Cash-in-hand update failed:", cashData.message);
-          alert("Warning: Cash-in-hand status not saved.");
-        }
-      } catch (cashError) {
-        console.error("Cash-in-hand API error:", cashError);
-        alert("Warning: Could not mark cash-in-hand on server.");
-      }
-    }
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -167,6 +150,29 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
 
     onSubmit(formData);
+
+
+    if (isCashInHand) {
+      try {
+        const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            statusType, paymentKind: paymentType?.toLowerCase(), // "full" or "partial"
+            amount: Number(amount),
+          }),
+        });
+
+        const cashData = await cashRes.json();
+        if (!cashData.success) {
+          console.error("Cash-in-hand update failed:", cashData.message);
+          alert("Warning: Cash-in-hand status not saved.");
+        }
+      } catch (cashError) {
+        console.error("Cash-in-hand API error:", cashError);
+        alert("Warning: Could not mark cash-in-hand on server.");
+      }
+    }
     setStatusType("");
     setDescription("");
     setLinkType("");
@@ -502,8 +508,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                   id="confirmPaymentLink"
                   className="w-4 h-4"
                   checked={isCashInHand}
-                  onChange={(e) => setIsCashInHand(e.target.checked)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      const confirm = window.confirm("Are you sure you have received cash from the customer?");
+                      if (confirm) {
+                        setIsCashInHand(true);
+                      } else {
+                        setIsCashInHand(false);
+                      }
+                    } else {
+                      setIsCashInHand(false);
+                    }
+                  }}
                 />
+
                 <Label htmlFor="confirmPaymentLink" className="text-sm text-gray-700">
                   Payment received from customer
                 </Label>
