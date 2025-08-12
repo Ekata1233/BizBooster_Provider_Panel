@@ -145,8 +145,7 @@ const AllBookingsDetails = () => {
     lead.extraService.length > 0;
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
   const baseAmount = lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0;
-  // const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
-  // const grandTotal = baseAmount + extraAmount;
+  console.log(baseAmount)
 
 
 
@@ -200,6 +199,7 @@ const AllBookingsDetails = () => {
   const champaignDiscount = checkoutDetails?.champaignDiscount || 0;
 
   let extraAmount = 0;
+  console.log(extraAmount)
 
   // Only calculate if extra services exist
   if (lead?.extraService && lead.extraService.length > 0) {
