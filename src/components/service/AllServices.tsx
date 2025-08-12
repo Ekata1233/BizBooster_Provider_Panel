@@ -1,4 +1,3 @@
-// components/service/AllServices.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import { useAuth } from "@/app/context/AuthContext";
 
 interface ProviderPrice {
     provider: { _id: string };
+   
     providerPrice: number;
     providerMRP?: number;
     providerDiscount?: number;
@@ -116,6 +116,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                 },
             ],
         };
+
 
         const success = await updateProviderPrice(selectedServiceId, updatedData);
 

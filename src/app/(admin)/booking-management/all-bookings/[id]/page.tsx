@@ -125,10 +125,18 @@ const AllBookingsDetails = () => {
   const getStatusStyle = () => {
     if (checkoutDetails?.isCompleted)
       return { label: 'Completed', color: 'text-green-700 border-green-400 bg-green-50' };
+
+     if (checkoutDetails?.isCanceled === true) // ✅ compare as boolean
+      return { label: 'Cancelled', color: 'text-red-700 border-red-400 bg-red-50' };
+
     if (checkoutDetails?.orderStatus === 'processing')
       return { label: 'Processing', color: 'text-yellow-700 border-yellow-400 bg-yellow-50' };
+
+   
+
     return { label: 'Pending', color: 'text-gray-700 border-gray-400 bg-gray-50' };
   };
+
 
   const status = getStatusStyle();
 
@@ -145,8 +153,7 @@ const AllBookingsDetails = () => {
     lead.extraService.length > 0;
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
   const baseAmount = lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0;
-  // const extraAmount = lead?.extraService?.reduce((sum, service) => sum + (service.total || 0), 0) ?? 0;
-  // const grandTotal = baseAmount + extraAmount;
+  console.log(baseAmount)
 
 
 
@@ -200,6 +207,7 @@ const AllBookingsDetails = () => {
   const champaignDiscount = checkoutDetails?.champaignDiscount || 0;
 
   let extraAmount = 0;
+  console.log(extraAmount)
 
   // Only calculate if extra services exist
   if (lead?.extraService && lead.extraService.length > 0) {
@@ -207,8 +215,10 @@ const AllBookingsDetails = () => {
   }
 
   // Final grand total (base + extra)
-  const grandTotal = baseAmount + extraAmount;
-let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
+  const grandTotal = checkoutDetails?.grandTotal && checkoutDetails.grandTotal > 0
+    ? checkoutDetails.grandTotal
+    : checkoutDetails?.totalAmount;
+  let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
 
 
 
@@ -240,42 +250,41 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
 
             </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
-  {checkoutDetails.isCompleted === false && (
-    <div className="flex flex-col">
-      <button
-        className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${
-          hasExtraServices 
-            ? 'bg-gray-400 cursor-not-allowed' 
-            : 'hover:bg-blue-900'
-        }`}
-        onClick={() => !hasExtraServices && setIsEditOpen(true)}
-        disabled={hasExtraServices}
-      >
-        + Add on Service
-      </button>
-      {hasExtraServices && (
-        <p className="text-xs text-gray-500 mt-1">
-          Already one additional service added
-        </p>
-      )}
-    </div>
-  )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
+              {checkoutDetails.isCompleted === false && (
+                <div className="flex flex-col">
+                  <button
+                    className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${hasExtraServices
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'hover:bg-blue-900'
+                      }`}
+                    onClick={() => !hasExtraServices && setIsEditOpen(true)}
+                    disabled={hasExtraServices}
+                  >
+                    + Add on Service
+                  </button>
+                  {hasExtraServices && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Already one additional service added
+                    </p>
+                  )}
+                </div>
+              )}
 
-  {isEditOpen && (
-    <UpdateEditLead
-      isOpen={isEditOpen}
-      closeModal={() => setIsEditOpen(false)}
-      checkoutId={checkoutDetails._id}
-    />
-  )}
+              {isEditOpen && (
+                <UpdateEditLead
+                  isOpen={isEditOpen}
+                  closeModal={() => setIsEditOpen(false)}
+                  checkoutId={checkoutDetails._id}
+                />
+              )}
 
-  <InvoiceDownload
-    leadDetails={lead}
-    checkoutDetails={checkoutDetails}
-    serviceCustomer={serviceCustomer}
-  />
-</div>
+              <InvoiceDownload
+                leadDetails={lead}
+                checkoutDetails={checkoutDetails}
+                serviceCustomer={serviceCustomer}
+              />
+            </div>
 
           </div>
         </ComponentCard>
@@ -389,7 +398,7 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
                   const assurityFee = (assurityFeePercent / 100) * priceAfterDiscount;
 
                   const grandTotal = subtotal - totalDiscount - (checkoutDetails.couponDiscount || 0) - champaignDiscount + serviceGST + assurityFee;
-                   finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
+                  finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
                   console.log("subtotal : ", subtotal)
                   console.log("champaignDiscount : ", champaignDiscount)
                   console.log("champaignDiscount : ", champaignDiscount)
@@ -446,13 +455,13 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
                   );
                 })()}
 
-               
+
               </div>
-              <hr className='mt-4'/>
-               <div className="flex justify-between font-bold text-blue-600 mt-2">
-                  <span>Grand Total</span>
-                  <span>{formatPrice(finalGrandTotal)}</span>
-                </div>
+              <hr className='mt-4' />
+              <div className="flex justify-between font-bold text-blue-600 mt-2">
+                <span>Grand Total</span>
+                <span>{formatPrice(finalGrandTotal)}</span>
+              </div>
             </div>
 
             {/* RIGHT SIDE */}
@@ -565,6 +574,35 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
                 alert("Commission distributed successfully.");
               }
 
+              if (statusType === "Lead cancel") {
+                if (checkoutDetails?.paymentStatus?.toLowerCase() === "paid") {
+                  alert("Lead cannot be canceled because payment is already paid.");
+                  return;
+                }
+
+                try {
+                  const cancelRes = await fetch(
+                    `https://biz-booster.vercel.app/api/checkout/cancel-lead/${checkoutDetails?._id}`,
+                    { method: "PATCH" }
+                  );
+
+                  const cancelData = await cancelRes.json();
+
+                  if (cancelRes.ok && cancelData?.success) {
+                    if (typeof fetchCheckoutsDetailsById === "function") {
+                      await fetchCheckoutsDetailsById(checkoutDetails?._id);
+                    }
+                  } else {
+                    alert("Failed to cancel lead: " + (cancelData?.message || "Unknown error"));
+                    console.error("Lead cancel failed:", cancelData);
+                  }
+                } catch (error) {
+                  console.error("Lead cancel API error:", error);
+                  alert("An error occurred while canceling the lead. Please try again.");
+                }
+              }
+
+
               alert("Lead status updated Successfully.");
 
               router.push("/booking-management/all-bookings");
@@ -583,7 +621,14 @@ let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
           }
           serviceManId={checkoutDetails.serviceMan ?? ""}
           serviceId={checkoutDetails.service?._id ?? ""}
-          amount={checkoutDetails.totalAmount?.toString() || "000"}
+          // amount={checkoutDetails.totalAmount?.toString() || "000"}
+          amount={
+            (checkoutDetails.grandTotal && checkoutDetails.grandTotal > 0
+              ? checkoutDetails.grandTotal - checkoutDetails.paidAmount
+              : checkoutDetails.totalAmount
+            )?.toString() || "000"
+          }
+
           loading={loadingLeads}
         />
 

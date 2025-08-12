@@ -6,6 +6,7 @@ import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
 import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
+import axios from "axios";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -46,18 +47,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [isCashInHand, setIsCashInHand] = useState(false);
-  // Create a ref array to manage input focus
+
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
-  console.log(linkType); //dont remove this
+  console.log(linkType);
 
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
   const [extraService, setExtraService] = useState<IExtraService[]>([]);
-
-  console.log("extra service price : ", extraService)
+  const [assurityFee, setAssurityFee] = useState<number>(0);
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
+
+  console.log("eselected status type  : ", statusType)
+
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -65,7 +68,20 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
 
+  useEffect(() => {
+    const fetchCommission = async () => {
+      try {
+        const res = await axios.get("https://biz-booster.vercel.app/api/commission");
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setAssurityFee(res.data[0].assurityfee); // store in state variable
+        }
+      } catch (error) {
+        console.error("Error fetching commission data:", error);
+      }
+    };
 
+    fetchCommission();
+  }, []);
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -104,24 +120,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-    if (isCashInHand) {
-      try {
-        const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ statusType }), // ✅ Send statusType
-        });
-
-        const cashData = await cashRes.json();
-        if (!cashData.success) {
-          console.error("Cash-in-hand update failed:", cashData.message);
-          alert("Warning: Cash-in-hand status not saved.");
-        }
-      } catch (cashError) {
-        console.error("Cash-in-hand API error:", cashError);
-        alert("Warning: Could not mark cash-in-hand on server.");
-      }
-    }
+console.log("status type : ", statusType)
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -167,6 +166,29 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
 
     onSubmit(formData);
+
+
+    if (isCashInHand) {
+      try {
+        const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            statusType, paymentKind: paymentType?.toLowerCase(), // "full" or "partial"
+            amount: Number(amount),
+          }),
+        });
+
+        const cashData = await cashRes.json();
+        if (!cashData.success) {
+          console.error("Cash-in-hand update failed:", cashData.message);
+          alert("Warning: Cash-in-hand status not saved.");
+        }
+      } catch (cashError) {
+        console.error("Cash-in-hand API error:", cashError);
+        alert("Warning: Could not mark cash-in-hand on server.");
+      }
+    }
     setStatusType("");
     setDescription("");
     setLinkType("");
@@ -306,24 +328,31 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     (sum, item) => sum + (Number(item.total) || 0),
     0
   );
-console.log("dddd",extraServiceTotal);
 
   const finalRemainingAmount = (() => {
     const defaultRemaining = Number(checkoutDetails?.remainingAmount ?? 0);
-    if ((checkoutDetails?.paymentStatus as string) === "paid") {
-      // Default service paid → only extra service total remains
-      return extraServiceTotal;
-    }
-    // Default service not paid → default remaining + extra service total
-    return defaultRemaining + extraServiceTotal;
+    // if ((checkoutDetails?.paymentStatus as string) === "paid") {
+    //   return extraServiceTotal;
+    // }
+    // return defaultRemaining + extraServiceTotal;
+    return defaultRemaining
+
   })();
 
-  const finalFullAmount = Number(amount) + extraServiceTotal;
-  console.log("1st service :",amount);
-  console.log("extra service :",extraServiceTotal);
-  
-  
-console.log("full payment :",finalFullAmount);
+
+
+  const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
+  console.log("assurityFeePrice :", assurityFeePrice);
+
+
+  const finalFullAmount =
+    Number(checkoutDetails?.grandTotal) > 0
+      ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+      : Number(amount);
+  console.log("1st service :", amount);
+
+
+  console.log("full payment :", finalFullAmount);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -337,7 +366,7 @@ console.log("full payment :",finalFullAmount);
           <select
             className="w-full p-2 rounded-md border"
             value={statusType}
-            onChange={(e) => {
+            onChange={async (e) => {
               const selected = e.target.value;
 
               if (selected === "Lead completed") {
@@ -358,7 +387,8 @@ console.log("full payment :",finalFullAmount);
 
                   }
                 }
-              } else {
+              }
+              else {
                 setStatusType(selected);
               }
             }}
@@ -486,9 +516,14 @@ console.log("full payment :",finalFullAmount);
                   </Label>
                   <Label className="text-red-700 block">
                     ₹{" "}
-                    {(paymentType === "remaining"
-                      ? checkoutDetails?.remainingAmount ?? 0
-                      : amount ?? 0).toString()}
+                    {(
+                      Number(checkoutDetails?.grandTotal) > 0
+                        ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+                        : paymentType === "remaining"
+                          ? Number(checkoutDetails?.remainingAmount ?? 0)
+                          : Number(amount ?? 0)
+                    ).toString()
+                    }
                   </Label>
                 </div>
               ) : (
@@ -543,8 +578,20 @@ console.log("full payment :",finalFullAmount);
                   id="confirmPaymentLink"
                   className="w-4 h-4"
                   checked={isCashInHand}
-                  onChange={(e) => setIsCashInHand(e.target.checked)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      const confirm = window.confirm("Are you sure you have received cash from the customer?");
+                      if (confirm) {
+                        setIsCashInHand(true);
+                      } else {
+                        setIsCashInHand(false);
+                      }
+                    } else {
+                      setIsCashInHand(false);
+                    }
+                  }}
                 />
+
                 <Label htmlFor="confirmPaymentLink" className="text-sm text-gray-700">
                   Payment received from customer
                 </Label>
