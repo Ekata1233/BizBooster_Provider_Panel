@@ -94,7 +94,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                 },
             ],
         };
-        
+
         const success = await updateProviderPrice(selectedServiceId, updatedData);
 
         if (success) {

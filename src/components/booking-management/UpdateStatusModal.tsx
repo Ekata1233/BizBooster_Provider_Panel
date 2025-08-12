@@ -336,7 +336,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     //   return extraServiceTotal;
     // }
     // return defaultRemaining + extraServiceTotal;
-        return defaultRemaining 
+    return defaultRemaining
 
   })();
 
@@ -346,7 +346,9 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
 
   const finalFullAmount =
-    (checkoutDetails?.grandTotal ?? 0) - (checkoutDetails?.paidAmount ?? 0);
+    Number(checkoutDetails?.grandTotal) > 0
+      ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+      : Number(amount);
   console.log("1st service :", amount);
 
 
@@ -513,9 +515,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                   </Label>
                   <Label className="text-red-700 block">
                     ₹{" "}
-                    {(paymentType === "remaining"
-                      ? checkoutDetails?.remainingAmount ?? 0
-                      : amount ?? 0).toString()}
+                    {(
+                      Number(checkoutDetails?.grandTotal) > 0
+                        ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+                        : paymentType === "remaining"
+                          ? Number(checkoutDetails?.remainingAmount ?? 0)
+                          : Number(amount ?? 0)
+                    ).toString()
+                    }
                   </Label>
                 </div>
               ) : (

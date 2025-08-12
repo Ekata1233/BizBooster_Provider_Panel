@@ -207,7 +207,9 @@ const AllBookingsDetails = () => {
   }
 
   // Final grand total (base + extra)
-  const grandTotal = checkoutDetails?.grandTotal;
+  const grandTotal = checkoutDetails?.grandTotal && checkoutDetails.grandTotal > 0
+    ? checkoutDetails.grandTotal
+    : checkoutDetails?.totalAmount;
   let finalGrandTotal = checkoutDetails?.totalAmount ?? 0;
 
 
@@ -245,8 +247,8 @@ const AllBookingsDetails = () => {
                 <div className="flex flex-col">
                   <button
                     className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${hasExtraServices
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'hover:bg-blue-900'
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'hover:bg-blue-900'
                       }`}
                     onClick={() => !hasExtraServices && setIsEditOpen(true)}
                     disabled={hasExtraServices}
@@ -585,7 +587,7 @@ const AllBookingsDetails = () => {
           // amount={checkoutDetails.totalAmount?.toString() || "000"}
           amount={
             (checkoutDetails.grandTotal && checkoutDetails.grandTotal > 0
-              ? checkoutDetails.grandTotal
+              ? checkoutDetails.grandTotal - checkoutDetails.paidAmount
               : checkoutDetails.totalAmount
             )?.toString() || "000"
           }
