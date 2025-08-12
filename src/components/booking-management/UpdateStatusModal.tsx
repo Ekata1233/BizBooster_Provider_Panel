@@ -344,6 +344,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   console.log("extra service :", extraServiceTotal);
 
   const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
+    console.log("assurityFeePrice :", assurityFeePrice);
+
 
   const finalFullAmount =
     Number(checkoutDetails?.grandTotal) > 0
