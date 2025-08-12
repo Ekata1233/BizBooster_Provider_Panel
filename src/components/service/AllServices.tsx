@@ -1,4 +1,3 @@
-// components/service/AllServices.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -12,9 +11,9 @@ import { useService } from "@/app/context/ServiceContext";
 import { useAuth } from "@/app/context/AuthContext";
 
 interface ProviderPrice {
-    provider: { _id: string };      // adjust if you store more fields
+    provider: { _id: string };
     providerPrice: number;
-    status: "approved" | "pending"; // add other statuses if you use them
+    status: "approved" | "pending";
 }
 
 interface Service {
@@ -162,10 +161,8 @@ const AllServices: React.FC<AllServicesProps> = ({
                         );
                         const providerPrice = providerEntry?.providerPrice ?? null;
                         const providerStatus = providerEntry?.status ?? null;
-                        // console.log("provdider status : ", providerStatus)
                         const isPendingStatus = providerPrice != null && providerStatus === "pending";
-                        // ----------------------------------------------------------------
-
+                        
                         return (
                             <div
                                 key={service._id}

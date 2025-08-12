@@ -47,7 +47,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [isCashInHand, setIsCashInHand] = useState(false);
-  // Create a ref array to manage input focus
+  const [isCancelling, setIsCancelling] = useState(false);
+
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   console.log(linkType); //dont remove this
@@ -59,7 +60,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
-  console.log("extra service checkoutDetails : ", checkoutDetails)
+  console.log("eselected status type  : ", statusType)
 
 
   useEffect(() => {
@@ -120,7 +121,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-
+console.log("status type : ", statusType)
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -328,7 +329,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     (sum, item) => sum + (Number(item.total) || 0),
     0
   );
-  console.log("dddd", extraServiceTotal);
 
   const finalRemainingAmount = (() => {
     const defaultRemaining = Number(checkoutDetails?.remainingAmount ?? 0);
@@ -340,11 +340,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   })();
 
-  console.log("assurity fee from the dasta base  :", assurityFee);
-  console.log("extra service :", extraServiceTotal);
+
 
   const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
-    console.log("assurityFeePrice :", assurityFeePrice);
+  console.log("assurityFeePrice :", assurityFeePrice);
 
 
   const finalFullAmount =
@@ -368,7 +367,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           <select
             className="w-full p-2 rounded-md border"
             value={statusType}
-            onChange={(e) => {
+            onChange={async (e) => {
               const selected = e.target.value;
 
               if (selected === "Lead completed") {
@@ -389,10 +388,12 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
                   }
                 }
-              } else {
+              }
+              else {
                 setStatusType(selected);
               }
             }}
+            disabled={isCancelling}
           >
             <option value="">Select</option>
 

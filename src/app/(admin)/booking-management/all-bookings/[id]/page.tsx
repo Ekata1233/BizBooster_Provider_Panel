@@ -566,6 +566,35 @@ const AllBookingsDetails = () => {
                 alert("Commission distributed successfully.");
               }
 
+              if (statusType === "Lead cancel") {
+                if (checkoutDetails?.paymentStatus?.toLowerCase() === "paid") {
+                  alert("Lead cannot be canceled because payment is already paid.");
+                  return;
+                }
+
+                try {
+                  const cancelRes = await fetch(
+                    `https://biz-booster.vercel.app/api/checkout/cancel-lead/${checkoutDetails?._id}`,
+                    { method: "PATCH" }
+                  );
+
+                  const cancelData = await cancelRes.json();
+
+                  if (cancelRes.ok && cancelData?.success) {
+                    if (typeof fetchCheckoutsDetailsById === "function") {
+                      await fetchCheckoutsDetailsById(checkoutDetails?._id);
+                    }
+                  } else {
+                    alert("Failed to cancel lead: " + (cancelData?.message || "Unknown error"));
+                    console.error("Lead cancel failed:", cancelData);
+                  }
+                } catch (error) {
+                  console.error("Lead cancel API error:", error);
+                  alert("An error occurred while canceling the lead. Please try again.");
+                }
+              }
+
+
               alert("Lead status updated Successfully.");
 
               router.push("/booking-management/all-bookings");
