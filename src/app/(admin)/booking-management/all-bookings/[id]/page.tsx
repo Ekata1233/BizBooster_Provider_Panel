@@ -90,19 +90,10 @@ const AllBookingsDetails = () => {
     error,
   } = useServiceCustomer();
 
-  // console.log("custiner info : ", serviceCustomer)
-  // Fetch checkout by ID
   useEffect(() => {
     if (id) fetchCheckoutsDetailsById(id);
   }, [id]);
 
-  // Fetch service customer
-  // useEffect(() => {
-  //   console.log("--------",checkoutDetails?.serviceCustomer)
-  //   if (checkoutDetails?.serviceCustomer) {
-  //     fetchServiceCustomer(checkoutDetails.serviceCustomer?._id );
-  //   }
-  // }, [checkoutDetails]);
 
   useEffect(() => {
     const customer = checkoutDetails?.serviceCustomer;
@@ -115,24 +106,30 @@ const AllBookingsDetails = () => {
     }
   }, [checkoutDetails]);
 
-  // Fetch service men
   useEffect(() => {
     if (provider?._id) {
       fetchServiceMenByProvider(provider._id);
     }
   }, [provider]);
 
+  const refreshBooking = async () => {
+    if (!checkoutDetails?._id) return;
+    await fetchCheckoutsDetailsById(checkoutDetails._id);
+    await getLeadByCheckoutId(checkoutDetails._id);
+  };
+
+
   const getStatusStyle = () => {
     if (checkoutDetails?.isCompleted)
       return { label: 'Completed', color: 'text-green-700 border-green-400 bg-green-50' };
 
-     if (checkoutDetails?.isCanceled === true) // ✅ compare as boolean
+    if (checkoutDetails?.isCanceled === true) // ✅ compare as boolean
       return { label: 'Cancelled', color: 'text-red-700 border-red-400 bg-red-50' };
 
     if (checkoutDetails?.orderStatus === 'processing')
       return { label: 'Processing', color: 'text-yellow-700 border-yellow-400 bg-yellow-50' };
 
-   
+
 
     return { label: 'Pending', color: 'text-gray-700 border-gray-400 bg-gray-50' };
   };
@@ -171,7 +168,9 @@ const AllBookingsDetails = () => {
       });
 
       alert("Booking Accepted Successfully");
-      router.push("/booking-management/all-bookings");
+      // router.push("/booking-management/all-bookings");
+      await refreshBooking();
+
     } catch (error) {
       alert("Failed to accept booking");
       console.error("Error while accepting booking:", error);
@@ -189,14 +188,7 @@ const AllBookingsDetails = () => {
   const platformFeeValue = (platformFeePercent / 100) * value;
   const assurityFeeValue = (assurityFeePercent / 100) * value;
 
-  // const extraServices = lead?.extraService ?? [];
 
-  // const extraSubtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
-  // const extraDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
-
-  // const couponDiscount = checkoutDetails?.couponDiscount || 0;
-  // const champaignDiscount = checkoutDetails?.champaignDiscount || 0;
-  // const extraAmount = extraSubtotal - extraDiscount - couponDiscount - champaignDiscount + gstValue + platformFeeValue + assurityFeeValue;
 
   const extraServices = lead?.extraService ?? [];
 
@@ -226,7 +218,6 @@ const AllBookingsDetails = () => {
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
 
-  console.log("checkout in proivder ---- : ", checkoutDetails)
   return (
     <div>
       <PageBreadcrumb pageTitle="All Bookings Details" />
@@ -605,7 +596,9 @@ const AllBookingsDetails = () => {
 
               alert("Lead status updated Successfully.");
 
-              router.push("/booking-management/all-bookings");
+              // router.push("/booking-management/all-bookings");
+              await refreshBooking();
+
               closeModal();
             } catch (err) {
               console.error("Failed to save lead:", err);
