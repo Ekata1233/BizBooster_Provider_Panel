@@ -125,10 +125,18 @@ const AllBookingsDetails = () => {
   const getStatusStyle = () => {
     if (checkoutDetails?.isCompleted)
       return { label: 'Completed', color: 'text-green-700 border-green-400 bg-green-50' };
+
+     if (checkoutDetails?.isCanceled === true) // ✅ compare as boolean
+      return { label: 'Cancelled', color: 'text-red-700 border-red-400 bg-red-50' };
+
     if (checkoutDetails?.orderStatus === 'processing')
       return { label: 'Processing', color: 'text-yellow-700 border-yellow-400 bg-yellow-50' };
+
+   
+
     return { label: 'Pending', color: 'text-gray-700 border-gray-400 bg-gray-50' };
   };
+
 
   const status = getStatusStyle();
 

@@ -143,7 +143,7 @@ const AllBookings = () => {
           case 'completed':
             colorClass = 'bg-green-100 text-green-700 border border-green-300';
             break;
-          case 'canceled':
+          case 'cancelled':
             colorClass = 'bg-red-100 text-red-700 border border-red-300';
             break;
           default:

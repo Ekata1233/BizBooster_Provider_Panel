@@ -47,11 +47,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [isCashInHand, setIsCashInHand] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
 
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
-  console.log(linkType); //dont remove this
+  console.log(linkType);
 
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
@@ -393,7 +392,6 @@ console.log("status type : ", statusType)
                 setStatusType(selected);
               }
             }}
-            disabled={isCancelling}
           >
             <option value="">Select</option>
 
