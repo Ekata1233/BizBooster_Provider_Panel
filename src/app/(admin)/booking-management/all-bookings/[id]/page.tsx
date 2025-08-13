@@ -167,6 +167,22 @@ const AllBookingsDetails = () => {
         acceptedDate: new Date(), // Current timestamp
       });
 
+      try {
+        const res = await fetch("https://biz-booster.vercel.app/api/upcoming-lead-commission", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ checkoutId: checkoutDetails._id }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to create upcoming commission.");
+
+        console.log("Upcoming commission API success:", data);
+      } catch (apiError) {
+        console.error("Upcoming commission API error:", apiError);
+        alert("Booking accepted, but failed to create upcoming commission.");
+      }
+
       alert("Booking Accepted Successfully");
       // router.push("/booking-management/all-bookings");
       await refreshBooking();
