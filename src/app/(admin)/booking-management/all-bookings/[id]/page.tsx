@@ -21,7 +21,7 @@ const AllBookingsDetails = () => {
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
   const { isOpen, openModal, closeModal } = useModal();
   const { provider } = useAuth();
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
