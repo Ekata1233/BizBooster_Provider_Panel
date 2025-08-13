@@ -29,6 +29,7 @@ const AllBookingsDetails = () => {
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
   const [lead, setLead] = useState<LeadType | null>(null);
 
+  console.log("-------------------: ", lead)
 
   const params = useParams();
   const id = params?.id as string;
@@ -473,7 +474,8 @@ const AllBookingsDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              {checkoutDetails.isCompleted === false ? (<div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+              {/* {checkoutDetails.isCompleted === false  ? (
+                <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
                 <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
@@ -500,7 +502,40 @@ const AllBookingsDetails = () => {
                 )}
 
 
-              </div>) : (<></>)}
+              </div>) : (<></>)} */}
+
+              {!checkoutDetails?.isCompleted &&
+                !lead?.leads?.some(l => l.statusType === "Lead cancel") && (
+                  <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
+                      Booking Setup
+                    </h4>
+                    <hr className="my-4 border-gray-300 dark:border-gray-700" />
+
+                    {!checkoutDetails?.isAccepted ? (
+                      <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
+                        <button className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200">
+                          Ignore
+                        </button>
+                        <button
+                          onClick={handleAccept}
+                          disabled={loadingUpdate}
+                          className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+                        >
+                          {loadingUpdate ? "Accepting..." : "Accept"}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={openModal}
+                        className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                      >
+                        Update Status
+                      </button>
+                    )}
+                  </div>
+                )}
+
 
               <CustomerInfoCard serviceCustomer={serviceCustomer} loading={loading} error={error} />
               <ServiceMenListCard
