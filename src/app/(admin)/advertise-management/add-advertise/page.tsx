@@ -10,19 +10,16 @@ import { useAdContext } from '@/app/context/AdContext';
 import { useCategory } from '@/app/context/CategoryContext';
 import { Service, useService } from '@/app/context/ServiceContext';
 import { useAuth } from '@/app/context/AuthContext';
-import { uploadToImageKit } from '@/utils/uploadToImageKit';
 
 const AddAd = () => {
   const { createAd } = useAdContext();
-  const { ads } = useAdContext();
   const { categories, loadingCategories } = useCategory();
   const { services, loadingServices } = useService();
   const { provider } = useAuth();
 
-  const [addType, setAddType] = useState<'image' >('image');
+  const [addType] = useState<'image'>('image');
   const [category, setCategory] = useState('');
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
-
   const [service, setService] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -31,37 +28,30 @@ const AddAd = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-    console.log(ads);
-    
+  // Filter services based on selected category & provider subscriptions
   useEffect(() => {
-    if (provider) {
-      console.log('🔐 Logged-in Provider:', provider);
+    if (category && provider?.subscribedServices?.length) {
+      const filtered = services.filter(
+        (s) =>
+          s.category?._id === category &&
+          !s.isDeleted &&
+          (provider.subscribedServices ?? []).includes(s._id)
+      );
+      setFilteredServices(filtered);
+    } else {
+      setFilteredServices([]);
     }
-  }, [provider]);
+    setService('');
+  }, [category, services, provider]);
 
-  useEffect(() => {
-  if (category && (provider?.subscribedServices?.length ?? 0) > 0) {
-    const filtered = services.filter(
-      (s) =>
-        s.category?._id === category &&
-        s.isDeleted === false &&
-        (provider?.subscribedServices ?? []).includes(s._id)
-    );
-    setFilteredServices(filtered);
-  } else {
-    setFilteredServices([]);
-  }
-  setService('');
-}, [category, services, provider]);
-
-
+  // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) setSelectedFile(file);
   };
 
+  // Reset form
   const resetForm = () => {
-    setAddType('image');
     setCategory('');
     setService('');
     setStartDate('');
@@ -71,24 +61,17 @@ const AddAd = () => {
     setSelectedFile(null);
   };
 
+  // Submit new ad
   const handleSubmit = async () => {
-    if (
-      !addType ||
-      !category ||
-      !service ||
-      !startDate ||
-      !endDate ||
-      !title ||
-      !selectedFile
-    ) {
-      alert('Please fill all required fields.');
+    if (!category || !service || !startDate || !endDate || !title || !selectedFile) {
+      alert('Please fill in all required fields.');
       return;
     }
 
     try {
       setLoading(true);
-      const fileUrl = await uploadToImageKit(selectedFile);
 
+      // Prepare FormData for backend
       const formData = new FormData();
       formData.append('addType', addType);
       formData.append('category', category);
@@ -97,36 +80,36 @@ const AddAd = () => {
       formData.append('endDate', endDate);
       formData.append('title', title);
       formData.append('description', description);
-      formData.append('fileUrl', fileUrl);
+      formData.append('fileUrl', selectedFile); // ✅ Send file, backend will upload to ImageKit
       formData.append('providerId', provider?._id || '');
 
       await createAd(formData);
       alert('Ad created successfully!');
       resetForm();
     } catch (error) {
+      console.error('Error creating ad:', error);
       alert('Failed to create ad.');
-      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ComponentCard title="Add New Ad">
+    <ComponentCard title="Add New Advertisement">
       <div className="space-y-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">
         {/* Ad Type */}
         <div>
           <Label>Ad Type</Label>
           <select
             value={addType}
-            onChange={(e) => setAddType(e.target.value as 'image')}
-            className="w-full border px-3 py-2 rounded-md"
+            disabled
+            className="w-full border px-3 py-2 rounded-md bg-gray-100"
           >
             <option value="image">Image</option>
           </select>
         </div>
 
-        {/* Category Selector (filtered by subscribed services) */}
+        {/* Category Selector */}
         <div>
           <Label>Category</Label>
           <select
@@ -143,7 +126,7 @@ const AddAd = () => {
                   services.some(
                     (s) =>
                       s.category?._id === cat._id &&
-                      provider?.subscribedServices?.includes(s._id)
+                      (provider?.subscribedServices ?? []).includes(s._id)
                   )
                 )
                 .map((cat) => (
@@ -155,7 +138,7 @@ const AddAd = () => {
           </select>
         </div>
 
-        {/* Service Selector (filtered by category and subscribed services) */}
+        {/* Service Selector */}
         <div>
           <Label>Service</Label>
           <select
@@ -177,26 +160,19 @@ const AddAd = () => {
           </select>
         </div>
 
-        {/* Start and End Date */}
+        {/* Start Date */}
         <div>
           <Label>Start Date</Label>
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>End Date</Label>
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
         </div>
 
-        {/* Title and Description */}
-        {/* // */}
+        {/* End Date */}
+        <div>
+          <Label>End Date</Label>
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+        </div>
+
+        {/* Title */}
         <div>
           <Label>Title</Label>
           <Input
@@ -206,6 +182,8 @@ const AddAd = () => {
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
+
+        {/* Description */}
         <div>
           <Label>Description</Label>
           <Input
@@ -218,23 +196,16 @@ const AddAd = () => {
 
         {/* File Input */}
         <div>
-          <Label>Select Image </Label>
+          <Label>Select Image</Label>
           <FileInput onChange={handleFileChange} />
           {selectedFile && (
-            <p className="text-xs text-gray-500 mt-1">
-              Selected: {selectedFile.name}
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Selected: {selectedFile.name}</p>
           )}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="mt-6">
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
+          <Button size="sm" variant="primary" onClick={handleSubmit} disabled={loading}>
             {loading ? 'Submitting...' : 'Add Ad'}
           </Button>
         </div>
