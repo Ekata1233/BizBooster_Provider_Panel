@@ -186,9 +186,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await res.json();
 
-      if (res.ok && data.success && data.data) {
-        setProviderDetails(data.data); // ✅ Correct
-        localStorage.setItem("providerDetails", JSON.stringify(data.data)); // ✅ Correct
+      console.log("data : ", data)
+
+      if (res.ok && data) {
+        setProviderDetails(data);
+        localStorage.setItem("providerDetails", JSON.stringify(data));
       } else {
         console.warn("⚠️ Failed to refresh provider details:", data.message);
       }
@@ -226,7 +228,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails,loading, }}
+      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails, loading, }}
     >
       {children}
     </AuthContext.Provider>

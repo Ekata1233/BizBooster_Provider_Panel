@@ -39,7 +39,7 @@ interface SubscribeState {
 interface AllServicesProps {
     services: Service[];
     subscribeStates: Record<string, SubscribeState>;
-    providerSubscribedIds: string[];
+    // providerSubscribedIds: string[];
     onSubscribe: (serviceId: string) => void;
     onView: (serviceId: string) => void;
 }
@@ -47,7 +47,7 @@ interface AllServicesProps {
 const AllServices: React.FC<AllServicesProps> = ({
     services,
     subscribeStates,
-    providerSubscribedIds,
+    // providerSubscribedIds,
     onSubscribe,
     onView,
 }) => {
@@ -62,8 +62,14 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
 
+    const { providerDetails } = useAuth();
+    const providerSubscribedIds = providerDetails?.subscribedServices || [];
+    
+
     const [localServices, setLocalServices] = useState<Service[]>(services);
-    console.log("All Services : ", services);
+    console.log("All providerSubscribedIds : ", providerSubscribedIds);
+    console.log("provider Details  : ", provider);
+
 
     // ✅ Automatically calculate Provider Service Price when MRP & Discount change
     useEffect(() => {
@@ -182,9 +188,9 @@ const AllServices: React.FC<AllServicesProps> = ({
     };
 
 
-    useEffect(() => {
-        refreshProviderDetails();
-    }, [services, refreshProviderDetails]);
+    // useEffect(() => {
+    //     refreshProviderDetails();
+    // }, [services]);
 
     return (
         <div className="space-y-6 my-3">
@@ -301,14 +307,13 @@ const AllServices: React.FC<AllServicesProps> = ({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         if (!isApprovedStatus && !isPendingStatus) {
-                                            handleUpdateData(e, service._id, true, service);
                                             onSubscribe(service._id);
                                         }
                                     }}
                                     disabled={state.loading || isApprovedStatus || isPendingStatus || providerSubscribedIds.includes(service._id)}
                                     className={`
         w-full mt-3 font-semibold py-2 rounded
-        ${isApprovedStatus || providerSubscribedIds.includes(service._id)
+        ${isApprovedStatus || providerSubscribedIds.some(sub => sub._id === service._id)
                                             ? "bg-red-400 cursor-not-allowed"
                                             : isPendingStatus
                                                 ? "bg-yellow-500 cursor-not-allowed"
@@ -317,7 +322,8 @@ const AllServices: React.FC<AllServicesProps> = ({
         ${state.loading ? "opacity-60 cursor-wait" : ""}
     `}
                                 >
-                                    {isApprovedStatus || providerSubscribedIds.includes(service._id)
+                                    {isApprovedStatus || providerSubscribedIds.some(sub => sub._id === service._id)
+
                                         ? "Subscribed"
                                         : isPendingStatus
                                             ? "Pending"

@@ -203,7 +203,7 @@ const Page = () => {
             <AllServices
                 services={filteredServices}
                 subscribeStates={subscribeStates}
-                providerSubscribedIds={providerDetails?.subscribedServices || []}
+                // providerSubscribedIds={providerDetails?.subscribedServices || []}
                 onSubscribe={handleSubscribeClick}
                 onView={handleClick}
             />
