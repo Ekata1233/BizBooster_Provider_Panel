@@ -120,7 +120,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-console.log("status type : ", statusType)
+    console.log("status type : ", statusType)
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -330,16 +330,16 @@ console.log("status type : ", statusType)
   );
 
   const finalRemainingAmount = (() => {
-    const defaultRemaining =  Number(checkoutDetails?.grandTotal) > 0
-                        ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
-                        : paymentType === "remaining"
-                          ? Number(checkoutDetails?.remainingAmount ?? 0)
-                          : Number(amount ?? 0)
+    const defaultRemaining = Number(checkoutDetails?.grandTotal) > 0
+      ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+      : paymentType === "remaining"
+        ? Number(checkoutDetails?.remainingAmount ?? 0)
+        : Number(amount ?? 0)
     // if ((checkoutDetails?.paymentStatus as string) === "paid") {
     //   return extraServiceTotal;
     // }
     // return defaultRemaining + extraServiceTotal;
-   
+
     return defaultRemaining
 
   })();
