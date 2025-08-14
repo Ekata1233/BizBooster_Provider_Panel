@@ -16,12 +16,12 @@ export default function StatisticsChart() {
   const { providerDetails } = useAuth();
   const { fetchWalletByProvider, wallet } = useProviderWallet();
 
-const [series, setSeries] = useState<{ name: string; data: number[] }[]>([
-  {
-    name: "Earnings",
-    data: [],
-  },
-]);
+  const [series, setSeries] = useState<{ name: string; data: number[] }[]>([
+    {
+      name: "Earnings",
+      data: [],
+    },
+  ]);
 
 
   const [categories, setCategories] = useState<string[]>([]);
@@ -99,6 +99,9 @@ const [series, setSeries] = useState<{ name: string; data: number[] }[]>([
     tooltip: {
       enabled: true,
       x: { format: "dd MMM yyyy" },
+      y: {
+        formatter: (val: number) => `₹${val.toFixed(2)}`,
+      },
     },
     xaxis: {
       type: "category",
@@ -109,6 +112,7 @@ const [series, setSeries] = useState<{ name: string; data: number[] }[]>([
     },
     yaxis: {
       labels: {
+        formatter: (val: number) => val.toFixed(2),
         style: {
           fontSize: "12px",
           colors: ["#6B7280"],
@@ -120,6 +124,7 @@ const [series, setSeries] = useState<{ name: string; data: number[] }[]>([
       },
     },
   };
+
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">

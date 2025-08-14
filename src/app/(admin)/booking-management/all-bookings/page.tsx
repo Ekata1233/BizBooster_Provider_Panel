@@ -195,7 +195,9 @@ const AllBookings = () => {
   .map((checkout) => ({
     bookingId: checkout.bookingId,
     serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
-    totalAmount: checkout.totalAmount,
+totalAmount: (Number(checkout.grandTotal ?? 0) > 0) 
+  ? Number(checkout.grandTotal) 
+  : Number(checkout.totalAmount),
     paymentStatus: checkout.paymentStatus,
     scheduleDate: checkout.createdAt,
     bookingDate: checkout.createdAt,

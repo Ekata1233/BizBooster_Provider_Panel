@@ -76,7 +76,7 @@ export default function RecentOrders() {
           </TableHeader>
 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {checkouts.slice(0, 4).map((checkout) => (
+            {checkouts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4).map((checkout) => (
               <TableRow key={checkout._id}>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
@@ -102,9 +102,11 @@ export default function RecentOrders() {
                     color={
                       checkout.orderStatus === "processing"
                         ? "warning"
-                        : checkout.orderStatus === "in_progress"
+                        : checkout.orderStatus === "completed"
                           ? "success"
-                          : "error"
+                          : checkout.orderStatus === "cancelled"
+                            ? "error"
+                            : "primary"
                     }
                   >
                     {checkout.orderStatus}
