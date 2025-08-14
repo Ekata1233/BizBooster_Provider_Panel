@@ -7,7 +7,12 @@ import ComponentCard from '@/components/common/ComponentCard';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { usePathname } from 'next/navigation';
 import { useService } from '@/app/context/ServiceContext';
-
+interface TableRow {
+  original: {
+    providerDiscount: number | null;
+    providerPrice: number | null;
+  };
+}
 interface TableData {
   id: string;
   serviceName: string;
@@ -116,7 +121,7 @@ if (matchingService) {
     }
   };
 
-  const columns = [
+ const columns = [
   { header: 'Service Name', accessor: 'serviceName' },
   {
     header: 'Price',
@@ -130,23 +135,22 @@ if (matchingService) {
     cell: (row: { providerMRP: number | null }) =>
       row.providerMRP != null ? `₹${row.providerMRP}` : '—',
   },
- {
-  header: 'Provider Discount',
-  accessor: 'providerDiscount',
-  cell: ({ row }: any) =>
-    row.original.providerDiscount != null
-      ? `${row.original.providerDiscount}%`
-      : '—',
-},
-{
-  header: 'Provider Price',
-  accessor: 'providerPrice',
-  cell: ({ row }: any) =>
-    row.original.providerPrice != null
-      ? `₹${row.original.providerPrice}`
-      : '—',
-},
-
+  {
+    header: 'Provider Discount',
+    accessor: 'providerDiscount',
+    cell: (row: TableRow) =>
+      row.original.providerDiscount != null
+        ? `${row.original.providerDiscount}%`
+        : '—',
+  },
+  {
+    header: 'Provider Price',
+    accessor: 'providerPrice',
+    cell: (row: TableRow) =>
+      row.original.providerPrice != null
+        ? `₹${row.original.providerPrice}`
+        : '—',
+  },
   {
     header: 'Action',
     accessor: 'action',
@@ -165,7 +169,6 @@ if (matchingService) {
     ),
   },
 ];
-
 
   return (
     <>
