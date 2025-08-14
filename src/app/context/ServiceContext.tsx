@@ -48,7 +48,22 @@ interface FranchiseDetails {
     termsAndConditions: string;
     extraSections?: ExtraSection[];
 }
-
+interface ProviderPriceEntry {
+    provider?: {
+        _id: string;
+        fullName?: string;
+        storeInfo?: {
+            storeName?: string;
+            logo?: string;
+        };
+    };
+    providerPrice?: number;
+    providerMRP?: string;
+    providerDiscount?: string;
+    providerCommission?: string;
+    status?: string;
+    _id?: string;
+}
 export interface Service {
     _id: string;
     serviceName: string;
@@ -58,6 +73,7 @@ export interface Service {
     subcategory: { _id: string, name: string };
     price: number;
     discountedPrice: number;
+    providerPrices?: ProviderPriceEntry[]; 
     tags?: string[];
     serviceDetails: ServiceDetails;
     franchiseDetails: FranchiseDetails;

@@ -22,7 +22,7 @@ interface Service {
     _id: string;
     serviceName: string;
     thumbnailImage: string;
-    category?: { name: string };
+    category?: { _id: string; name: string };;
     price?: number;
     discountedPrice?: number;
     discount?: number;
@@ -64,7 +64,7 @@ const AllServices: React.FC<AllServicesProps> = ({
 
     const { providerDetails } = useAuth();
     const providerSubscribedIds = providerDetails?.subscribedServices || [];
-    
+
 
     const [localServices, setLocalServices] = useState<Service[]>(services);
     console.log("All providerSubscribedIds : ", providerSubscribedIds);
