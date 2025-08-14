@@ -42,7 +42,7 @@ type ProviderDetails = {
   fullName: string;
   phoneNo: string;
   email: string;
-  subscribedServices?: string[];
+subscribedServices?: { _id: string }[];
   referralCode?: string;
   referredBy?: string;
   companyLogo?: string;

@@ -22,7 +22,7 @@ interface Service {
     _id: string;
     serviceName: string;
     thumbnailImage: string;
-    category?: { _id: string; name: string };;
+    category?: { _id: string; name: string };
     price?: number;
     discountedPrice?: number;
     discount?: number;
@@ -63,7 +63,9 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
 
     const { providerDetails } = useAuth();
-    const providerSubscribedIds = providerDetails?.subscribedServices || [];
+const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || []).map(
+    (sub: { _id: string } | string) => typeof sub === "string" ? sub : sub._id
+);
 
 
     const [localServices, setLocalServices] = useState<Service[]>(services);
@@ -313,7 +315,8 @@ const AllServices: React.FC<AllServicesProps> = ({
                                     disabled={state.loading || isApprovedStatus || isPendingStatus || providerSubscribedIds.includes(service._id)}
                                     className={`
         w-full mt-3 font-semibold py-2 rounded
-        ${isApprovedStatus || providerSubscribedIds.some(sub => sub._id === service._id)
+        ${isApprovedStatus || providerSubscribedIds.some(subId => subId === service._id)
+
                                             ? "bg-red-400 cursor-not-allowed"
                                             : isPendingStatus
                                                 ? "bg-yellow-500 cursor-not-allowed"
@@ -322,7 +325,8 @@ const AllServices: React.FC<AllServicesProps> = ({
         ${state.loading ? "opacity-60 cursor-wait" : ""}
     `}
                                 >
-                                    {isApprovedStatus || providerSubscribedIds.some(sub => sub._id === service._id)
+                                    {isApprovedStatus || providerSubscribedIds.some(subId => subId === service._id)
+
 
                                         ? "Subscribed"
                                         : isPendingStatus
@@ -414,3 +418,4 @@ const AllServices: React.FC<AllServicesProps> = ({
 };
 
 export default AllServices;
+
