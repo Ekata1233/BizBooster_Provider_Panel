@@ -35,7 +35,7 @@ const AddAd = () => {
         (s) =>
           s.category?._id === category &&
           !s.isDeleted &&
-          (provider.subscribedServices ?? []).includes(s._id)
+          (provider.subscribedServices ?? []).map(svc => svc._id).includes(s._id)
       );
       setFilteredServices(filtered);
     } else {
@@ -126,7 +126,7 @@ const AddAd = () => {
                   services.some(
                     (s) =>
                       s.category?._id === cat._id &&
-                      (provider?.subscribedServices ?? []).includes(s._id)
+                      (provider?.subscribedServices ?? []).map(svc => svc._id).includes(s._id)
                   )
                 )
                 .map((cat) => (
