@@ -7,7 +7,12 @@ import ComponentCard from '@/components/common/ComponentCard';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { usePathname } from 'next/navigation';
 import { useService } from '@/app/context/ServiceContext';
-
+interface TableRow {
+  original: {
+    providerDiscount: number | null;
+    providerPrice: number | null;
+  };
+}
 interface TableData {
   id: string;
   serviceName: string;
@@ -15,42 +20,106 @@ interface TableData {
   subCategoryName: string;
   discountedPrice: number | null;
   providerPrice: number | null;
+   providerMRP: number | null;       // ✅ new
+  providerDiscount: number | null;
   status: string;
+}
+
+interface ProviderPrice {
+  provider?: { _id: string };
+  providerPrice?: number | null;
+  providerMRP?: number | null;
+  providerDiscount?: number | null;
+}
+
+interface ServiceType {
+  _id: string;
+  serviceName: string;
+  categoryName?: string;
+  subCategoryName?: string;
+  discountedPrice?: number | null;
+  providerPrices?: ProviderPrice[];
+}
+
+export interface SubscribedService {
+  _id: string;
+  serviceName?: string;
+  categoryName?: string;
+  subCategoryName?: string;
+  discountedPrice?: number | null;
+  providerPrice?: number | null;
+  providerMRP?: number | null;
+  providerDiscount?: number | null;
 }
 
 const MySubscriptionPage = () => {
   const { providerDetails, refreshProviderDetails } = useAuth();
   const pathname = usePathname();
-  const { services }=useService();
+  const { services } = useService();
   const [tableData, setTableData] = useState<TableData[]>([]);
   const [search, setSearch] = useState('');
   const [filteredData, setFilteredData] = useState<TableData[]>([]);
   const [unsubscribing, setUnsubscribing] = useState<string | null>(null);
 
   console.log('provider details f:', providerDetails);
-  console.log("updates price",services);
-  
+  console.log('updates price', services);
+
   // ✅ Refresh provider details when page loads or path changes
   useEffect(() => {
     refreshProviderDetails();
   }, [pathname]);
 
   // ✅ Map subscribedServices to table format
-  useEffect(() => {
-    if (providerDetails?.subscribedServices?.length) {
-      const mapped = providerDetails.subscribedServices.map((srv: any) => ({
+useEffect(() => {
+  if (providerDetails?.subscribedServices?.length) {
+    const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv) => {
+      const matchingService = (services as ServiceType[]).find((svc) => {
+        if (!Array.isArray(svc.providerPrices)) return false;
+        return svc.providerPrices.some(
+          (pp: ProviderPrice) =>
+            pp.provider?._id === providerDetails._id && svc._id === srv._id
+        );
+      });
+
+      let updatedProviderPrice: number | null = srv.providerPrice ?? null;
+      let updatedProviderMRP: number | null = srv.providerMRP ?? null;
+      let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
+
+      if (matchingService) {
+        const providerPriceEntry = matchingService.providerPrices?.find(
+          (pp: ProviderPrice) => pp.provider?._id === providerDetails._id
+        );
+
+        if (providerPriceEntry) {
+          if (providerPriceEntry.providerPrice != null) {
+            updatedProviderPrice = Number(providerPriceEntry.providerPrice);
+          }
+          if (providerPriceEntry.providerMRP != null) {
+            updatedProviderMRP = Number(providerPriceEntry.providerMRP);
+          }
+          if (providerPriceEntry.providerDiscount != null) {
+            updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
+          }
+        }
+      }
+
+      return {
         id: srv._id,
         serviceName: srv.serviceName || '—',
-        categoryName: srv.categoryName || '—', // placeholder
-        subCategoryName: srv.subCategoryName || '—', // placeholder
+        categoryName: srv.categoryName || '—',
+        subCategoryName: srv.subCategoryName || '—',
         discountedPrice: srv.discountedPrice ?? null,
-        providerPrice: srv.providerPrice ?? null,
+        providerPrice: updatedProviderPrice,
+        providerMRP: updatedProviderMRP,
+        providerDiscount: updatedProviderDiscount,
         status: 'Subscribed',
-      }));
-      setTableData(mapped);
-      setFilteredData(mapped);
-    }
-  }, [providerDetails]);
+      };
+    });
+    setTableData(mapped);
+    setFilteredData(mapped);
+  }
+}, [providerDetails, services]);
+
 
   // ✅ Search filter
   useEffect(() => {
@@ -78,40 +147,54 @@ const MySubscriptionPage = () => {
     }
   };
 
-  const columns = [
-    { header: 'Service Name', accessor: 'serviceName' },
-    // { header: 'Category', accessor: 'categoryName' },
-    // { header: 'Subcategory', accessor: 'subCategoryName' },
-    {
-      header: 'Price',
-      accessor: 'discountedPrice',
-      cell: (row: { discountedPrice: number | null }) =>
-        row.discountedPrice != null ? `₹${row.discountedPrice}` : '—',
-    },
-    {
-      header: 'Provider Price',
-      accessor: 'providerPrice',
-      cell: (row: { providerPrice: number | null }) =>
-        row.providerPrice != null ? `₹${row.providerPrice}` : '—',
-    },
-    {
-      header: 'Action',
-      accessor: 'action',
-      render: (row: TableData) => (
-        <button
-          onClick={() => handleUnsubscribe(row.id)}
-          disabled={unsubscribing === row.id}
-          className={`${
-            unsubscribing === row.id
-              ? 'bg-gray-400'
-              : 'bg-red-500 hover:bg-red-600'
-          } text-white px-4 py-2 rounded-md transition duration-200`}
-        >
-          {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}
-        </button>
-      ),
-    },
-  ];
+ const columns = [
+  { header: 'Service Name', accessor: 'serviceName' },
+  {
+    header: 'Price',
+    accessor: 'discountedPrice',
+    cell: (row: { discountedPrice: number | null }) =>
+      row.discountedPrice != null ? `₹${row.discountedPrice}` : '—',
+  },
+  {
+    header: 'Provider MRP',
+    accessor: 'providerMRP',
+    cell: (row: { providerMRP: number | null }) =>
+      row.providerMRP != null ? `₹${row.providerMRP}` : '—',
+  },
+  {
+    header: 'Provider Discount',
+    accessor: 'providerDiscount',
+    cell: (row: TableRow) =>
+      row.original.providerDiscount != null
+        ? `${row.original.providerDiscount}%`
+        : '—',
+  },
+  {
+    header: 'Provider Price',
+    accessor: 'providerPrice',
+    cell: (row: TableRow) =>
+      row.original.providerPrice != null
+        ? `₹${row.original.providerPrice}`
+        : '—',
+  },
+  {
+    header: 'Action',
+    accessor: 'action',
+    render: (row: TableData) => (
+      <button
+        onClick={() => handleUnsubscribe(row.id)}
+        disabled={unsubscribing === row.id}
+        className={`${
+          unsubscribing === row.id
+            ? 'bg-gray-400'
+            : 'bg-red-500 hover:bg-red-600'
+        } text-white px-4 py-2 rounded-md transition duration-200`}
+      >
+        {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}
+      </button>
+    ),
+  },
+];
 
   return (
     <>
@@ -137,6 +220,3 @@ const MySubscriptionPage = () => {
 };
 
 export default MySubscriptionPage;
-
-
-
