@@ -12,7 +12,6 @@ import { useAuth } from "@/app/context/AuthContext";
 
 interface ProviderPrice {
     provider: { _id: string };
-   
     providerPrice: number;
     providerMRP?: number;
     providerDiscount?: number;
@@ -72,7 +71,7 @@ const AllServices: React.FC<AllServicesProps> = ({
             const mrpValue = parseFloat(mrp);
             const discountValue = parseFloat(discount);
             if (!isNaN(mrpValue) && !isNaN(discountValue)) {
-                const calculatedPrice = mrpValue - (mrpValue * discountValue / 100);
+                const calculatedPrice = mrpValue - (mrpValue * discountValue) / 100;
                 setPrice(calculatedPrice.toFixed(2));
             }
         }
@@ -83,7 +82,7 @@ const AllServices: React.FC<AllServicesProps> = ({
     }, [services]);
 
     const handleEdit = (id: string) => {
-        const selectedPrice = localServices.find(item => item._id === id);
+        const selectedPrice = localServices.find((item) => item._id === id);
         setSelectedServiceId(id);
         console.log("provider entry :", selectedPrice);
 
@@ -98,25 +97,41 @@ const AllServices: React.FC<AllServicesProps> = ({
     const handleUpdateData = async (
         e: React.MouseEvent<HTMLButtonElement>,
         selectedServiceId?: string,
-        isDirectSubscribe = false // ✅ New flag
+        isDirectSubscribe = false,
+        serviceForDirectSubscribe?: Service
     ) => {
         e.preventDefault();
         if (!selectedServiceId || !provider?._id) return;
 
         setIsSubmitting(true);
 
-        const updatedData = {
-            providerPrices: [
-                {
-                    provider: provider._id,
-                    providerPrice: price ? parseFloat(price) : null,
-                    providerMRP: mrp ? parseFloat(mrp) : null,
-                    providerDiscount: discount ? parseFloat(discount) : null,
-                    status: isDirectSubscribe ? "approved" : "pending", // ✅ Decide status
-                },
-            ],
-        };
-
+        // Prepare updatedData differently for direct subscribe
+        let updatedData;
+        if (isDirectSubscribe && serviceForDirectSubscribe) {
+            updatedData = {
+                providerPrices: [
+                    {
+                        provider: provider._id,
+                        providerPrice: serviceForDirectSubscribe.discountedPrice ?? 0,
+                        providerMRP: serviceForDirectSubscribe.price ?? 0,
+                        providerDiscount: serviceForDirectSubscribe.discount ?? 0,
+                        status: "approved",
+                    },
+                ],
+            };
+        } else {
+            updatedData = {
+                providerPrices: [
+                    {
+                        provider: provider._id,
+                        providerPrice: price ? parseFloat(price) : null,
+                        providerMRP: mrp ? parseFloat(mrp) : null,
+                        providerDiscount: discount ? parseFloat(discount) : null,
+                        status: "pending",
+                    },
+                ],
+            };
+        }
 
         const success = await updateProviderPrice(selectedServiceId, updatedData);
 
@@ -127,31 +142,37 @@ const AllServices: React.FC<AllServicesProps> = ({
                     : "Provider Price updated successfully. Waiting for admin approval."
             );
 
-            setLocalServices(prev =>
-                prev.map(s =>
+            setLocalServices((prev) =>
+                prev.map((s) =>
                     s._id === selectedServiceId
                         ? {
                             ...s,
                             providerPrices: [
                                 ...(s.providerPrices || []).filter(
-                                    p => p?.provider?._id !== provider._id
+                                    (p) => p?.provider?._id !== provider._id
                                 ),
                                 {
                                     provider: { _id: provider._id },
-                                    providerPrice: parseFloat(price),
-                                    providerMRP: mrp ? parseFloat(mrp) : undefined,
-                                    providerDiscount: discount ? parseFloat(discount) : undefined,
-                                    status: isDirectSubscribe ? "approved" : "pending", // ✅ Update local too
+                                    providerPrice: isDirectSubscribe
+                                        ? serviceForDirectSubscribe?.discountedPrice ?? 0
+                                        : parseFloat(price) || s.discountedPrice || 0,
+                                    providerMRP: isDirectSubscribe
+                                        ? serviceForDirectSubscribe?.price ?? 0
+                                        : mrp
+                                            ? parseFloat(mrp)
+                                            : s.price,
+                                    providerDiscount: isDirectSubscribe
+                                        ? serviceForDirectSubscribe?.discount ?? 0
+                                        : discount
+                                            ? parseFloat(discount)
+                                            : s.discount,
+                                    status: isDirectSubscribe ? "approved" : "pending",
                                 },
                             ],
                         }
                         : s
                 )
             );
-
-            if (!providerSubscribedIds.includes(selectedServiceId)) {
-                providerSubscribedIds.push(selectedServiceId);
-            }
 
             await refreshProviderDetails();
             closeModal();
@@ -176,7 +197,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                         </p>
                     )}
 
-                    {localServices.map(service => {
+                    {localServices.map((service) => {
                         const state = subscribeStates[service._id] || {
                             loading: false,
                             error: null,
@@ -184,7 +205,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                         };
 
                         const providerEntry = service.providerPrices?.find(
-                            pp => pp.provider?._id === provider?._id
+                            (pp) => pp.provider?._id === provider?._id
                         );
                         const providerPrice = providerEntry?.providerPrice ?? null;
                         const providerMRP = providerEntry?.providerMRP ?? null;
@@ -202,15 +223,9 @@ const AllServices: React.FC<AllServicesProps> = ({
                                 key={service._id}
                                 className="border rounded-md p-3 shadow hover:shadow-lg transition h-[360px] flex flex-col justify-between"
                             >
-                                <div
-                                    onClick={() => onView(service._id)}
-                                    className="cursor-pointer"
-                                >
+                                <div onClick={() => onView(service._id)} className="cursor-pointer">
                                     <img
-                                        src={
-                                            service.thumbnailImage ||
-                                            "https://via.placeholder.com/150"
-                                        }
+                                        src={service.thumbnailImage || "https://via.placeholder.com/150"}
                                         alt={service.serviceName}
                                         className="w-full h-40 object-cover rounded"
                                     />
@@ -232,8 +247,8 @@ const AllServices: React.FC<AllServicesProps> = ({
                                     <div className="mt-2 flex items-center justify-between">
                                         <div>
                                             {providerPrice != null ? (
+                                                // Edited/approved price (two-line display)
                                                 <>
-                                                    {/* First line - Original prices */}
                                                     <div>
                                                         <span className="text-gray-400 line-through mr-2 text-sm">
                                                             ₹{service.price ?? "0"}
@@ -242,9 +257,8 @@ const AllServices: React.FC<AllServicesProps> = ({
                                                             ₹{service.discountedPrice ?? "0"}
                                                         </span>
                                                     </div>
-                                                    {/* Second line - Provider prices */}
                                                     <div>
-                                                        <span className="mr-2 text-gray-400 line-through mr-2 text-sm">
+                                                        <span className="mr-2 text-gray-400 line-through text-sm">
                                                             ₹{providerMRP}
                                                         </span>
                                                         <span className="mr-2 text-sm text-green-600">
@@ -256,36 +270,45 @@ const AllServices: React.FC<AllServicesProps> = ({
                                                     </div>
                                                 </>
                                             ) : (
-                                                <>
+                                                // Directly subscribed (one-line display)
+                                                <div>
                                                     <span className="text-gray-400 line-through mr-2 text-sm">
                                                         ₹{service.price ?? "0"}
                                                     </span>
                                                     <span className="font-bold text-indigo-600 text-base">
                                                         ₹{service.discountedPrice ?? "0"}
                                                     </span>
-                                                </>
+                                                </div>
                                             )}
                                         </div>
 
                                         <PencilIcon
                                             onClick={(e: React.MouseEvent<SVGSVGElement>) => {
                                                 e.stopPropagation();
-                                                handleEdit(service._id);
+                                                if (!providerSubscribedIds.includes(service._id)) {
+                                                    handleEdit(service._id);
+                                                }
                                             }}
-                                            className="w-5 h-5 text-gray-500 hover:text-indigo-600"
+                                            className={`w-5 h-5 hover:text-indigo-600 ${providerSubscribedIds.includes(service._id)
+                                                ? "text-gray-300 cursor-not-allowed"
+                                                : "text-gray-500"
+                                                }`}
                                         />
                                     </div>
                                 </div>
 
                                 <button
-                                    onClick={e => {
-                                        onSubscribe(service._id);
-                                        handleUpdateData(e, service._id, true); // ✅ Direct subscribe
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!isApprovedStatus && !isPendingStatus) {
+                                            handleUpdateData(e, service._id, true, service);
+                                            onSubscribe(service._id);
+                                        }
                                     }}
-                                    disabled={state.loading || isApprovedStatus || isPendingStatus}
+                                    disabled={state.loading || isApprovedStatus || isPendingStatus || providerSubscribedIds.includes(service._id)}
                                     className={`
         w-full mt-3 font-semibold py-2 rounded
-        ${isApprovedStatus
+        ${isApprovedStatus || providerSubscribedIds.includes(service._id)
                                             ? "bg-red-400 cursor-not-allowed"
                                             : isPendingStatus
                                                 ? "bg-yellow-500 cursor-not-allowed"
@@ -294,7 +317,7 @@ const AllServices: React.FC<AllServicesProps> = ({
         ${state.loading ? "opacity-60 cursor-wait" : ""}
     `}
                                 >
-                                    {isApprovedStatus
+                                    {isApprovedStatus || providerSubscribedIds.includes(service._id)
                                         ? "Subscribed"
                                         : isPendingStatus
                                             ? "Pending"
@@ -302,7 +325,6 @@ const AllServices: React.FC<AllServicesProps> = ({
                                                 ? "Subscribing..."
                                                 : "Subscribe"}
                                 </button>
-
                             </div>
                         );
                     })}
@@ -328,7 +350,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                         min="0"
                                         value={mrp}
                                         placeholder="Enter MRP"
-                                        onChange={e => setMrp(e.target.value)}
+                                        onChange={(e) => setMrp(e.target.value)}
                                     />
                                 </div>
                                 <div>
@@ -338,7 +360,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                         min="0"
                                         value={discount}
                                         placeholder="Enter Discount"
-                                        onChange={e => setDiscount(e.target.value)}
+                                        onChange={(e) => setDiscount(e.target.value)}
                                     />
                                 </div>
                                 <div>
@@ -348,7 +370,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                         min="0"
                                         value={price}
                                         placeholder="Enter Price"
-                                        onChange={e => setPrice(e.target.value)}
+                                        onChange={(e) => setPrice(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -360,7 +382,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                             </Button>
                             <button
                                 type="button"
-                                onClick={e =>
+                                onClick={(e) =>
                                     handleUpdateData(e, selectedServiceId ?? undefined)
                                 }
                                 disabled={isSubmitting}
