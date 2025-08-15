@@ -8,6 +8,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
+import { SubscribedService } from "../(admin)/service-management/my-subscription/page";
 
 // ✅ StoreInfo Type
 type StoreInfo = {
@@ -42,7 +43,7 @@ type ProviderDetails = {
   fullName: string;
   phoneNo: string;
   email: string;
-subscribedServices?: { _id: string }[];
+  subscribedServices?: SubscribedService[];
   referralCode?: string;
   referredBy?: string;
   companyLogo?: string;

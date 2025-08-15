@@ -25,6 +25,33 @@ interface TableData {
   status: string;
 }
 
+interface ProviderPrice {
+  provider?: { _id: string };
+  providerPrice?: number | null;
+  providerMRP?: number | null;
+  providerDiscount?: number | null;
+}
+
+interface ServiceType {
+  _id: string;
+  serviceName: string;
+  categoryName?: string;
+  subCategoryName?: string;
+  discountedPrice?: number | null;
+  providerPrices?: ProviderPrice[];
+}
+
+export interface SubscribedService {
+  _id: string;
+  serviceName?: string;
+  categoryName?: string;
+  subCategoryName?: string;
+  discountedPrice?: number | null;
+  providerPrice?: number | null;
+  providerMRP?: number | null;
+  providerDiscount?: number | null;
+}
+
 const MySubscriptionPage = () => {
   const { providerDetails, refreshProviderDetails } = useAuth();
   const pathname = usePathname();
@@ -43,57 +70,56 @@ const MySubscriptionPage = () => {
   }, [pathname]);
 
   // ✅ Map subscribedServices to table format
-  useEffect(() => {
-    if (providerDetails?.subscribedServices?.length) {
-      const mapped = providerDetails.subscribedServices.map((srv: any) => {
-        // 🔹 Find matching service in updates price data
-        const matchingService = services.find((svc: any) => {
-          if (!Array.isArray(svc.providerPrices)) return false;
-          return svc.providerPrices.some(
-            (pp: any) => pp.provider?._id === providerDetails._id && svc._id === srv._id
-          );
-        });
-
-        // 🔹 Extract providerPrice if match found
-let updatedProviderPrice: number | null = srv.providerPrice ?? "-";
-let updatedProviderMRP: number | null = srv.providerMRP ?? "-";
-let updatedProviderDiscount: number | null = srv.providerDiscount ?? "-";
-
-if (matchingService) {
-  const providerPriceEntry = matchingService.providerPrices?.find(
-    (pp: any) => pp.provider?._id === providerDetails._id
-  );
-
-  if (providerPriceEntry) {
-    if (providerPriceEntry.providerPrice != null) {
-      updatedProviderPrice = Number(providerPriceEntry.providerPrice); // ✅ now updating
-    }
-    if (providerPriceEntry.providerMRP != null) {
-      updatedProviderMRP = Number(providerPriceEntry.providerMRP);
-    }
-    if (providerPriceEntry.providerDiscount != null) {
-      updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
-    }
-  }
-}
-
-
-        return {
-          id: srv._id,
-          serviceName: srv.serviceName || '—',
-          categoryName: srv.categoryName || '—', // placeholder
-          subCategoryName: srv.subCategoryName || '—', // placeholder
-          discountedPrice: srv.discountedPrice ?? null,
-          providerPrice: updatedProviderPrice,
-          providerMRP: updatedProviderMRP,           // ✅ added
-  providerDiscount: updatedProviderDiscount,
-          status: 'Subscribed',
-        };
+useEffect(() => {
+  if (providerDetails?.subscribedServices?.length) {
+    const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv) => {
+      const matchingService = (services as ServiceType[]).find((svc) => {
+        if (!Array.isArray(svc.providerPrices)) return false;
+        return svc.providerPrices.some(
+          (pp: ProviderPrice) =>
+            pp.provider?._id === providerDetails._id && svc._id === srv._id
+        );
       });
-      setTableData(mapped);
-      setFilteredData(mapped);
-    }
-  }, [providerDetails, services]);
+
+      let updatedProviderPrice: number | null = srv.providerPrice ?? null;
+      let updatedProviderMRP: number | null = srv.providerMRP ?? null;
+      let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
+
+      if (matchingService) {
+        const providerPriceEntry = matchingService.providerPrices?.find(
+          (pp: ProviderPrice) => pp.provider?._id === providerDetails._id
+        );
+
+        if (providerPriceEntry) {
+          if (providerPriceEntry.providerPrice != null) {
+            updatedProviderPrice = Number(providerPriceEntry.providerPrice);
+          }
+          if (providerPriceEntry.providerMRP != null) {
+            updatedProviderMRP = Number(providerPriceEntry.providerMRP);
+          }
+          if (providerPriceEntry.providerDiscount != null) {
+            updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
+          }
+        }
+      }
+
+      return {
+        id: srv._id,
+        serviceName: srv.serviceName || '—',
+        categoryName: srv.categoryName || '—',
+        subCategoryName: srv.subCategoryName || '—',
+        discountedPrice: srv.discountedPrice ?? null,
+        providerPrice: updatedProviderPrice,
+        providerMRP: updatedProviderMRP,
+        providerDiscount: updatedProviderDiscount,
+        status: 'Subscribed',
+      };
+    });
+    setTableData(mapped);
+    setFilteredData(mapped);
+  }
+}, [providerDetails, services]);
+
 
   // ✅ Search filter
   useEffect(() => {
