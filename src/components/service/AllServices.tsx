@@ -296,6 +296,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                             onSubscribe(service._id);
                                         }
                                     }}
+                                    
                                     disabled={state.loading || isApprovedStatus || isPendingStatus || providerSubscribedIds.includes(service._id)}
                                     className={`
         w-full mt-3 font-semibold py-2 rounded
