@@ -124,7 +124,7 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
   const { provider } = useAuth();
-  const { leads, refetchLeads, loadingLeads, errorLeads } = useLead();
+  const { leads, refetchLeads } = useLead();
 
   const {
     checkouts,

@@ -25,7 +25,7 @@ type BookingRow = {
 
 const RefundedRequest = () => {
   const { provider } = useAuth();
-   const { leads, refetchLeads, loadingLeads, errorLeads } = useLead();
+   const { leads, refetchLeads } = useLead();
   const {
     checkouts,
     loadingCheckouts,
