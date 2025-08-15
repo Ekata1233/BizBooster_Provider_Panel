@@ -48,7 +48,7 @@ interface FranchiseDetails {
     termsAndConditions: string;
     extraSections?: ExtraSection[];
 }
-interface ProviderPriceEntry {
+export interface ProviderPriceEntry {
     provider?: {
         _id: string;
         fullName?: string;

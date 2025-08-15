@@ -201,12 +201,12 @@ const Page = () => {
             </div>
 
             <AllServices
-                services={filteredServices}
-                subscribeStates={subscribeStates}
-                // providerSubscribedIds={providerDetails?.subscribedServices || []}
-                onSubscribe={handleSubscribeClick}
-                onView={handleClick}
-            />
+    services={filteredServices}  // ✅ Correct
+    subscribeStates={subscribeStates}
+    onSubscribe={handleSubscribeClick}
+    onView={handleClick}
+/>
+
         </div>
     );
 };
