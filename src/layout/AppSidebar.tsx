@@ -22,6 +22,7 @@ import SidebarWidget from "./SidebarWidget";
 import { Megaphone } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCheckout } from "@/app/context/CheckoutContext";
+import { useLead } from "@/app/context/LeadContext";
 
 type NavItem = {
   name: string;
@@ -47,10 +48,12 @@ const bookingItems: NavItem[] = [
       { name: "All Bookings", path: "/booking-management/all-bookings", pro: false },
       { name: "Customized Requests", path: "/booking-management/customized-requests", pro: false },
       { name: "Booking Requests", path: "/booking-management/booking-requests", pro: false },
-      { name: "Accepted Requests", path: "/booking-management/accepted-requests", pro: false },
+      { name: "Accepted Bookings", path: "/booking-management/accepted-requests", pro: false },
       // { name: "Ongoing Requests", path: "/booking-management/ongoing-requests", pro: false },
-      { name: "Completed Requests", path: "/booking-management/completed-requests", pro: false },
-      { name: "Canceled Requests", path: "/booking-management/canceled-requests", pro: false },
+      { name: "Completed Bookings", path: "/booking-management/completed-requests", pro: false },
+      { name: "Canceled Bookings", path: "/booking-management/canceled-requests", pro: false },
+      { name: "Refunded Bookings", path: "/booking-management/refunded-requests", pro: false },
+
     ],
   },
 ];
@@ -121,12 +124,18 @@ const AppSidebar: React.FC = () => {
  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
 const pathname = usePathname();
 const { provider } = useAuth();
+  const { leads, refetchLeads, loadingLeads, errorLeads } = useLead();
+
 const {
   checkouts,
  
   fetchCheckoutsByProviderId,
 } = useCheckout();
+useEffect(() => {
+    refetchLeads();
+  }, []);
 
+  console.log("app sidebar allLeads....:",leads);
 // const [search, setSearch] = useState('');
 console.log("app sidebar all booking", checkouts);
 
@@ -137,6 +146,8 @@ useEffect(() => {
 }, [provider]);
 
 console.log("checkout : ", checkouts);
+
+
   const renderMenuItems = (
     navItems: NavItem[],
     menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery"
@@ -239,7 +250,7 @@ console.log("checkout : ", checkouts);
   )}
 
   {/* ✅ Count badge for Accepted Requests */}
-  {subItem.name === "Accepted Requests" && (
+  {subItem.name === "Accepted Bookings" && (
     <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
       {checkouts?.filter(
         (checkout) =>
@@ -251,7 +262,7 @@ console.log("checkout : ", checkouts);
   )}
 
   {/* ✅ Count badge for Completed Requests */}
-  {subItem.name === "Completed Requests" && (
+  {subItem.name === "Completed Bookings" && (
     <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
       {checkouts?.filter(
         (checkout) =>
@@ -262,7 +273,7 @@ console.log("checkout : ", checkouts);
   )}
 
   {/* ✅ Count badge for Canceled Requests */}
-  {subItem.name === "Canceled Requests" && (
+  {subItem.name === "Canceled Bookings" && (
     <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
       {checkouts?.filter(
         (checkout) => checkout.isCanceled === true
