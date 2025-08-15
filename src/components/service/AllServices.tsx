@@ -10,13 +10,6 @@ import { useModal } from "@/hooks/useModal";
 import { ProviderPriceEntry, useService } from "@/app/context/ServiceContext";
 import { useAuth } from "@/app/context/AuthContext";
 
-interface ProviderPrice {
-    provider: { _id: string };
-    providerPrice: number;
-    providerMRP?: number;
-    providerDiscount?: number;
-    status: "approved" | "pending";
-}
 
 interface Service {
     _id: string;
@@ -303,6 +296,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                             onSubscribe(service._id);
                                         }
                                     }}
+                                    
                                     disabled={state.loading || isApprovedStatus || isPendingStatus || providerSubscribedIds.includes(service._id)}
                                     className={`
         w-full mt-3 font-semibold py-2 rounded
