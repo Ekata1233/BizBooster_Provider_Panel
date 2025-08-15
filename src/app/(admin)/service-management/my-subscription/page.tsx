@@ -20,7 +20,7 @@ interface TableData {
   subCategoryName: string;
   discountedPrice: number | null;
   providerPrice: number | null;
-   providerMRP: number | null;       // ✅ new
+  providerMRP: number | null;       // ✅ new
   providerDiscount: number | null;
   status: string;
 }
@@ -70,55 +70,55 @@ const MySubscriptionPage = () => {
   }, [pathname]);
 
   // ✅ Map subscribedServices to table format
-useEffect(() => {
-  if (providerDetails?.subscribedServices?.length) {
-    const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv) => {
-      const matchingService = (services as ServiceType[]).find((svc) => {
-        if (!Array.isArray(svc.providerPrices)) return false;
-        return svc.providerPrices.some(
-          (pp: ProviderPrice) =>
-            pp.provider?._id === providerDetails._id && svc._id === srv._id
-        );
-      });
+  useEffect(() => {
+    if (providerDetails?.subscribedServices?.length) {
+      const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv) => {
+        const matchingService = (services as ServiceType[]).find((svc) => {
+          if (!Array.isArray(svc.providerPrices)) return false;
+          return svc.providerPrices.some(
+            (pp: ProviderPrice) =>
+              pp.provider?._id === providerDetails._id && svc._id === srv._id
+          );
+        });
 
-      let updatedProviderPrice: number | null = srv.providerPrice ?? null;
-      let updatedProviderMRP: number | null = srv.providerMRP ?? null;
-      let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
+        let updatedProviderPrice: number | null = srv.providerPrice ?? null;
+        let updatedProviderMRP: number | null = srv.providerMRP ?? null;
+        let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
 
-      if (matchingService) {
-        const providerPriceEntry = matchingService.providerPrices?.find(
-          (pp: ProviderPrice) => pp.provider?._id === providerDetails._id
-        );
+        if (matchingService) {
+          const providerPriceEntry = matchingService.providerPrices?.find(
+            (pp: ProviderPrice) => pp.provider?._id === providerDetails._id
+          );
 
-        if (providerPriceEntry) {
-          if (providerPriceEntry.providerPrice != null) {
-            updatedProviderPrice = Number(providerPriceEntry.providerPrice);
-          }
-          if (providerPriceEntry.providerMRP != null) {
-            updatedProviderMRP = Number(providerPriceEntry.providerMRP);
-          }
-          if (providerPriceEntry.providerDiscount != null) {
-            updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
+          if (providerPriceEntry) {
+            if (providerPriceEntry.providerPrice != null) {
+              updatedProviderPrice = Number(providerPriceEntry.providerPrice);
+            }
+            if (providerPriceEntry.providerMRP != null) {
+              updatedProviderMRP = Number(providerPriceEntry.providerMRP);
+            }
+            if (providerPriceEntry.providerDiscount != null) {
+              updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
+            }
           }
         }
-      }
 
-      return {
-        id: srv._id,
-        serviceName: srv.serviceName || '—',
-        categoryName: srv.categoryName || '—',
-        subCategoryName: srv.subCategoryName || '—',
-        discountedPrice: srv.discountedPrice ?? null,
-        providerPrice: updatedProviderPrice,
-        providerMRP: updatedProviderMRP,
-        providerDiscount: updatedProviderDiscount,
-        status: 'Subscribed',
-      };
-    });
-    setTableData(mapped);
-    setFilteredData(mapped);
-  }
-}, [providerDetails, services]);
+        return {
+          id: srv._id,
+          serviceName: srv.serviceName || '—',
+          categoryName: srv.categoryName || '—',
+          subCategoryName: srv.subCategoryName || '—',
+          discountedPrice: srv.discountedPrice ?? null,
+          providerPrice: updatedProviderPrice,
+          providerMRP: updatedProviderMRP,
+          providerDiscount: updatedProviderDiscount,
+          status: 'Subscribed',
+        };
+      });
+      setTableData(mapped);
+      setFilteredData(mapped);
+    }
+  }, [providerDetails, services]);
 
 
   // ✅ Search filter
@@ -136,10 +136,31 @@ useEffect(() => {
   }, [search, tableData]);
 
   const handleUnsubscribe = async (serviceId: string) => {
+    if (!providerDetails?._id) {
+      console.error('No providerId found');
+      return;
+    }
+
     try {
       setUnsubscribing(serviceId);
-      await fetch(`/api/provider/unsubscribe/${serviceId}`, { method: 'DELETE' });
-      await refreshProviderDetails(); // ✅ Update without refresh
+
+      const response = await fetch('https://biz-booster.vercel.app/api/provider/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          providerId: providerDetails._id,
+          serviceId,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Unsubscribe failed');
+      }
+
+      await refreshProviderDetails(); // ✅ Update table without full reload
     } catch (error) {
       console.error('Error unsubscribing:', error);
     } finally {
@@ -147,54 +168,54 @@ useEffect(() => {
     }
   };
 
- const columns = [
-  { header: 'Service Name', accessor: 'serviceName' },
-  {
-    header: 'Price',
-    accessor: 'discountedPrice',
-    cell: (row: { discountedPrice: number | null }) =>
-      row.discountedPrice != null ? `₹${row.discountedPrice}` : '—',
-  },
-  {
-    header: 'Provider MRP',
-    accessor: 'providerMRP',
-    cell: (row: { providerMRP: number | null }) =>
-      row.providerMRP != null ? `₹${row.providerMRP}` : '—',
-  },
-  {
-    header: 'Provider Discount',
-    accessor: 'providerDiscount',
-    cell: (row: TableRow) =>
-      row.original.providerDiscount != null
-        ? `${row.original.providerDiscount}%`
-        : '—',
-  },
-  {
-    header: 'Provider Price',
-    accessor: 'providerPrice',
-    cell: (row: TableRow) =>
-      row.original.providerPrice != null
-        ? `₹${row.original.providerPrice}`
-        : '—',
-  },
-  {
-    header: 'Action',
-    accessor: 'action',
-    render: (row: TableData) => (
-      <button
-        onClick={() => handleUnsubscribe(row.id)}
-        disabled={unsubscribing === row.id}
-        className={`${
-          unsubscribing === row.id
-            ? 'bg-gray-400'
-            : 'bg-red-500 hover:bg-red-600'
-        } text-white px-4 py-2 rounded-md transition duration-200`}
-      >
-        {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}
-      </button>
-    ),
-  },
-];
+
+  const columns = [
+    { header: 'Service Name', accessor: 'serviceName' },
+    {
+      header: 'Price',
+      accessor: 'discountedPrice',
+      cell: (row: { discountedPrice: number | null }) =>
+        row.discountedPrice != null ? `₹${row.discountedPrice}` : '—',
+    },
+    {
+      header: 'Provider MRP',
+      accessor: 'providerMRP',
+      cell: (row: { providerMRP: number | null }) =>
+        row.providerMRP != null ? `₹${row.providerMRP}` : '—',
+    },
+    {
+      header: 'Provider Discount',
+      accessor: 'providerDiscount',
+      cell: (row: TableRow) =>
+        row.original.providerDiscount != null
+          ? `${row.original.providerDiscount}%`
+          : '—',
+    },
+    {
+      header: 'Provider Price',
+      accessor: 'providerPrice',
+      cell: (row: TableRow) =>
+        row.original.providerPrice != null
+          ? `₹${row.original.providerPrice}`
+          : '—',
+    },
+    {
+      header: 'Action',
+      accessor: 'action',
+      render: (row: TableData) => (
+        <button
+          onClick={() => handleUnsubscribe(row.id)}
+          disabled={unsubscribing === row.id}
+          className={`${unsubscribing === row.id
+              ? 'bg-gray-400'
+              : 'bg-red-500 hover:bg-red-600'
+            } text-white px-4 py-2 rounded-md transition duration-200`}
+        >
+          {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}
+        </button>
+      ),
+    },
+  ];
 
   return (
     <>
