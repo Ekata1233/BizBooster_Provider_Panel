@@ -123,12 +123,11 @@ const pathname = usePathname();
 const { provider } = useAuth();
 const {
   checkouts,
-  loadingCheckouts,
-  errorCheckouts,
+ 
   fetchCheckoutsByProviderId,
 } = useCheckout();
 
-const [search, setSearch] = useState('');
+// const [search, setSearch] = useState('');
 console.log("app sidebar all booking", checkouts);
 
 useEffect(() => {
