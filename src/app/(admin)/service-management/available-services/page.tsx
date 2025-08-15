@@ -94,6 +94,8 @@ const Page = () => {
         return true;
     });
 
+    
+
     const handleClick = async (id: string) => {
         await fetchSingleService(id);
         router.push(`/service-management/available-services/${id}`);

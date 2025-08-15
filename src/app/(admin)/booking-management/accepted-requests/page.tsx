@@ -168,9 +168,14 @@ const AcceptedRequests = () => {
   ];
 
 const data: BookingRow[] = checkouts
-  .filter((checkout) => checkout.isAccepted === true && checkout.isCompleted === false)
+  .filter(
+    (checkout) =>
+      checkout.isAccepted === true &&
+      checkout.isCompleted === false &&
+      checkout.isCanceled === false
+  )
   .map((checkout) => {
-    const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
+    const customer: ServiceCustomer = checkout.serviceCustomer;
     return {
       bookingId: checkout.bookingId,
       serviceCustomer: customer,
@@ -181,7 +186,8 @@ const data: BookingRow[] = checkouts
       orderStatus: checkout.orderStatus,
       _id: checkout._id,
     };
-  });
+  })
+  .reverse(); // ✅ Reverse only the final filtered & mapped array
 
 
 

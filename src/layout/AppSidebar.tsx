@@ -20,6 +20,8 @@ import {
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 import { Megaphone } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCheckout } from "@/app/context/CheckoutContext";
 
 type NavItem = {
   name: string;
@@ -46,7 +48,7 @@ const bookingItems: NavItem[] = [
       { name: "Customized Requests", path: "/booking-management/customized-requests", pro: false },
       { name: "Booking Requests", path: "/booking-management/booking-requests", pro: false },
       { name: "Accepted Requests", path: "/booking-management/accepted-requests", pro: false },
-      { name: "Ongoing Requests", path: "/booking-management/ongoing-requests", pro: false },
+      // { name: "Ongoing Requests", path: "/booking-management/ongoing-requests", pro: false },
       { name: "Completed Requests", path: "/booking-management/completed-requests", pro: false },
       { name: "Canceled Requests", path: "/booking-management/canceled-requests", pro: false },
     ],
@@ -116,9 +118,26 @@ const othersItems: NavItem[] = [
 
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
-  const pathname = usePathname();
+ const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+const pathname = usePathname();
+const { provider } = useAuth();
+const {
+  checkouts,
+  loadingCheckouts,
+  errorCheckouts,
+  fetchCheckoutsByProviderId,
+} = useCheckout();
 
+const [search, setSearch] = useState('');
+console.log("app sidebar all booking", checkouts);
+
+useEffect(() => {
+  if (provider?._id) {
+    fetchCheckoutsByProviderId(provider._id);
+  }
+}, [provider]);
+
+console.log("checkout : ", checkouts);
   const renderMenuItems = (
     navItems: NavItem[],
     menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery"
@@ -203,28 +222,83 @@ const AppSidebar: React.FC = () => {
                         }`}
                     >
                       {subItem.name}
-                      <span className="flex items-center gap-1 ml-auto">
-                        {subItem.new && (
-                          <span
-                            className={`ml-auto ${isActive(subItem.path)
-                              ? "menu-dropdown-badge-active"
-                              : "menu-dropdown-badge-inactive"
-                              } menu-dropdown-badge `}
-                          >
-                            new
-                          </span>
-                        )}
-                        {subItem.pro && (
-                          <span
-                            className={`ml-auto ${isActive(subItem.path)
-                              ? "menu-dropdown-badge-active"
-                              : "menu-dropdown-badge-inactive"
-                              } menu-dropdown-badge `}
-                          >
-                            pro
-                          </span>
-                        )}
-                      </span>
+                 <span className="flex items-center gap-1 ml-auto">
+  {/* ✅ Count badge for All Bookings */}
+  {subItem.name === "All Bookings" && (
+    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+      {checkouts?.length || 0}
+    </span>
+  )}
+
+  {/* ✅ Count badge for Booking Requests */}
+  {subItem.name === "Booking Requests" && (
+    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+      {checkouts?.filter(
+        (checkout) => checkout.isAccepted === false
+      )?.length || 0}
+    </span>
+  )}
+
+  {/* ✅ Count badge for Accepted Requests */}
+  {subItem.name === "Accepted Requests" && (
+    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+      {checkouts?.filter(
+        (checkout) =>
+          checkout.isAccepted === true &&
+          checkout.isCompleted === false &&
+          checkout.isCanceled === false
+      )?.length || 0}
+    </span>
+  )}
+
+  {/* ✅ Count badge for Completed Requests */}
+  {subItem.name === "Completed Requests" && (
+    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+      {checkouts?.filter(
+        (checkout) =>
+          checkout.isCompleted === true &&
+          checkout.isCanceled === false
+      )?.length || 0}
+    </span>
+  )}
+
+  {/* ✅ Count badge for Canceled Requests */}
+  {subItem.name === "Canceled Requests" && (
+    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+      {checkouts?.filter(
+        (checkout) => checkout.isCanceled === true
+      )?.length || 0}
+    </span>
+  )}
+
+  {subItem.new && (
+    <span
+      className={`${
+        isActive(subItem.path)
+          ? "menu-dropdown-badge-active"
+          : "menu-dropdown-badge-inactive"
+      } menu-dropdown-badge`}
+    >
+      new
+    </span>
+  )}
+  {subItem.pro && (
+    <span
+      className={`${
+        isActive(subItem.path)
+          ? "menu-dropdown-badge-active"
+          : "menu-dropdown-badge-inactive"
+      } menu-dropdown-badge`}
+    >
+      pro
+    </span>
+  )}
+</span>
+
+
+
+
+
                     </Link>
                   </li>
                 ))}

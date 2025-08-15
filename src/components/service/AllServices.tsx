@@ -7,7 +7,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { useModal } from "@/hooks/useModal";
-import { useService } from "@/app/context/ServiceContext";
+import { ProviderPriceEntry, useService } from "@/app/context/ServiceContext";
 import { useAuth } from "@/app/context/AuthContext";
 
 interface ProviderPrice {
@@ -27,7 +27,7 @@ interface Service {
     discountedPrice?: number;
     discount?: number;
     subcategory?: unknown;
-    providerPrices?: ProviderPrice[];
+    providerPrices?: ProviderPriceEntry[];
 }
 
 interface SubscribeState {
@@ -63,9 +63,9 @@ const AllServices: React.FC<AllServicesProps> = ({
     const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
 
     const { providerDetails } = useAuth();
-const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || []).map(
-    (sub: { _id: string } | string) => typeof sub === "string" ? sub : sub._id
-);
+    const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || []).map(
+        (sub: { _id: string } | string) => typeof sub === "string" ? sub : sub._id
+    );
 
 
     const [localServices, setLocalServices] = useState<Service[]>(services);
@@ -161,19 +161,9 @@ const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || 
                                 ),
                                 {
                                     provider: { _id: provider._id },
-                                    providerPrice: isDirectSubscribe
-                                        ? serviceForDirectSubscribe?.discountedPrice ?? 0
-                                        : parseFloat(price) || s.discountedPrice || 0,
-                                    providerMRP: isDirectSubscribe
-                                        ? serviceForDirectSubscribe?.price ?? 0
-                                        : mrp
-                                            ? parseFloat(mrp)
-                                            : s.price,
-                                    providerDiscount: isDirectSubscribe
-                                        ? serviceForDirectSubscribe?.discount ?? 0
-                                        : discount
-                                            ? parseFloat(discount)
-                                            : s.discount,
+                                    providerPrice: parseFloat(price) || s.discountedPrice || 0,
+                                    providerMRP: mrp ? String(parseFloat(mrp)) : s.price ? String(s.price) : "0",
+                                    providerDiscount: discount ? String(parseFloat(discount)) : s.discount ? String(s.discount) : "0",
                                     status: isDirectSubscribe ? "approved" : "pending",
                                 },
                             ],
@@ -181,6 +171,7 @@ const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || 
                         : s
                 )
             );
+
 
             await refreshProviderDetails();
             closeModal();

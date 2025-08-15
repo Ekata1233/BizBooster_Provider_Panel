@@ -11,7 +11,6 @@ import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import Link from 'next/link';
 import { ServiceCustomer } from '../accepted-requests/page';
 
-
 interface BookingRow {
   bookingId: string;
   serviceCustomer: ServiceCustomer;
@@ -24,7 +23,7 @@ interface BookingRow {
 }
 
 const CompletedRequests = () => {
-   const { provider } = useAuth();
+  const { provider } = useAuth();
   const {
     checkouts,
     loadingCheckouts,
@@ -40,29 +39,26 @@ const CompletedRequests = () => {
     }
   }, [provider]);
 
-  console.log("checkout : ", checkouts)
+  console.log('checkout : ', checkouts);
 
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
-
-  // Filter based on Booking ID
-  // const filteredCheckouts = checkouts.filter((checkout) =>
-  //   checkout.bookingId?.toLowerCase().includes(search.toLowerCase())
-  // );
 
   const columns = [
     {
       header: 'Booking ID',
       accessor: 'bookingId',
     },
-     {
+    {
       header: 'Customer Info',
       accessor: 'customerInfo',
       render: (row: BookingRow) => {
-        console.log("Customer Info Row:", row); 
+        console.log('Customer Info Row:', row);
         return (
           <div className="text-sm">
-            <p className="font-medium text-gray-900">{row.serviceCustomer?.fullName || 'N/A'}</p>
+            <p className="font-medium text-gray-900">
+              {row.serviceCustomer?.fullName || 'N/A'}
+            </p>
             <p className="text-gray-500">{row.serviceCustomer?.email || ''}</p>
           </div>
         );
@@ -80,12 +76,15 @@ const CompletedRequests = () => {
       accessor: 'paymentStatus',
       render: (row: BookingRow) => {
         const status = row.paymentStatus;
-        const statusColor = status === 'paid'
-          ? 'bg-green-100 text-green-700 border-green-300'
-          : 'bg-yellow-100 text-yellow-700 border-yellow-300';
+        const statusColor =
+          status === 'paid'
+            ? 'bg-green-100 text-green-700 border-green-300'
+            : 'bg-yellow-100 text-yellow-700 border-yellow-300';
 
         return (
-          <span className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}
+          >
             {status}
           </span>
         );
@@ -95,7 +94,11 @@ const CompletedRequests = () => {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
       render: (row: BookingRow) => (
-        <span>{row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A'}</span>
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString()
+            : 'N/A'}
+        </span>
       ),
     },
     {
@@ -112,20 +115,26 @@ const CompletedRequests = () => {
         let colorClass = '';
         switch (row.orderStatus) {
           case 'processing':
-            colorClass = 'bg-blue-100 text-blue-700 border border-blue-300';
+            colorClass =
+              'bg-blue-100 text-blue-700 border border-blue-300';
             break;
           case 'completed':
-            colorClass = 'bg-green-100 text-green-700 border border-green-300';
+            colorClass =
+              'bg-green-100 text-green-700 border border-green-300';
             break;
           case 'canceled':
-            colorClass = 'bg-red-100 text-red-700 border border-red-300';
+            colorClass =
+              'bg-red-100 text-red-700 border border-red-300';
             break;
           default:
-            colorClass = 'bg-gray-100 text-gray-700 border border-gray-300';
+            colorClass =
+              'bg-gray-100 text-gray-700 border border-gray-300';
         }
 
         return (
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}
+          >
             {row.orderStatus}
           </span>
         );
@@ -136,19 +145,26 @@ const CompletedRequests = () => {
       accessor: 'action',
       render: (row: BookingRow) => (
         <div className="flex gap-2">
-          <Link href={`/booking-management/completed-requests/${row._id}`} passHref>
-              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-                <EyeIcon />
-              </button>
-            </Link>
+          <Link
+            href={`/booking-management/completed-requests/${row._id}`}
+            passHref
+          >
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
           <button
-            onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
+            onClick={() =>
+              alert(`Editing booking ID: ${row.bookingId}`)
+            }
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
           >
             <PencilIcon />
           </button>
           <button
-            onClick={() => alert(`Deleting booking ID: ${row.bookingId}`)}
+            onClick={() =>
+              alert(`Deleting booking ID: ${row.bookingId}`)
+            }
             className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
           >
             <TrashBinIcon />
@@ -158,10 +174,10 @@ const CompletedRequests = () => {
     },
   ];
 
-const data: BookingRow[] = checkouts
-  .filter((checkout) => checkout.isAccepted === true)
+  const data: BookingRow[] = checkouts
+  .filter((checkout) => checkout.isCompleted === true) // ✅ Only completed requests
   .map((checkout) => {
-    const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
+    const customer: ServiceCustomer = checkout.serviceCustomer;
     return {
       bookingId: checkout.bookingId,
       serviceCustomer: customer,
@@ -172,9 +188,8 @@ const data: BookingRow[] = checkouts
       orderStatus: checkout.orderStatus,
       _id: checkout._id,
     };
-  });
-
-
+  })
+  .reverse(); // ✅ Reverse after filtering & mapping
 
 
   return (
@@ -182,7 +197,7 @@ const data: BookingRow[] = checkouts
       <PageBreadcrumb pageTitle="Completed Requests" />
       <div className="space-y-6">
         <ComponentCard title="Completed Requests">
-         <div className="mb-4">
+          <div className="mb-4">
             <Input
               type="text"
               placeholder="Search by Booking ID…"
@@ -195,7 +210,9 @@ const data: BookingRow[] = checkouts
           {data.length > 0 ? (
             <BasicTableOne columns={columns} data={data} />
           ) : (
-            <p className="text-sm text-gray-500">No completed request data to display.</p>
+            <p className="text-sm text-gray-500">
+              No completed request data to display.
+            </p>
           )}
         </ComponentCard>
       </div>

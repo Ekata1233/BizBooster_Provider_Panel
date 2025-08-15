@@ -39,7 +39,7 @@ const AllBookings = () => {
   } = useCheckout();
 
   const [search, setSearch] = useState('');
-  console.log("part", checkouts);
+  console.log("all booking", checkouts);
 
   useEffect(() => {
     if (provider?._id) {
@@ -96,7 +96,7 @@ const AllBookings = () => {
         }
         // Rule 2: Part payment if partial payment flag is true
         else if (row.isPartialPayment) {
-          status = 'part pay';
+          status = 'partpay';
         }
 
         const statusColor =
@@ -104,7 +104,7 @@ const AllBookings = () => {
             ? 'bg-green-100 text-green-700 border-green-300'
             : status === 'unpaid'
               ? 'bg-red-100 text-red-700 border-red-300'
-              : status === 'part pay'
+              : status === 'partpay'
                 ? 'bg-purple-100 text-purple-700 border-purple-300'
                 : 'bg-yellow-100 text-yellow-700 border-yellow-300';
 

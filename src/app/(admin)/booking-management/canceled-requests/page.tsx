@@ -11,7 +11,6 @@ import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import Link from 'next/link';
 import { ServiceCustomer } from '../accepted-requests/page';
 
-
 type BookingRow = {
   _id: string;
   bookingId: string;
@@ -22,6 +21,7 @@ type BookingRow = {
   bookingDate: string | Date;
   orderStatus: 'processing' | 'completed' | 'canceled' | string;
 };
+
 const CanceledRequests = () => {
   const { provider } = useAuth();
   const {
@@ -39,29 +39,26 @@ const CanceledRequests = () => {
     }
   }, [provider]);
 
-  console.log("checkout : ", checkouts)
+  console.log('checkout : ', checkouts);
 
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
-
-  // Filter based on Booking ID
-  // const filteredCheckouts = checkouts.filter((checkout) =>
-  //   checkout.bookingId?.toLowerCase().includes(search.toLowerCase())
-  // );
 
   const columns = [
     {
       header: 'Booking ID',
       accessor: 'bookingId',
     },
-   {
+    {
       header: 'Customer Info',
       accessor: 'customerInfo',
       render: (row: BookingRow) => {
-        console.log("Customer Info Row:", row); 
+        console.log('Customer Info Row:', row);
         return (
           <div className="text-sm">
-            <p className="font-medium text-gray-900">{row.serviceCustomer?.fullName || 'N/A'}</p>
+            <p className="font-medium text-gray-900">
+              {row.serviceCustomer?.fullName || 'N/A'}
+            </p>
             <p className="text-gray-500">{row.serviceCustomer?.email || ''}</p>
           </div>
         );
@@ -79,12 +76,15 @@ const CanceledRequests = () => {
       accessor: 'paymentStatus',
       render: (row: BookingRow) => {
         const status = row.paymentStatus;
-        const statusColor = status === 'paid'
-          ? 'bg-green-100 text-green-700 border-green-300'
-          : 'bg-yellow-100 text-yellow-700 border-yellow-300';
+        const statusColor =
+          status === 'paid'
+            ? 'bg-green-100 text-green-700 border-green-300'
+            : 'bg-yellow-100 text-yellow-700 border-yellow-300';
 
         return (
-          <span className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}
+          >
             {status}
           </span>
         );
@@ -94,7 +94,11 @@ const CanceledRequests = () => {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
       render: (row: BookingRow) => (
-        <span>{row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A'}</span>
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString()
+            : 'N/A'}
+        </span>
       ),
     },
     {
@@ -111,20 +115,27 @@ const CanceledRequests = () => {
         let colorClass = '';
         switch (row.orderStatus) {
           case 'processing':
-            colorClass = 'bg-blue-100 text-blue-700 border border-blue-300';
+            colorClass =
+              'bg-blue-100 text-blue-700 border border-blue-300';
             break;
           case 'completed':
-            colorClass = 'bg-green-100 text-green-700 border border-green-300';
+            colorClass =
+              'bg-green-100 text-green-700 border border-green-300';
             break;
           case 'canceled':
-            colorClass = 'bg-red-100 text-red-700 border border-red-300';
+          case 'cancelled': // in case API sends British spelling
+            colorClass =
+              'bg-red-100 text-red-700 border border-red-300';
             break;
           default:
-            colorClass = 'bg-gray-100 text-gray-700 border border-gray-300';
+            colorClass =
+              'bg-gray-100 text-gray-700 border border-gray-300';
         }
 
         return (
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}
+          >
             {row.orderStatus}
           </span>
         );
@@ -135,12 +146,14 @@ const CanceledRequests = () => {
       accessor: 'action',
       render: (row: BookingRow) => (
         <div className="flex gap-2">
-          <Link href={`/booking-management/canceled-requests/${row._id}`} passHref>
-              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-                <EyeIcon />
-              </button>
-              
-            </Link>
+          <Link
+            href={`/booking-management/canceled-requests/${row._id}`}
+            passHref
+          >
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
           <button
             onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
@@ -158,23 +171,23 @@ const CanceledRequests = () => {
     },
   ];
 
-const data: BookingRow[] = checkouts
-  .filter((checkout) => checkout.isAccepted === true)
+  // ✅ Only show canceled bookings based on isCanceled
+  const data: BookingRow[] = checkouts
+  .filter((checkout) => checkout.isCanceled === true)
   .map((checkout) => {
-    const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
+    const customer: ServiceCustomer = checkout.serviceCustomer;
     return {
       bookingId: checkout.bookingId,
       serviceCustomer: customer,
       totalAmount: checkout.totalAmount,
       paymentStatus: checkout.paymentStatus,
-      scheduleDate: checkout.createdAt,
-      bookingDate: checkout.createdAt,
+      scheduleDate: (checkout.scheduleDate as string | Date | null) ?? (checkout.createdAt as string | Date),
+      bookingDate: (checkout.bookingDate as string | Date | null) ?? (checkout.createdAt as string | Date),
       orderStatus: checkout.orderStatus,
       _id: checkout._id,
     };
-  });
-
-
+  })
+  .reverse(); // ✅ reverse at the end
 
   return (
     <div>
@@ -194,7 +207,9 @@ const data: BookingRow[] = checkouts
           {data.length > 0 ? (
             <BasicTableOne columns={columns} data={data} />
           ) : (
-            <p className="text-sm text-gray-500">No cancel request data to display.</p>
+            <p className="text-sm text-gray-500">
+              No cancel request data to display.
+            </p>
           )}
         </ComponentCard>
       </div>
