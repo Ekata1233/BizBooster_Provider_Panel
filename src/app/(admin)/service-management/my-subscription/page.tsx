@@ -160,6 +160,8 @@ const MySubscriptionPage = () => {
         throw new Error(err.message || 'Unsubscribe failed');
       }
 
+      alert('Service unsubscribed successfully!');
+
       await refreshProviderDetails(); // ✅ Update table without full reload
     } catch (error) {
       console.error('Error unsubscribing:', error);
