@@ -10,13 +10,6 @@ import { useModal } from "@/hooks/useModal";
 import { ProviderPriceEntry, useService } from "@/app/context/ServiceContext";
 import { useAuth } from "@/app/context/AuthContext";
 
-interface ProviderPrice {
-    provider: { _id: string };
-    providerPrice: number;
-    providerMRP?: number;
-    providerDiscount?: number;
-    status: "approved" | "pending";
-}
 
 interface Service {
     _id: string;
