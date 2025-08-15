@@ -28,14 +28,52 @@ const AddAd = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Filter services based on selected category & provider subscriptions
+  // Get subscribed services for the provider
+  const subscribedServices = services.filter((service) =>
+    provider?.subscribedServices?.some(
+      (id) => id.toString() === service._id.toString()
+    )
+  );
+  console.log("subscribes ",subscribedServices);
+  console.log("providers :",provider);
+  console.log("services",services);
+  
+  
+  // Get unique categories from subscribed services
+  const subscribedCategories = categories.filter((category) =>
+    subscribedServices.some(
+      (service) => service.category?._id.toString() === category._id.toString()
+    )
+  );
+
+  // Log subscribed services for debugging
   useEffect(() => {
-    if (category && provider?.subscribedServices?.length) {
-      const filtered = services.filter(
-        (s) =>
-          s.category?._id === category &&
-          !s.isDeleted &&
-          (provider.subscribedServices ?? []).includes(s._id)
+    if (provider && services.length > 0) {
+      const subscribed = services.filter((service) =>
+        provider.subscribedServices?.some(
+          (id) => id.toString() === service._id.toString()
+        )
+      );
+
+      console.log('Subscribed Services for Provider:', {
+        providerId: provider._id,
+        providerName: provider.fullName,
+        subscribedServices: subscribed.map((s) => ({
+          _id: s._id,
+          serviceName: s.serviceName,
+          category: s.category?.name || 'No category',
+          price: s.price,
+          discountedPrice: s.discountedPrice,
+        })),
+      });
+    }
+  }, [provider, services]);
+
+  // Filter services based on selected category
+  useEffect(() => {
+    if (category) {
+      const filtered = subscribedServices.filter(
+        (s) => s.category?._id.toString() === category && !s.isDeleted
       );
       setFilteredServices(filtered);
     } else {
@@ -71,7 +109,6 @@ const AddAd = () => {
     try {
       setLoading(true);
 
-      // Prepare FormData for backend
       const formData = new FormData();
       formData.append('addType', addType);
       formData.append('category', category);
@@ -80,7 +117,7 @@ const AddAd = () => {
       formData.append('endDate', endDate);
       formData.append('title', title);
       formData.append('description', description);
-      formData.append('fileUrl', selectedFile); // ✅ Send file, backend will upload to ImageKit
+      formData.append('fileUrl', selectedFile);
       formData.append('providerId', provider?._id || '');
 
       await createAd(formData);
@@ -121,19 +158,11 @@ const AddAd = () => {
             {loadingCategories ? (
               <option disabled>Loading...</option>
             ) : (
-              categories
-                .filter((cat) =>
-                  services.some(
-                    (s) =>
-                      s.category?._id === cat._id &&
-                      (provider?.subscribedServices ?? []).includes(s._id)
-                  )
-                )
-                .map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.name}
-                  </option>
-                ))
+              subscribedCategories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))
             )}
           </select>
         </div>
