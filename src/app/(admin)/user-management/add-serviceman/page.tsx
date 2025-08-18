@@ -15,11 +15,12 @@ const identityOptions = [
 ];
 
 export default function AddServiceManPage() {
+  const [formError, setFormError] = useState<string | null>(null);
   const { provider } = useAuth();
   console.log("provider details : ", provider)
   const providerId = provider?._id;
   const { addServiceMan, loading, error } = useServiceMan();
-console.log(providerId);
+  console.log(providerId);
 
   const [formState, setFormState] = useState({
     name: "",
@@ -53,6 +54,14 @@ console.log(providerId);
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+    setFormError(null);
+
+
     const formData = new FormData();
     const completeFormState = {
       ...formState,
@@ -82,6 +91,25 @@ console.log(providerId);
     setGeneralImageFile(null);
     setIdentityImageFile(null);
   };
+
+  const validateForm = () => {
+    const { name, lastName, phoneNo, email, password, confirmPassword, identityType, identityNumber } = formState;
+
+    if (!name.trim()) return "First Name is required";
+    if (!lastName.trim()) return "Last Name is required";
+    if (!phoneNo.trim() || !/^\d{10}$/.test(phoneNo)) return "Enter a valid 10-digit phone number";
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Enter a valid email";
+    if (!password) return "Password is required";
+    if (password.length < 6) return "Password must be at least 6 characters";
+    if (password !== confirmPassword) return "Passwords do not match";
+    if (!identityType) return "Select an identity type";
+    if (!identityNumber.trim()) return "Identity number is required";
+    if (!generalImageFile) return "Upload general image";
+    if (!identityImageFile) return "Upload identity image";
+
+    return null; // no errors
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center items-start py-10 px-6">
@@ -203,6 +231,8 @@ console.log(providerId);
         >
           {loading ? "Submitting..." : "Submit"}
         </Button>
+        {formError && <p className="text-red-600 text-sm mt-2 text-center">{formError}</p>}
+
 
         {error && <p className="text-red-600 text-sm mt-2 text-center">{error}</p>}
       </form>
