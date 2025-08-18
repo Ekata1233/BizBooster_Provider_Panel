@@ -6,6 +6,8 @@ import Input from "@/components/form/input/InputField";
 import Button from "@/components/ui/button/Button";
 import FileInput from "@/components/form/input/FileInput";
 import { useAuth } from "@/app/context/AuthContext";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import ComponentCard from "@/components/common/ComponentCard";
 
 const identityOptions = [
   { value: "passport", label: "Passport" },
@@ -112,129 +114,132 @@ export default function AddServiceManPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center items-start py-10 px-6">
+    <div>
+      <PageBreadcrumb pageTitle="Add Serviceman" />
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-7xl bg-white shadow-lg rounded-lg p-8 space-y-10"
+        className="w-full max-w-7xl "
         encType="multipart/form-data"
       >
-        <h2 className="text-2xl font-bold text-center">Add Serviceman</h2>
+        <ComponentCard title="Account Details">
 
-        {/* Section 1: Basic Details */}
-        <div>
-          <h3 className="text-xl font-semibold mb-4 text-blue-600">1. Basic Details</h3>
-          <div className="grid grid-cols-2 gap-6">
-            <Input
-              name="name"
-              value={formState.name}
-              onChange={handleChange}
-              placeholder="First Name"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
-            <Input
-              name="lastName"
-              value={formState.lastName}
-              onChange={handleChange}
-              placeholder="Last Name"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
-            <Input
-              name="phoneNo"
-              value={formState.phoneNo}
-              onChange={handleChange}
-              placeholder="Phone Number"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
-            <FileInput
-              onChange={handleGeneralImageChange}
-              className="custom-class"
-            />
+          {/* Section 1: Basic Details */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-blue-600">1. Basic Details</h3>
+            <div className="grid grid-cols-2 gap-6">
+              <Input
+                name="name"
+                value={formState.name}
+                onChange={handleChange}
+                placeholder="First Name"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+              <Input
+                name="lastName"
+                value={formState.lastName}
+                onChange={handleChange}
+                placeholder="Last Name"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+              <Input
+                name="phoneNo"
+                value={formState.phoneNo}
+                onChange={handleChange}
+                placeholder="Phone Number"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+              <FileInput
+                onChange={handleGeneralImageChange}
+                className="custom-class"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Section 2: Business Details */}
-        <div>
-          <h3 className="text-xl font-semibold mb-4 text-blue-600">2. Business Details</h3>
-          <div className="grid grid-cols-2 gap-6">
-            <select
-              name="identityType"
-              value={formState.identityType}
-              onChange={handleChange}
-              required
-              className="border px-3 py-2 rounded w-full text-gray-500"
-            >
-              <option value="">Select Identity Type</option>
-              {identityOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+          {/* Section 2: Business Details */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-blue-600">2. Business Details</h3>
+            <div className="grid grid-cols-2 gap-6">
+              <select
+                name="identityType"
+                value={formState.identityType}
+                onChange={handleChange}
+                required
+                className="border px-3 py-2 rounded w-full text-gray-500"
+              >
+                <option value="">Select Identity Type</option>
+                {identityOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
 
-            <Input
-              name="identityNumber"
-              value={formState.identityNumber}
-              onChange={handleChange}
-              placeholder="Identity Number"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
-            <FileInput
-              onChange={handleIdentityImageChange}
-              className="custom-class"
-            />
+              <Input
+                name="identityNumber"
+                value={formState.identityNumber}
+                onChange={handleChange}
+                placeholder="Identity Number"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+              <FileInput
+                onChange={handleIdentityImageChange}
+                className="custom-class"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Section 3: Account Details */}
-        <div>
-          <h3 className="text-xl font-semibold mb-4 text-blue-600">3. Account Details</h3>
-          <div className="grid grid-cols-2 gap-6">
-            <Input
-              name="email"
-              type="email"
-              value={formState.email}
-              onChange={handleChange}
-              placeholder="Email"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
-            <Input
-              name="password"
-              type="password"
-              value={formState.password}
-              onChange={handleChange}
-              placeholder="Password"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
-            <Input
-              name="confirmPassword"
-              type="password"
-              value={formState.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm Password"
-              required
-              className="border px-3 py-2 rounded w-full"
-            />
+          {/* Section 3: Account Details */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-blue-600">3. Account Details</h3>
+            <div className="grid grid-cols-2 gap-6">
+              <Input
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={handleChange}
+                placeholder="Email"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+              <Input
+                name="password"
+                type="password"
+                value={formState.password}
+                onChange={handleChange}
+                placeholder="Password"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+              <Input
+                name="confirmPassword"
+                type="password"
+                value={formState.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
+            </div>
           </div>
-        </div>
 
-        <Button
+          <Button
 
-          variant="primary"
-          className="w-full"
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit"}
-        </Button>
-        {formError && <p className="text-red-600 text-sm mt-2 text-center">{formError}</p>}
+            variant="primary"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit"}
+          </Button>
+          {formError && <p className="text-red-600 text-sm mt-2 text-center">{formError}</p>}
 
 
-        {error && <p className="text-red-600 text-sm mt-2 text-center">{error}</p>}
+          {error && <p className="text-red-600 text-sm mt-2 text-center">{error}</p>}
+        </ComponentCard>
+
       </form>
     </div>
   );
