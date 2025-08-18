@@ -334,15 +334,11 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
       : paymentType === "remaining"
         ? Number(checkoutDetails?.remainingAmount ?? 0)
-        : Number(amount ?? 0)
-    // if ((checkoutDetails?.paymentStatus as string) === "paid") {
-    //   return extraServiceTotal;
-    // }
-    // return defaultRemaining + extraServiceTotal;
+        : Number(amount ?? 0);
 
-    return defaultRemaining
-
+    return Number(defaultRemaining.toFixed(2)); // ensures number type
   })();
+
 
 
 
