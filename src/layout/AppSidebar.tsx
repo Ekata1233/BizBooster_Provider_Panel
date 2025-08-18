@@ -92,13 +92,13 @@ const advertiseItems: NavItem[] = [
 ];
 
 const AccountItems: NavItem[] = [
-   {
+  {
     icon: <GridIcon />,
     name: "Account Information",
     path: "/account-management/account-information",
     // subItems: [{ name: "Dashboard", path: "/", pro: false }],
   },
-   {
+  {
     icon: <GridIcon />,
     name: "Bank Information",
     path: "/account-management/bank-information",
@@ -121,31 +121,31 @@ const othersItems: NavItem[] = [
 
 
 const AppSidebar: React.FC = () => {
- const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
-const pathname = usePathname();
-const { provider } = useAuth();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const pathname = usePathname();
+  const { provider } = useAuth();
   const { leads, refetchLeads, loadingLeads, errorLeads } = useLead();
 
-const {
-  checkouts,
- 
-  fetchCheckoutsByProviderId,
-} = useCheckout();
-useEffect(() => {
+  const {
+    checkouts,
+
+    fetchCheckoutsByProviderId,
+  } = useCheckout();
+  useEffect(() => {
     refetchLeads();
   }, []);
 
-  console.log("app sidebar allLeads....:",leads);
-// const [search, setSearch] = useState('');
-console.log("app sidebar all booking", checkouts);
+  console.log("app sidebar allLeads....:", leads);
+  // const [search, setSearch] = useState('');
+  console.log("app sidebar all booking", checkouts);
 
-useEffect(() => {
-  if (provider?._id) {
-    fetchCheckoutsByProviderId(provider._id);
-  }
-}, [provider]);
+  useEffect(() => {
+    if (provider?._id) {
+      fetchCheckoutsByProviderId(provider._id);
+    }
+  }, [provider]);
 
-console.log("checkout : ", checkouts);
+  console.log("checkout : ", checkouts);
 
 
   const renderMenuItems = (
@@ -232,78 +232,76 @@ console.log("checkout : ", checkouts);
                         }`}
                     >
                       {subItem.name}
-                 <span className="flex items-center gap-1 ml-auto">
-  {/* ✅ Count badge for All Bookings */}
-  {subItem.name === "All Bookings" && (
-    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-      {checkouts?.length || 0}
-    </span>
-  )}
+                      <span className="flex items-center gap-1 ml-auto">
+                        {/* ✅ Count badge for All Bookings */}
+                        {subItem.name === "All Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.length || 0}
+                          </span>
+                        )}
 
-  {/* ✅ Count badge for Booking Requests */}
-  {subItem.name === "Booking Requests" && (
-    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-      {checkouts?.filter(
-        (checkout) => checkout.isAccepted === false
-      )?.length || 0}
-    </span>
-  )}
+                        {/* ✅ Count badge for Booking Requests */}
+                        {subItem.name === "Booking Requests" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) => checkout.isAccepted === false
+                            )?.length || 0}
+                          </span>
+                        )}
 
-  {/* ✅ Count badge for Accepted Requests */}
-  {subItem.name === "Accepted Bookings" && (
-    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-      {checkouts?.filter(
-        (checkout) =>
-          checkout.isAccepted === true &&
-          checkout.isCompleted === false &&
-          checkout.isCanceled === false
-      )?.length || 0}
-    </span>
-  )}
+                        {/* ✅ Count badge for Accepted Requests */}
+                        {subItem.name === "Accepted Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) =>
+                                checkout.isAccepted === true &&
+                                checkout.isCompleted === false &&
+                                checkout.isCanceled === false
+                            )?.length || 0}
+                          </span>
+                        )}
 
-  {/* ✅ Count badge for Completed Requests */}
-  {subItem.name === "Completed Bookings" && (
-    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-      {checkouts?.filter(
-        (checkout) =>
-          checkout.isCompleted === true &&
-          checkout.isCanceled === false
-      )?.length || 0}
-    </span>
-  )}
+                        {/* ✅ Count badge for Completed Requests */}
+                        {subItem.name === "Completed Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) =>
+                                checkout.isCompleted === true &&
+                                checkout.isCanceled === false
+                            )?.length || 0}
+                          </span>
+                        )}
 
-  {/* ✅ Count badge for Canceled Requests */}
-  {subItem.name === "Canceled Bookings" && (
-    <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-      {checkouts?.filter(
-        (checkout) => checkout.isCanceled === true
-      )?.length || 0}
-    </span>
-  )}
+                        {/* ✅ Count badge for Canceled Requests */}
+                        {subItem.name === "Canceled Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) => checkout.isCanceled === true
+                            )?.length || 0}
+                          </span>
+                        )}
 
-  {subItem.new && (
-    <span
-      className={`${
-        isActive(subItem.path)
-          ? "menu-dropdown-badge-active"
-          : "menu-dropdown-badge-inactive"
-      } menu-dropdown-badge`}
-    >
-      new
-    </span>
-  )}
-  {subItem.pro && (
-    <span
-      className={`${
-        isActive(subItem.path)
-          ? "menu-dropdown-badge-active"
-          : "menu-dropdown-badge-inactive"
-      } menu-dropdown-badge`}
-    >
-      pro
-    </span>
-  )}
-</span>
+                        {subItem.new && (
+                          <span
+                            className={`${isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                          >
+                            new
+                          </span>
+                        )}
+                        {subItem.pro && (
+                          <span
+                            className={`${isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                          >
+                            pro
+                          </span>
+                        )}
+                      </span>
 
 
 
@@ -321,7 +319,7 @@ console.log("checkout : ", checkouts);
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "booking" | "user" | "account" |"advertise" |"gallery";
+    type: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -335,7 +333,7 @@ console.log("checkout : ", checkouts);
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others", "booking", "user", "account", "advertise","gallery"].forEach((menuType) => {
+    ["main", "others", "booking", "user", "account", "advertise", "gallery"].forEach((menuType) => {
       const items =
         menuType === "main"
           ? navItems
@@ -344,18 +342,18 @@ console.log("checkout : ", checkouts);
             : menuType === "user"
               ? userItems
               : menuType === "advertise"
-              ? advertiseItems
-               : menuType === "gallery"
-              ? galleryItems
-              : menuType === "account"
-                ? AccountItems
-                : bookingItems;
+                ? advertiseItems
+                : menuType === "gallery"
+                  ? galleryItems
+                  : menuType === "account"
+                    ? AccountItems
+                    : bookingItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others" | "booking" | "user" | "account"|"advertise"|"gallery",
+                type: menuType as "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery",
                 index,
               });
               submenuMatched = true;
@@ -384,7 +382,7 @@ console.log("checkout : ", checkouts);
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" |"advertise" |"gallery") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -507,7 +505,7 @@ console.log("checkout : ", checkouts);
               </h2>
               {renderMenuItems(userItems, "user")}
             </div>
-             <div className="">
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                   }`}
@@ -520,7 +518,7 @@ console.log("checkout : ", checkouts);
               </h2>
               {renderMenuItems(galleryItems, "gallery")}
             </div>
-             <div className="">
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                   }`}
@@ -534,7 +532,7 @@ console.log("checkout : ", checkouts);
               {renderMenuItems(advertiseItems, "advertise")}
             </div>
 
-             <div className="">
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                   }`}

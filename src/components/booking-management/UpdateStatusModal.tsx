@@ -352,12 +352,15 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const finalFullAmount =
     Number(checkoutDetails?.grandTotal) > 0
-      ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
-      : Number(amount);
+      ? Number(
+        (Number(checkoutDetails?.grandTotal ?? 0) -
+          Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
+      )
+      : Number(Number(amount).toFixed(2));
+
   console.log("1st service :", amount);
 
 
-  console.log("full payment :", finalFullAmount);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -523,10 +526,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                     ₹{" "}
                     {(
                       Number(checkoutDetails?.grandTotal) > 0
-                        ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+                        ? (Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
                         : paymentType === "remaining"
-                          ? Number(checkoutDetails?.remainingAmount ?? 0)
-                          : Number(amount ?? 0)
+                          ? Number(checkoutDetails?.remainingAmount ?? 0).toFixed(2)
+                          : Number(amount ?? 0).toFixed(2)
                     ).toString()
                     }
                   </Label>
