@@ -124,7 +124,11 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
   const { provider } = useAuth();
+<<<<<<< HEAD
   const { leads, refetchLeads, loadingLeads, errorLeads } = useLead();
+=======
+  const { leads, refetchLeads } = useLead();
+>>>>>>> 530869210e189b600b665df64019916b01307c2d
 
   const {
     checkouts,
@@ -227,8 +231,8 @@ const AppSidebar: React.FC = () => {
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${isActive(subItem.path)
-                        ? "menu-dropdown-item-active"
-                        : "menu-dropdown-item-inactive"
+                          ? "menu-dropdown-item-active"
+                          : "menu-dropdown-item-inactive"
                         }`}
                     >
                       {subItem.name}
@@ -249,7 +253,11 @@ const AppSidebar: React.FC = () => {
                           </span>
                         )}
 
+<<<<<<< HEAD
                         {/* ✅ Count badge for Accepted Requests */}
+=======
+                        {/* ✅ Count badge for Accepted Bookings */}
+>>>>>>> 530869210e189b600b665df64019916b01307c2d
                         {subItem.name === "Accepted Bookings" && (
                           <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                             {checkouts?.filter(
@@ -260,6 +268,7 @@ const AppSidebar: React.FC = () => {
                             )?.length || 0}
                           </span>
                         )}
+<<<<<<< HEAD
 
                         {/* ✅ Count badge for Completed Requests */}
                         {subItem.name === "Completed Bookings" && (
@@ -302,15 +311,66 @@ const AppSidebar: React.FC = () => {
                           </span>
                         )}
                       </span>
+=======
+>>>>>>> 530869210e189b600b665df64019916b01307c2d
+
+                        {/* ✅ Count badge for Completed Bookings */}
+                        {subItem.name === "Completed Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) =>
+                                checkout.isCompleted === true &&
+                                checkout.isCanceled === false
+                            )?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Canceled Bookings */}
+                        {subItem.name === "Canceled Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) => checkout.isCanceled === true
+                            )?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Refunded Bookings */}
+                       {/* ✅ Count badge for Refunded Bookings */}
+{subItem.name === "Refunded Bookings" && (
+  <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+    {leads?.filter((lead) =>
+      lead.leads?.some((l) => l.statusType === "Refund")
+    )?.length || 0}
+  </span>
+)}
 
 
-
-
-
+                        {subItem.new && (
+                          <span
+                            className={`${isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                          >
+                            new
+                          </span>
+                        )}
+                        {subItem.pro && (
+                          <span
+                            className={`${isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                          >
+                            pro
+                          </span>
+                        )}
+                      </span>
                     </Link>
                   </li>
                 ))}
               </ul>
+
             </div>
           )}
         </li>

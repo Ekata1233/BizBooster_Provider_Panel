@@ -1,694 +1,243 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import { Modal } from "../ui/modal";
-import Label from "../form/Label";
-import FileInput from "../form/input/FileInput";
-import { useCheckout } from "@/app/context/CheckoutContext";
-import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import ComponentCard from '@/components/common/ComponentCard';
+import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import BasicTableOne from '@/components/tables/BasicTableOne';
+import Input from '@/components/form/input/InputField';
+import { useCheckout } from '@/app/context/CheckoutContext';
+import { useAuth } from '@/app/context/AuthContext';
+import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import Link from 'next/link';
+import { useLead } from '@/app/context/LeadContext';
+import { ServiceCustomer } from '@/app/(admin)/booking-management/accepted-requests/page';
 
-interface UpdateStatusModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (formData: FormData) => void;
-  checkoutId: string;
-  serviceCustomerId: string;
-  serviceManId?: string;
-  serviceId?: string;
-  amount: string;
-  loading: boolean;
-}
+type BookingRow = {
+  _id: string;
+  bookingId: string;
+  serviceCustomer: ServiceCustomer;
+  totalAmount: number;
+  paymentStatus: 'paid' | 'unpaid' | string;
+  scheduleDate: string | Date | null;
+  bookingDate: string | Date;
+  orderStatus: 'processing' | 'completed' | 'canceled' | string;
+};
 
+const RefundedRequest = () => {
+  const { provider } = useAuth();
+   const { leads, refetchLeads } = useLead();
+  const {
+    checkouts,
+    loadingCheckouts,
+    errorCheckouts,
+    fetchCheckoutsByProviderId,
+  } = useCheckout();
 
-
-const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  checkoutId,
-  serviceCustomerId,
-  serviceManId,
-  serviceId,
-  amount,
-  loading,
-}) => {
-  const [statusType, setStatusType] = useState("");
-  const [description, setDescription] = useState("");
-  const [linkType, setLinkType] = useState("");
-  const [zoomLink, setZoomLink] = useState("");
-  const [paymentLink, setPaymentLink] = useState("");
-  const [paymentType, setPaymentType] = useState("");
-  const [document, setDocument] = useState<File | null>(null);
-  const [generatingPaymentLink, setGeneratingPaymentLink] = useState(false);
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const [otpSuccess, setOtpSuccess] = useState(false);
-  const [verifyingOtp, setVerifyingOtp] = useState(false);
-  const [isCashInHand, setIsCashInHand] = useState(false);
-
-  const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
-
-  console.log(linkType);
-
-  const { getLeadByCheckoutId } = useLead();
-  const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
-  const [extraService, setExtraService] = useState<IExtraService[]>([]);
-  const [assurityFee, setAssurityFee] = useState<number>(0);
-
-  const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
-
-  console.log("eselected status type  : ", statusType)
-
-
-  useEffect(() => {
-    if (checkoutId && !checkoutDetails?._id) {
-      fetchCheckoutsDetailsById(checkoutId);
-    }
-  }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
-
-  useEffect(() => {
-    const fetchCommission = async () => {
-      try {
-        const res = await axios.get("https://biz-booster.vercel.app/api/commission");
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          setAssurityFee(res.data[0].assurityfee); // store in state variable
-        }
-      } catch (error) {
-        console.error("Error fetching commission data:", error);
-      }
-    };
-
-    fetchCommission();
+  const [search, setSearch] = useState('');
+useEffect(() => {
+    refetchLeads();
   }, []);
 
+  console.log("Leads....:",leads);
+  
   useEffect(() => {
-    const fetchLead = async () => {
-      if (!checkoutId) return;
-      const leadData = await getLeadByCheckoutId(checkoutId);
+    if (provider?._id) {
+      fetchCheckoutsByProviderId(provider._id);
+    }
+  }, [provider]);
 
-      if (leadData && Array.isArray(leadData.leads)) {
-        setLeadStatusList(leadData.leads);
-        console.log("✅ Existing Lead Statuses:", leadData.leads);
-      } else {
-        console.warn("⚠️ No leads available or not an array");
-      }
+  console.log('checkout : ', checkouts);
 
-      if (leadData && Array.isArray(leadData.extraService)) {
-        setExtraService(leadData.extraService);
-        console.log("✅ Extra Services:", leadData.extraService);
-      } else {
-        console.warn("⚠️ No extra services available or not an array");
-      }
+  if (loadingCheckouts) return <p>Loading...</p>;
+  if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
+
+  const columns = [
+    {
+      header: 'Booking ID',
+      accessor: 'bookingId',
+    },
+    {
+      header: 'Customer Info',
+      accessor: 'customerInfo',
+      render: (row: BookingRow) => {
+        console.log('Customer Info Row:', row);
+        return (
+          <div className="text-sm">
+            <p className="font-medium text-gray-900">
+              {row.serviceCustomer?.fullName || 'N/A'}
+            </p>
+            <p className="text-gray-500">{row.serviceCustomer?.email || ''}</p>
+          </div>
+        );
+      },
+    },
+    {
+      header: 'Total Amount',
+      accessor: 'totalAmount',
+      render: (row: BookingRow) => (
+        <span className="text-gray-800 font-semibold">₹ {row.totalAmount}</span>
+      ),
+    },
+    {
+      header: 'Payment Status',
+      accessor: 'paymentStatus',
+      render: (row: BookingRow) => {
+        const status = row.paymentStatus;
+        const statusColor =
+          status === 'paid'
+            ? 'bg-green-100 text-green-700 border-green-300'
+            : 'bg-yellow-100 text-yellow-700 border-yellow-300';
+
+        return (
+          <span
+            className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}
+          >
+            {status}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Schedule Date',
+      accessor: 'scheduleDate',
+      render: (row: BookingRow) => (
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString()
+            : 'N/A'}
+        </span>
+      ),
+    },
+    {
+      header: 'Booking Date',
+      accessor: 'bookingDate',
+      render: (row: BookingRow) => (
+        <span>{new Date(row.bookingDate).toLocaleString()}</span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: 'orderStatus',
+      render: (row: BookingRow) => {
+        let colorClass = '';
+        switch (row.orderStatus) {
+          case 'processing':
+            colorClass =
+              'bg-blue-100 text-blue-700 border border-blue-300';
+            break;
+          case 'completed':
+            colorClass =
+              'bg-green-100 text-green-700 border border-green-300';
+            break;
+          case 'canceled':
+          case 'cancelled': // in case API sends British spelling
+            colorClass =
+              'bg-red-100 text-red-700 border border-red-300';
+            break;
+          default:
+            colorClass =
+              'bg-gray-100 text-gray-700 border border-gray-300';
+        }
+
+        return (
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}
+          >
+            {row.orderStatus}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Action',
+      accessor: 'action',
+      render: (row: BookingRow) => (
+        <div className="flex gap-2">
+          <Link
+            href={`/booking-management/canceled-requests/${row._id}`}
+            passHref
+          >
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
+          <button
+            onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
+            className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
+          >
+            <PencilIcon />
+          </button>
+          <button
+            onClick={() => alert(`Deleting booking ID: ${row.bookingId}`)}
+            className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
+          >
+            <TrashBinIcon />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+
+  // ✅ Only show bookings with at least one lead having statusType "Refund"
+// ✅ Only show leads with at least one statusType === "Refund"
+const data: BookingRow[] = leads
+  .filter((leadItem) =>
+    Array.isArray(leadItem.leads) &&
+    leadItem.leads.some((lead) => lead.statusType === "Refund")
+  )
+  .map((leadItem) => {
+    const checkoutObj = leadItem.checkout as unknown as {
+      bookingId: string;
+      serviceCustomer: ServiceCustomer;
+      totalAmount: number;
+      paymentStatus: string;
+      scheduleDate?: string | Date;
+      bookingDate?: string | Date;
+      createdAt: string | Date;
+      orderStatus: string;
     };
 
-    fetchLead();
-  }, [checkoutId]);
-
-
-
-  const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setDocument(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!statusType) {
-      alert("Please select a status type.");
-      return;
-    }
-
-    console.log("status type : ", statusType)
-
-    const formData = new FormData();
-    formData.append("checkout", checkoutId);
-    formData.append("serviceCustomer", serviceCustomerId);
-    formData.append("serviceMan", serviceManId ?? "null");
-    formData.append("service", serviceId ?? "");
-    formData.append("amount", amount);
-
-    const leadStatus: Record<string, unknown> = {
-      statusType,
-      description,
+    return {
+      bookingId: checkoutObj.bookingId,
+      serviceCustomer: checkoutObj.serviceCustomer,
+      totalAmount: checkoutObj.totalAmount,
+      paymentStatus: checkoutObj.paymentStatus,
+      scheduleDate: checkoutObj.scheduleDate ?? checkoutObj.createdAt,
+      bookingDate: checkoutObj.bookingDate ?? checkoutObj.createdAt,
+      orderStatus: checkoutObj.orderStatus,
+      _id: leadItem._id ?? "",
     };
-
-    leadStatus.zoomLink = zoomLink;
-
-    if (paymentLink.trim()) leadStatus.paymentLink = paymentLink;
-    if (paymentType) leadStatus.paymentType = paymentType;
-
-    formData.append("leads", JSON.stringify([leadStatus]));
-
-    if (document) {
-      formData.append("document", document);
-    }
-
-    const oneTimeStatuses = [
-      "Lead accepted",
-      "Lead requested documents",
-      "Lead started",
-      "Lead ongoing",
-      "Lead completed",
-      "Lead cancel",
-      "Refund",
-    ];
-
-    if (
-      oneTimeStatuses.includes(statusType) &&
-      leadStatusList.some((lead: { statusType?: string }) =>
-        lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
-      )
-    ) {
-      alert(`The status "${statusType}" has already been added.`);
-      return;
-    }
-
-    onSubmit(formData);
-
-
-    if (isCashInHand) {
-      try {
-        const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            statusType, paymentKind: paymentType?.toLowerCase(), // "full" or "partial"
-            amount: Number(amount),
-          }),
-        });
-
-        const cashData = await cashRes.json();
-        if (!cashData.success) {
-          console.error("Cash-in-hand update failed:", cashData.message);
-          alert("Warning: Cash-in-hand status not saved.");
-        }
-      } catch (cashError) {
-        console.error("Cash-in-hand API error:", cashError);
-        alert("Warning: Could not mark cash-in-hand on server.");
-      }
-    }
-    setStatusType("");
-    setDescription("");
-    setLinkType("");
-    setZoomLink("");
-    setPaymentLink("");
-    setPaymentType("");
-    setDocument(null);
-  };
-
-
-  const createPaymentLink = async (amountToPay: number) => {
-    setGeneratingPaymentLink(true);
-
-    const now = new Date();
-    const orderId = `checkout_${now.getFullYear()}${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}${now
-        .getHours()
-        .toString()
-        .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
-          .getSeconds()
-          .toString()
-          .padStart(2, "0")}`;
-
-    try {
-      const res = await fetch(
-        "https://biz-booster.vercel.app/api/payment/generate-payment-link",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: amountToPay,
-            customerId: serviceCustomerId,
-            customerName: "Customer Name",
-            customerEmail: "customer@example.com",
-            customerPhone: "9999999999",
-            checkoutId,
-            orderId,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      setPaymentLink(data.paymentLink || "");
-    } catch (error) {
-      console.error("Payment link generation failed", error);
-      alert("Failed to generate payment link.");
-    } finally {
-      setGeneratingPaymentLink(false);
-    }
-  };
-
-
-  const handleOtpVerify = async () => {
-    const enteredOtp = otp.join("");
-    if (enteredOtp.length !== 6) {
-      setOtpError("Please enter all 6 digits.");
-      return;
-    }
-
-    setVerifyingOtp(true);
-    setOtpError("");
-    setOtpSuccess(false);
-
-    try {
-      const res = await fetch(
-        "https://biz-booster.vercel.app/api/provider/lead/verify-otp",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ checkoutId, otp: enteredOtp }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        setOtpSuccess(true);
-
-        if (isCashInHand) {
-          try {
-            const cashRes = await fetch(
-              `https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`,
-              {
-                method: "PUT",
-              }
-            );
-            const cashData = await cashRes.json();
-            if (!cashData.success) {
-              console.error("Cash-in-hand update failed:", cashData.message);
-              alert("Warning: Cash-in-hand status not saved.");
-            }
-          } catch (cashError) {
-            console.error("Cash-in-hand API error:", cashError);
-            alert("Warning: Could not mark cash-in-hand on server.");
-          }
-        }
-
-        setTimeout(() => {
-          setIsOtpModalOpen(false);
-          handleSubmit();
-        }, 1000);
-      } else {
-        setOtpError(data.message || "Invalid OTP. Please try again.");
-      }
-    } catch (error) {
-      console.error(error); // or log to external service
-      setOtpError("Something went wrong. Please try again.");
-    }
-    finally {
-      setVerifyingOtp(false);
-    }
-  };
-
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d?$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value && index < otp.length - 1) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  };
-  // useEffect(() => {
-  //   if (
-  //     statusType === "Payment request (partial/full)" &&
-  //     isCashInHand &&
-  //     paymentLink &&
-  //     !generatingPaymentLink
-  //   ) {
-  //     handleSubmit();
-  //   }
-  // }, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
-  // ✅ Extra Service Price Calculation
-  const extraServiceTotal = extraService.reduce(
-    (sum, item) => sum + (Number(item.total) || 0),
-    0
-  );
-
-  const finalRemainingAmount = (() => {
-    const defaultRemaining = Number(checkoutDetails?.grandTotal) > 0
-      ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
-      : paymentType === "remaining"
-        ? Number(checkoutDetails?.remainingAmount ?? 0)
-        : Number(amount ?? 0)
-    // if ((checkoutDetails?.paymentStatus as string) === "paid") {
-    //   return extraServiceTotal;
-    // }
-    // return defaultRemaining + extraServiceTotal;
-
-    return defaultRemaining
-
-  })();
-
-
-
-  const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
-  console.log("assurityFeePrice :", assurityFeePrice);
-
-
-  const finalFullAmount =
-    Number(checkoutDetails?.grandTotal) > 0
-      ? Number(
-        (Number(checkoutDetails?.grandTotal ?? 0) -
-          Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
-      )
-      : Number(Number(amount).toFixed(2));
-
-  console.log("1st service :", amount);
-
+  })
+  .reverse();
 
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
-      <div className="relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
-          Update Status
-        </h2>
-
-        <div className="mb-4">
-          <Label className="block mb-1 font-medium">Status Type</Label>
-          <select
-            className="w-full p-2 rounded-md border"
-            value={statusType}
-            onChange={async (e) => {
-              const selected = e.target.value;
-
-              if (selected === "Lead completed") {
-                if (checkoutDetails?.paymentStatus === "paid") {
-                  setStatusType(selected);
-                  setIsOtpModalOpen(true); // ✅ Only "Lead completed" triggers OTP modal
-                } else {
-                  alert("Payment is not completed. Please complete payment before marking as completed.");
-                  setStatusType("Payment request (partial/full)");
-
-                  if ((checkoutDetails?.paymentStatus as string) === "paid") {
-                    setPaymentType("remaining");
-                    createPaymentLink(finalRemainingAmount);
-
-                  } else {
-                    setPaymentType("full");
-                    createPaymentLink(finalFullAmount);
-
-                  }
-                }
-              }
-              else {
-                setStatusType(selected);
-              }
-            }}
-          >
-            <option value="">Select</option>
-
-            {/* Multi-select status types */}
-            {[
-              "Initial contact",
-              "Need understand requirement",
-              "Payment request (partial/full)",
-              "Payment verified",
-              "Lead requested documents",
-            ].map((status) => {
-              const isPaymentRequest = status === "Payment request (partial/full)";
-              const isPaymentVerified = status === "Payment verified";
-              const isPaid = checkoutDetails?.paymentStatus === "paid";
-              const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
-
-              return (
-                <option
-                  key={status}
-                  value={status}
-                  disabled={isDisabled}
-                  className={isDisabled ? "text-gray-400" : ""}
-                >
-                  {status}
-                </option>
-              );
-            })
-            }
-
-            {/* One-time status types */}
-            {[
-              "Lead accepted",
-
-              "Lead started",
-              "Lead ongoing",
-              "Lead completed",
-              "Lead cancel",
-              "Refund",
-            ].map((status) => {
-              const alreadyUsed = leadStatusList.some(
-                (lead: { statusType?: string }) =>
-                  typeof lead?.statusType === "string" &&
-                  lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
-              );
-
-              return (
-                <option
-                  key={status}
-                  value={status}
-                  disabled={alreadyUsed}
-                  className={alreadyUsed ? "text-gray-400" : ""}
-                >
-                  {status}
-                </option>
-              );
-            })}
-          </select>
-
-
-        </div>
-
-
-
-        <div className="mb-4">
-          <Label className="block mb-1 font-medium">Description</Label>
-          <textarea
-            rows={2}
-            className="w-full p-2 rounded-md border"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description here..."
-          />
-        </div>
-
-        <div className="mb-4">
-          {(statusType === "Payment request (partial/full)" ||
-            statusType === "Need understand requirement") && (
-              <Label className="block mb-1 font-medium">Add Link</Label>
-            )}
-
-          {statusType === "Need understand requirement" && (
-            <input
+    <div>
+      <PageBreadcrumb pageTitle="Canceled Request" />
+      <div className="space-y-6">
+        <ComponentCard title="Canceled Request">
+          <div className="mb-4">
+            <Input
               type="text"
-              placeholder="Enter Zoom Link"
-              className="w-full p-2 rounded-md border"
-              value={zoomLink}
-              onChange={(e) => setZoomLink(e.target.value)}
+              placeholder="Search by Booking ID…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
             />
-          )}
-
-          {statusType === "Payment request (partial/full)" && (
-            <>
-              {checkoutDetails?.isPartialPayment && (checkoutDetails?.remainingAmount ?? 0) > 0 ? (
-                <div className="my-3">
-                  <div className="flex gap-4 items-center mt-2">
-                    <input
-                      type="radio"
-                      name="paymentType"
-                      value="remaining"
-                      checked={paymentType === "remaining"}
-                      onChange={() => {
-                        setPaymentType("remaining");
-                        createPaymentLink(finalRemainingAmount);
-
-
-                      }}
-                    />
-                    <Label className="block mb-1 font-medium">Remaining Payment Amount</Label>
-                    <Label className="text-red-700 block">
-                      ₹ {finalRemainingAmount}
-
-                    </Label>
-
-                  </div>
-                </div>
-              ) : paymentType === "remaining" || paymentType === "full" ? (
-                <div className="my-3">
-                  <Label className="block mb-1 font-medium">
-                    {paymentType === "remaining"
-                      ? "Remaining Payment Amount"
-                      : "Full Payment Amount"}
-                  </Label>
-                  <Label className="text-red-700 block">
-                    ₹{" "}
-                    {(
-                      Number(checkoutDetails?.grandTotal) > 0
-                        ? (Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
-                        : paymentType === "remaining"
-                          ? Number(checkoutDetails?.remainingAmount ?? 0).toFixed(2)
-                          : Number(amount ?? 0).toFixed(2)
-                    ).toString()
-                    }
-                  </Label>
-                </div>
-              ) : (
-                <div className="flex gap-4 my-3">
-                  <Label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="paymentType"
-                      value="full"
-                      checked={paymentType === "full"}
-                      onChange={() => {
-                        setPaymentType("full");
-                        createPaymentLink(finalFullAmount);
-
-                      }}
-                    />
-                    Full Payment
-                  </Label>
-                  <Label className="text-red-700">RS {finalFullAmount}
-                  </Label>
-                  <Label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="paymentType"
-                      value="partial"
-                      checked={paymentType === "partial"}
-                      onChange={() => {
-                        setPaymentType("partial");
-                        createPaymentLink(finalFullAmount / 2);
-
-                      }}
-                    />
-                    Partial Payment
-                  </Label>
-                  <Label className="text-red-700">RS {finalFullAmount / 2}
-                  </Label>
-                </div>
-              )}
-
-
-              <input
-                type="text"
-                placeholder="Enter Payment Link"
-                className="w-full p-2 mb-2 rounded-md border"
-                value={paymentLink}
-                disabled
-              />
-
-              <div className="flex items-center gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  id="confirmPaymentLink"
-                  className="w-4 h-4"
-                  checked={isCashInHand}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      const confirm = window.confirm("Are you sure you have received cash from the customer?");
-                      if (confirm) {
-                        setIsCashInHand(true);
-                      } else {
-                        setIsCashInHand(false);
-                      }
-                    } else {
-                      setIsCashInHand(false);
-                    }
-                  }}
-                />
-
-                <Label htmlFor="confirmPaymentLink" className="text-sm text-gray-700">
-                  Payment received from customer
-                </Label>
-              </div>
-
-            </>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <Label className="block mb-1 font-medium">Upload Document</Label>
-          <FileInput onChange={handleDocument} />
-        </div>
-
-        <div className="text-right">
-          <button
-            className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleSubmit}
-            disabled={
-              loading ||
-              (statusType === "Payment request (partial/full)" &&
-                !isCashInHand &&
-                (generatingPaymentLink || !paymentLink))
-            }
-          >
-            {loading ||
-              (statusType === "Payment request (partial/full)" && generatingPaymentLink)
-              ? "Processing..."
-              : "Submit"}
-          </button>
-
-        </div>
-
-        <Modal
-          isOpen={isOtpModalOpen}
-          onClose={() => setIsOtpModalOpen(false)}
-          className="max-w-sm"
-        >
-          <div className="p-4">
-            <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
-              Enter OTP
-            </h2>
-            <div className="flex justify-center space-x-2 mb-4 mt-4">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Backspace" && !otp[index] && index > 0) {
-                      otpRefs.current[index - 1]?.focus();
-                    }
-                  }}
-                  ref={(el) => {
-                    otpRefs.current[index] = el;
-                  }}
-                  className="w-10 h-10 text-center border rounded-md"
-                />
-              ))}
-            </div>
-
-
-            {otpError && (
-              <p className="text-red-500 text-sm text-center mb-2">
-                {otpError}
-              </p>
-            )}
-            {otpSuccess && (
-              <p className="text-green-500 text-sm text-center mb-2">
-                OTP verified successfully!
-              </p>
-            )}
-
-            <div className="text-right">
-              <button
-                onClick={handleOtpVerify}
-                disabled={verifyingOtp}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                {verifyingOtp ? "Verifying..." : "Submit"}
-              </button>
-            </div>
           </div>
-        </Modal>
+
+          {data.length > 0 ? (
+            <BasicTableOne columns={columns} data={data} />
+          ) : (
+            <p className="text-sm text-gray-500">
+              No cancel request data to display.
+            </p>
+          )}
+        </ComponentCard>
       </div>
-    </Modal>
+    </div>
   );
 };
 
-export default UpdateStatusModal;
+export default RefundedRequest;
