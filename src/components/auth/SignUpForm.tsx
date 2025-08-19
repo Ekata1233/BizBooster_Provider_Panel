@@ -10,7 +10,9 @@ import { Check, ArrowRightIcon, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/app/context/AuthContext';
-
+import { useZone } from '@/app/context/ZoneContext';
+import { useModule } from '@/app/context/ModuleContext';
+import { EyeIcon, EyeCloseIcon } from '@/icons';
 /* ------------------------------------------------------------------ */
 /*  VISUAL STEPPER                                                    */
 /* ------------------------------------------------------------------ */
@@ -78,8 +80,16 @@ export default function ProviderOnboardingPage() {
   } = useProvider();
   const router = useRouter();
   const { providerDetails } = useAuth();
+  const { zones, loadingZones, errorZones, refetchZones } = useZone();
+  const { modules, loadingModules, errorModules, refetchModules } = useModule();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  console.log("provider in steps : ", providerDetails);
+
+
+  console.log("zones in steps : ", zones);
+
+  console.log("modules in steps : ", modules);
 
   const regForm = useForm();
   const storeForm = useForm();
@@ -132,45 +142,49 @@ export default function ProviderOnboardingPage() {
   };
 
 
-const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
-  const fd = new FormData();
-  Object.entries(data).forEach(([k, v]) => {
-    if (v instanceof FileList) {
-      Array.from(v).forEach((file) => fd.append(k, file));
-    } else {
-      fd.append(k, v);
-    }
-  });
-  await updateStoreInfo(fd);
-  storeForm.reset();
-  setActiveStep(3);
-};
+  const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (v instanceof FileList) {
+        Array.from(v).forEach((file) => fd.append(k, file));
+      } else {
+        fd.append(k, v);
+      }
+    });
+    await updateStoreInfo(fd);
+    storeForm.reset();
+    setActiveStep(3);
+  };
 
 
- const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
-  const fd = new FormData();
+  const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+    const fd = new FormData();
 
-  Object.entries(data).forEach(([k, v]) => {
-    if (v instanceof FileList) {
-      Array.from(v).forEach((file) => fd.append(k, file));
-    } else {
-      fd.append(k, v as string); // TypeScript understands v is FormDataEntryValue
-    }
-  });
+    Object.entries(data).forEach(([k, v]) => {
+      if (v instanceof FileList) {
+        Array.from(v).forEach((file) => fd.append(k, file));
+      } else {
+        fd.append(k, v as string); // TypeScript understands v is FormDataEntryValue
+      }
+    });
 
-  await updateKycInfo(fd);
-  kycForm.reset();
+    await updateKycInfo(fd);
+    kycForm.reset();
 
-  setTimeout(() => {
-    router.push("/");
-  }, 3000);
-};
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
+  };
 
 
   const storeDone = !!provider?.storeInfoCompleted;
   const kycDone = !!provider?.kycCompleted;
 
   if (loading && !provider) return <p className="py-10 text-center">Loading…</p>;
+  if (loadingZones) return <p>Loading zones...</p>;
+  if (errorZones) return <p>{errorZones}</p>;
+  if (loadingModules) return <p>Loading modules...</p>;
+  if (errorModules) return <p>{errorModules}</p>;
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar mb-5">
@@ -231,18 +245,32 @@ const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) 
                     <input
                       {...regForm.register('password')}
                       required
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                    >
+                      {showPassword ? <EyeCloseIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                    </button>
                   </div>
                   <div>
                     <label className="block mb-1 font-medium text-gray-700">Confirm Password</label>
                     <input
                       {...regForm.register('confirmPassword')}
                       required
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                    >
+                      {showConfirmPassword ? <EyeCloseIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                    </button>
                   </div>
                 </div>
 
@@ -293,6 +321,37 @@ const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) 
                         type="email"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       />
+                    </div>
+                    {/* Module Dropdown */}
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">Select Module</label>
+                      <select
+                        {...storeForm.register("moduleId", { required: true })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Module</option>
+                        {modules?.map((m) => (
+                          <option key={m._id} value={m._id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Zone Dropdown */}
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">Select Zone</label>
+                      <select
+                        {...storeForm.register("zoneId", { required: true })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Zone</option>
+                        {zones?.map((z) => (
+                          <option key={z._id} value={z._id}>
+                            {z.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">Address</label>
@@ -350,6 +409,8 @@ const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) 
                       hover:file:bg-blue-100"
                       />
                     </div>
+
+
                   </div>
 
                   {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

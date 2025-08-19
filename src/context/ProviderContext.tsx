@@ -73,6 +73,7 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
     setLoading(true);
     try {
         const token = localStorage.getItem('providerToken');
+        
       const res = await fetch(`${BASE_URL}/store-info`, {
         method: 'PUT',
         body: formData,
