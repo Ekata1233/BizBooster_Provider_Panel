@@ -80,8 +80,8 @@ export default function ProviderOnboardingPage() {
   } = useProvider();
   const router = useRouter();
   const { providerDetails } = useAuth();
-  const { zones, loadingZones, errorZones, refetchZones } = useZone();
-  const { modules, loadingModules, errorModules, refetchModules } = useModule();
+  const { zones, loadingZones, errorZones } = useZone();
+  const { modules, loadingModules, errorModules } = useModule();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
