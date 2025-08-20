@@ -240,38 +240,48 @@ export default function ProviderOnboardingPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-                  <div>
+                  <div className="relative">
                     <label className="block mb-1 font-medium text-gray-700">Password</label>
                     <input
-                      {...regForm.register('password')}
+                      {...regForm.register("password")}
                       required
                       type={showPassword ? "text" : "password"}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                      className="absolute inset-y-12 right-0 flex items-center pr-3 text-gray-500"
                     >
-                      {showPassword ? <EyeCloseIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      {showPassword ? (
+                        <EyeCloseIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
                     </button>
                   </div>
-                  <div>
+
+                  <div className="relative">
                     <label className="block mb-1 font-medium text-gray-700">Confirm Password</label>
                     <input
-                      {...regForm.register('confirmPassword')}
+                      {...regForm.register("confirmPassword")}
                       required
                       type={showConfirmPassword ? "text" : "password"}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                      className="absolute inset-y-12 right-0 flex items-center pr-3 text-gray-500"
                     >
-                      {showConfirmPassword ? <EyeCloseIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                      {showConfirmPassword ? (
+                        <EyeCloseIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
                     </button>
                   </div>
+
                 </div>
 
                 {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
