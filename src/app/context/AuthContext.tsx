@@ -133,6 +133,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("providerData", JSON.stringify(provider));
       // localStorage.setItem("providerDetails", JSON.stringify(provider));
       localStorage.setItem("providerToken", token);
+            localStorage.setItem("token", token);
+
 
       // Fetch full provider details
       const providerDetailsRes = await fetch(

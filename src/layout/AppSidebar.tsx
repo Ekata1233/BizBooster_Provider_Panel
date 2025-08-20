@@ -135,9 +135,7 @@ const AppSidebar: React.FC = () => {
     refetchLeads();
   }, []);
 
-  console.log("app sidebar allLeads....:", leads);
-  // const [search, setSearch] = useState('');
-  console.log("app sidebar all booking", checkouts);
+
 
   useEffect(() => {
     if (provider?._id) {
@@ -145,7 +143,6 @@ const AppSidebar: React.FC = () => {
     }
   }, [provider]);
 
-  console.log("checkout : ", checkouts);
 
 
   const renderMenuItems = (

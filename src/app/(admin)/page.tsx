@@ -162,9 +162,10 @@ function PendingModal({
 
 
 export default function Ecommerce() {
-  const { providerDetails } = useAuth();
+  const { providerDetails,refreshProviderDetails} = useAuth();
   const router = useRouter();
 
+  console.log("provider detials in dashboard : ", providerDetails)
   // local modal control
   const [isOpen, setIsOpen] = useState(false);
 
@@ -175,6 +176,11 @@ export default function Ecommerce() {
       setIsOpen(true); // 🔥 open modal if not approved
     }
   }, [providerDetails, router]);
+
+  useEffect(() => {
+  refreshProviderDetails();
+}, []);
+
 
   const {
     isApproved = false,

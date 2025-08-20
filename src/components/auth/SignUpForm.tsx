@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useProvider } from '@/context/ProviderContext';
-import { ChevronLeftIcon } from '@/icons';
+import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons';
 import Link from 'next/link';
 import { Check, ArrowRightIcon, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useAuth } from '@/app/context/AuthContext';
+import { useZone } from '@/app/context/ZoneContext';
+import { useModule } from '@/app/context/ModuleContext';
 
 /* ------------------------------------------------------------------ */
 /*  VISUAL STEPPER                                                    */
@@ -78,13 +80,15 @@ export default function ProviderOnboardingPage() {
   const router = useRouter();
   const { providerDetails } = useAuth();
 
-  console.log("provider in steps : ", providerDetails);
 
   const regForm = useForm();
   const storeForm = useForm();
   const kycForm = useForm();
   const [activeStep, setActiveStep] = useState<number>(1);
-
+  const { zones, loadingZones, errorZones } = useZone();
+  const { modules, loadingModules, errorModules } = useModule();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const providerId = providerDetails?._id as string | undefined;
   console.log("provider Id : ", providerId);
 
@@ -232,6 +236,18 @@ export default function ProviderOnboardingPage() {
                       type="password"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-12 right-0 flex items-center pr-3 text-gray-500"
+                    >
+                      {showPassword ? (
+                        <EyeCloseIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+
                   </div>
                   <div>
                     <label className="block mb-1 font-medium text-gray-700">Confirm Password</label>
@@ -241,6 +257,18 @@ export default function ProviderOnboardingPage() {
                       type="password"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-12 right-0 flex items-center pr-3 text-gray-500"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeCloseIcon className="h-5 w-5" />
+                      ) : (
+                        <EyeIcon className="h-5 w-5" />
+                      )}
+                    </button>
+
                   </div>
                 </div>
 
@@ -292,6 +320,38 @@ export default function ProviderOnboardingPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
+                    {/* Module Dropdown */}
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">Select Module</label>
+                      <select
+                        {...storeForm.register("moduleId", { required: true })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Module</option>
+                        {modules?.map((m) => (
+                          <option key={m._id} value={m._id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Zone Dropdown */}
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">Select Zone</label>
+                      <select
+                        {...storeForm.register("zoneId", { required: true })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Zone</option>
+                        {zones?.map((z) => (
+                          <option key={z._id} value={z._id}>
+                            {z.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">Address</label>
                       <input
