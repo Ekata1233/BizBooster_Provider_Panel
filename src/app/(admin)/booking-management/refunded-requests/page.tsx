@@ -34,19 +34,19 @@ const RefundedRequest = () => {
   } = useCheckout();
 
   const [search, setSearch] = useState('');
-useEffect(() => {
+  useEffect(() => {
     refetchLeads();
   }, []);
 
-  console.log("RE Leads....:",leads);
-  
+  console.log("Leads....:", leads);
+
   useEffect(() => {
     if (provider?._id) {
       fetchCheckoutsByProviderId(provider._id);
     }
   }, [provider]);
 
-  console.log('re checkout : ', checkouts);
+  console.log('checkout : ', checkouts);
 
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
@@ -180,36 +180,36 @@ useEffect(() => {
 
 
   // ✅ Only show bookings with at least one lead having statusType "Refund"
-// ✅ Only show leads with at least one statusType === "Refund"
-const data: BookingRow[] = leads
-  .filter((leadItem) =>
-    Array.isArray(leadItem.leads) &&
-    leadItem.leads.some((lead) => lead.statusType === "Refund")
-  )
-  .map((leadItem) => {
-    const checkoutObj = leadItem.checkout as unknown as {
-      bookingId: string;
-      serviceCustomer: ServiceCustomer;
-      totalAmount: number;
-      paymentStatus: string;
-      scheduleDate?: string | Date;
-      bookingDate?: string | Date;
-      createdAt: string | Date;
-      orderStatus: string;
-    };
+  // ✅ Only show leads with at least one statusType === "Refund"
+  const data: BookingRow[] = leads
+    .filter((leadItem) =>
+      Array.isArray(leadItem.leads) &&
+      leadItem.leads.some((lead) => lead.statusType === "Refund")
+    )
+    .map((leadItem) => {
+      const checkoutObj = leadItem.checkout as unknown as {
+        bookingId: string;
+        serviceCustomer: ServiceCustomer;
+        totalAmount: number;
+        paymentStatus: string;
+        scheduleDate?: string | Date;
+        bookingDate?: string | Date;
+        createdAt: string | Date;
+        orderStatus: string;
+      };
 
-    return {
-      bookingId: checkoutObj.bookingId,
-      serviceCustomer: checkoutObj.serviceCustomer,
-      totalAmount: checkoutObj.totalAmount,
-      paymentStatus: checkoutObj.paymentStatus,
-      scheduleDate: checkoutObj.scheduleDate ?? checkoutObj.createdAt,
-      bookingDate: checkoutObj.bookingDate ?? checkoutObj.createdAt,
-      orderStatus: checkoutObj.orderStatus,
-      _id: leadItem._id ?? "",
-    };
-  })
-  .reverse();
+      return {
+        bookingId: checkoutObj.bookingId,
+        serviceCustomer: checkoutObj.serviceCustomer,
+        totalAmount: checkoutObj.totalAmount,
+        paymentStatus: checkoutObj.paymentStatus,
+        scheduleDate: checkoutObj.scheduleDate ?? checkoutObj.createdAt,
+        bookingDate: checkoutObj.bookingDate ?? checkoutObj.createdAt,
+        orderStatus: checkoutObj.orderStatus,
+        _id: leadItem._id ?? "",
+      };
+    })
+    .reverse();
 
 
   return (

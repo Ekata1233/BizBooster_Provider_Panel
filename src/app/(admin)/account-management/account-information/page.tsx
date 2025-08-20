@@ -141,15 +141,15 @@ const Page = () => {
       <div className="space-y-6">
         {/* Wallet Stats */}
         <WalletStats
-  wallet={{
-    receivableBalance: safeWallet.receivableBalance,
-    cashInHand: safeWallet.cashInHand,
-    withdrawableBalance: safeWallet.withdrawableBalance,
-    pendingWithdraw: safeWallet.pendingWithdraw,
-    alreadyWithdrawn: safeWallet.alreadyWithdrawn,
-    totalEarning: safeWallet.totalEarning,
-  }}
-/>
+          wallet={{
+            receivableBalance: safeWallet.receivableBalance,
+            cashInHand: safeWallet.cashInHand,
+            withdrawableBalance: safeWallet.withdrawableBalance,
+            pendingWithdraw: safeWallet.pendingWithdraw,
+            alreadyWithdrawn: safeWallet.alreadyWithdrawn,
+            totalEarning: safeWallet.totalEarning,
+          }}
+        />
 
 
         {/* Transaction Table */}

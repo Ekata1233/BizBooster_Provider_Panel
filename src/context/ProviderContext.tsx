@@ -54,9 +54,10 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       });
 
       const data = await res.json();
+      console.log("data at the time of registration : ", data)
       if (!res.ok) throw new Error(data.message || 'Registration failed');
        if (data.token) {
-      localStorage.setItem('token', data.providerToken);
+      localStorage.setItem('token', data.token);
     }
       setProvider(data.provider);
       setError(null);
@@ -72,7 +73,8 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
   const updateStoreInfo = async (formData: FormData) => {
     setLoading(true);
     try {
-        const token = localStorage.getItem('providerToken');
+        const token = localStorage.getItem('token');
+        
       const res = await fetch(`${BASE_URL}/store-info`, {
         method: 'PUT',
         body: formData,
@@ -97,7 +99,7 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
   const updateKycInfo = async (formData: FormData) => {
     setLoading(true);
     try {
-        const token = localStorage.getItem('providerToken');
+        const token = localStorage.getItem('token');
       const res = await fetch(`${BASE_URL}/kyc`, {
         method: 'PUT',
         body: formData,

@@ -191,21 +191,21 @@ const AllBookings = () => {
   ];
 
   const data: BookingRow[] = [...checkouts] // clone to avoid mutating original
-  .reverse() // 👈 Show latest first
-  .map((checkout) => ({
-    bookingId: checkout.bookingId,
-    serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
-totalAmount: (Number(checkout.grandTotal ?? 0) > 0) 
-  ? Number(checkout.grandTotal) 
-  : Number(checkout.totalAmount),
-    paymentStatus: checkout.paymentStatus,
-    scheduleDate: checkout.createdAt,
-    bookingDate: checkout.createdAt,
-    orderStatus: checkout.orderStatus,
-    _id: checkout._id,
-   isPartialPayment: checkout.isPartialPayment, 
-  paidAmount: checkout.paidAmount,   
-  }));
+    .reverse() // 👈 Show latest first
+    .map((checkout) => ({
+      bookingId: checkout.bookingId,
+      serviceCustomer: checkout.serviceCustomer as unknown as ServiceCustomer,
+      totalAmount: (Number(checkout.grandTotal ?? 0) > 0)
+        ? Number(checkout.grandTotal)
+        : Number(checkout.totalAmount),
+      paymentStatus: checkout.paymentStatus,
+      scheduleDate: checkout.createdAt,
+      bookingDate: checkout.createdAt,
+      orderStatus: checkout.orderStatus,
+      _id: checkout._id,
+      isPartialPayment: checkout.isPartialPayment,
+      paidAmount: checkout.paidAmount,
+    }));
 
 
 
