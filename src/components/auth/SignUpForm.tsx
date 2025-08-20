@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -24,7 +23,7 @@ function Stepper({
   activeStep: number;
 }) {
   const items = [
-    { step: 1, label: 'Registration', done: activeStep > 1 }, // Changed from 'true' to 'activeStep > 1'
+    { step: 1, label: 'Registration', done: activeStep > 1 },
     { step: 2, label: 'Store Info', done: storeDone },
     { step: 3, label: 'KYC Uploads', done: kycDone },
   ];
@@ -63,7 +62,6 @@ function Stepper({
   );
 }
 
-
 /* ------------------------------------------------------------------ */
 /*  PAGE                                                              */
 /* ------------------------------------------------------------------ */
@@ -76,6 +74,7 @@ export default function ProviderOnboardingPage() {
     updateStoreInfo,
     updateKycInfo,
   } = useProvider();
+
   const router = useRouter();
   const { providerDetails } = useAuth();
 
@@ -86,9 +85,10 @@ export default function ProviderOnboardingPage() {
   const kycForm = useForm();
   const [activeStep, setActiveStep] = useState<number>(1);
 
-  const providerId = providerDetails?._id;
-  console.log("provider Id : ", providerId)
+  const providerId = providerDetails?._id as string | undefined;
+  console.log("provider Id : ", providerId);
 
+  // Auto-navigate to first incomplete step (Registration -> Store -> KYC)
   useEffect(() => {
     const fetchProvider = async () => {
       if (!providerId) {
@@ -98,21 +98,22 @@ export default function ProviderOnboardingPage() {
 
       try {
         const res = await axios.get(`https://biz-booster.vercel.app/api/provider/${providerId}`);
-        const provider = res.data;
+        const p = res.data;
 
-        if (!provider) {
+        if (!p) {
           setActiveStep(1);
           return;
         }
 
-        if (!provider.step1Completed) {
+        if (!p.step1Completed) {
           setActiveStep(1);
-        } else if (provider.step1Completed && !provider.storeInfoCompleted) {
+        } else if (p.step1Completed && !p.storeInfoCompleted) {
           setActiveStep(2);
-        } else if (provider.step1Completed && provider.storeInfoCompleted && !provider.kycCompleted) {
+        } else if (p.step1Completed && p.storeInfoCompleted && !p.kycCompleted) {
           setActiveStep(3);
         } else {
-          setActiveStep(3); // All steps completed
+          // All steps completed; show completion state (admin review)
+          setActiveStep(3);
         }
       } catch (err) {
         console.error('Failed to fetch provider:', err);
@@ -131,41 +132,38 @@ export default function ProviderOnboardingPage() {
     setActiveStep(2);
   };
 
+  const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (v instanceof FileList) {
+        Array.from(v).forEach((file) => fd.append(k, file));
+      } else {
+        fd.append(k, v);
+      }
+    });
+    await updateStoreInfo(fd);
+    storeForm.reset();
+    setActiveStep(3);
+  };
 
-const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
-  const fd = new FormData();
-  Object.entries(data).forEach(([k, v]) => {
-    if (v instanceof FileList) {
-      Array.from(v).forEach((file) => fd.append(k, file));
-    } else {
-      fd.append(k, v);
-    }
-  });
-  await updateStoreInfo(fd);
-  storeForm.reset();
-  setActiveStep(3);
-};
+  const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (v instanceof FileList) {
+        Array.from(v).forEach((file) => fd.append(k, file));
+      } else {
+        fd.append(k, v as string);
+      }
+    });
 
+    await updateKycInfo(fd);
+    kycForm.reset();
 
- const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
-  const fd = new FormData();
-
-  Object.entries(data).forEach(([k, v]) => {
-    if (v instanceof FileList) {
-      Array.from(v).forEach((file) => fd.append(k, file));
-    } else {
-      fd.append(k, v as string); // TypeScript understands v is FormDataEntryValue
-    }
-  });
-
-  await updateKycInfo(fd);
-  kycForm.reset();
-
-  setTimeout(() => {
-    router.push("/");
-  }, 3000);
-};
-
+    // After KYC submit, return to dashboard; dashboard will show "Admin approval pending" gate if not approved yet
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
+  };
 
   const storeDone = !!provider?.storeInfoCompleted;
   const kycDone = !!provider?.kycCompleted;
@@ -486,7 +484,6 @@ const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) 
             )}
 
           </section>
-
         </div>
       </div>
     </div>

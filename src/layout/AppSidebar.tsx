@@ -227,8 +227,8 @@ const AppSidebar: React.FC = () => {
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${isActive(subItem.path)
-                          ? "menu-dropdown-item-active"
-                          : "menu-dropdown-item-inactive"
+                        ? "menu-dropdown-item-active"
+                        : "menu-dropdown-item-inactive"
                         }`}
                     >
                       {subItem.name}
@@ -282,21 +282,21 @@ const AppSidebar: React.FC = () => {
                         )}
 
                         {/* ✅ Count badge for Refunded Bookings */}
-                       {/* ✅ Count badge for Refunded Bookings */}
-{subItem.name === "Refunded Bookings" && (
-  <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-    {leads?.filter((lead) =>
-      lead.leads?.some((l) => l.statusType === "Refund")
-    )?.length || 0}
-  </span>
-)}
+                        {/* ✅ Count badge for Refunded Bookings */}
+                        {subItem.name === "Refunded Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {leads?.filter((lead) =>
+                              lead.leads?.some((l) => l.statusType === "Refund")
+                            )?.length || 0}
+                          </span>
+                        )}
 
 
                         {subItem.new && (
                           <span
                             className={`${isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
+                              ? "menu-dropdown-badge-active"
+                              : "menu-dropdown-badge-inactive"
                               } menu-dropdown-badge`}
                           >
                             new
@@ -305,8 +305,8 @@ const AppSidebar: React.FC = () => {
                         {subItem.pro && (
                           <span
                             className={`${isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
+                              ? "menu-dropdown-badge-active"
+                              : "menu-dropdown-badge-inactive"
                               } menu-dropdown-badge`}
                           >
                             pro

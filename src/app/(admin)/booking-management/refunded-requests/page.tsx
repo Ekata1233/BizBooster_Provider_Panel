@@ -38,7 +38,7 @@ useEffect(() => {
     refetchLeads();
   }, []);
 
-  console.log("Leads....:",leads);
+  console.log("RE Leads....:",leads);
   
   useEffect(() => {
     if (provider?._id) {
@@ -46,7 +46,7 @@ useEffect(() => {
     }
   }, [provider]);
 
-  console.log('checkout : ', checkouts);
+  console.log('re checkout : ', checkouts);
 
   if (loadingCheckouts) return <p>Loading...</p>;
   if (errorCheckouts) return <p>Error: {errorCheckouts}</p>;
