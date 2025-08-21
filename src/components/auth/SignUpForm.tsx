@@ -85,8 +85,8 @@ export default function ProviderOnboardingPage() {
   const storeForm = useForm();
   const kycForm = useForm();
   const [activeStep, setActiveStep] = useState<number>(1);
-  const { zones, loadingZones, errorZones } = useZone();
-  const { modules, loadingModules, errorModules } = useModule();
+  const { zones} = useZone();
+  const { modules } = useModule();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const providerId = providerDetails?._id as string | undefined;
