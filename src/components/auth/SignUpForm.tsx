@@ -228,12 +228,12 @@ export default function ProviderOnboardingPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-                  <div>
+                  <div  className="relative">
                     <label className="block mb-1 font-medium text-gray-700">Password</label>
                     <input
                       {...regForm.register('password')}
                       required
-                      type="password"
+                       type={showPassword ? "text" : "password"}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                     <button
@@ -249,12 +249,12 @@ export default function ProviderOnboardingPage() {
                     </button>
 
                   </div>
-                  <div>
+                  <div className="relative">
                     <label className="block mb-1 font-medium text-gray-700">Confirm Password</label>
                     <input
                       {...regForm.register('confirmPassword')}
                       required
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                     <button
