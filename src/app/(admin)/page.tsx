@@ -12,6 +12,20 @@ import { Check, AlertTriangle, ArrowRight } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { motion } from "framer-motion";
 
+type PendingModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  pendingState: {
+    title: string;
+    message: string;
+    cta: { href: string; label: string } | null;
+  } | null;
+  step1Completed: boolean;
+  storeInfoCompleted: boolean;
+  kycCompleted: boolean;
+};
+
+
 // Modal wrapper for pending state
 function PendingModal({
   isOpen,
@@ -20,7 +34,7 @@ function PendingModal({
   step1Completed,
   storeInfoCompleted,
   kycCompleted,
-}: any) {
+}: PendingModalProps) {
   console.log("store info completion: ", storeInfoCompleted)
   return (
     <Modal
