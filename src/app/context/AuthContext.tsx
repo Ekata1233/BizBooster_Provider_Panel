@@ -205,14 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ✅ Logout Function
   const logout = async () => {
-    try {
-      await fetch("https://biz-booster.vercel.app/api/provider/logout", {
-        method: "POST",
-        credentials: "include", // Clear the cookie
-      });
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
+    
     // Clear state
     setProvider(null);
     setProviderDetails(null);
@@ -224,6 +217,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("providerDetails");
     localStorage.removeItem("token");
     localStorage.removeItem("theme");
+
+    try {
+      await fetch("https://biz-booster.vercel.app/api/provider/logout", {
+        method: "POST",
+        credentials: "include", 
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
 
     console.log("🚪 Logged out and cleared all relevant localStorage items");
   };
