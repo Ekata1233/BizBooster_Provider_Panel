@@ -24,7 +24,7 @@ export default function AddServiceManPage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const { provider } = useAuth();
-  const providerId = provider?._id;
+  // const providerId = provider?._id;
   const { addServiceMan, loading, error } = useServiceMan();
 
   const [formState, setFormState] = useState({
