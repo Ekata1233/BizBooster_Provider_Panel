@@ -22,7 +22,7 @@ interface Transaction {
   runningBalance?: number;
 }
 
-const tabs: Array<'all' | 'credit' | 'debit' | 'withdraw'> = ['all', 'credit', 'debit', 'withdraw'];
+const tabs: Array<'all' | 'credit' | 'debit' > = ['all', 'credit', 'debit'];
 
 const columnsWallet = [
   {
@@ -86,7 +86,7 @@ const columnsWallet = [
 const Page = () => {
   const { providerDetails } = useAuth();
   const { wallet, fetchWalletByProvider, loading } = useProviderWallet();
-  const [activeTab, setActiveTab] = useState<'all' | 'credit' | 'debit' | 'withdraw'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'credit' | 'debit'>('all');
 
   console.log("wallet of provider : ", wallet)
 
@@ -129,7 +129,6 @@ const Page = () => {
   // Filter transactions based on tab
   const filteredTransactions = transactionsWithBalance.filter((txn: Transaction) => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'withdraw') return txn.source === 'withdraw';
     return txn.type === activeTab;
   });
 
