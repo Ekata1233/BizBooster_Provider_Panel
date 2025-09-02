@@ -199,7 +199,7 @@ export default function Ecommerce() {
 
   const {
     isApproved = false,
-    isRejected = false,
+   
     step1Completed = false,
     storeInfoCompleted = false,
     kycCompleted = false,
