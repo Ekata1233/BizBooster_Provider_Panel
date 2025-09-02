@@ -29,9 +29,11 @@ export const EcommerceMetrics = () => {
   } = useCheckout();
 
   const {
+    wallet,
     fetchWalletByProvider,
     loading,
   } = useProviderWallet();
+
 
   useEffect(() => {
     if (providerDetails?._id) {
@@ -113,7 +115,7 @@ export const EcommerceMetrics = () => {
           <div>
             <span className="text-sm font-medium text-yellow-800">Total Revenue</span>
             <h4 className="mt-2 font-bold text-title-sm text-yellow-800">
-              ₹{totalRevenue.toLocaleString("en-IN")}
+               ₹{wallet?.totalCredits?.toLocaleString("en-IN") ?? 0}
             </h4>
           </div>
           <Badge color="success">

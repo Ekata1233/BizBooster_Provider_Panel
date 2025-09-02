@@ -22,6 +22,7 @@ export interface ProviderWallet {
   bankAccount: string;
   upiId?: string;
   transactions: WalletTransaction[];
+  totalCredits: number;
   receivableBalance: number;
   withdrawableBalance: number;
   pendingWithdraw: number;
