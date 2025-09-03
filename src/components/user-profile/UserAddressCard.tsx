@@ -72,10 +72,8 @@ export default function UserAddressCard() {
             { label: "City", value: provider?.storeInfo?.city },
             { label: "State", value: provider?.storeInfo?.state },
             { label: "Country", value: provider?.storeInfo?.country },
-            { label: "Office Number", value: provider?.storeInfo?.officeNo },
             { label: "Store Email", value: provider?.storeInfo?.storeEmail },
             { label: "Store Phone", value: provider?.storeInfo?.storePhone },
-            { label: "Tax", value: provider?.storeInfo?.tax },
             { label: "Zone", value: provider?.storeInfo?.zone },
           ].map((item, index) => (
             <div key={index} className="flex items-center gap-2">
@@ -85,10 +83,10 @@ export default function UserAddressCard() {
           ))}
 
           {/* Location */}
-          <div className="flex items-start gap-2">
+          {/* <div className="flex items-start gap-2">
             <p className="text-sm text-gray-500 whitespace-nowrap">Location:</p>
             <div className="font-medium">{renderLocation(provider?.storeInfo?.location)}</div>
-          </div>
+          </div> */}
         </div>
 
         {provider?.storeInfo?.cover && (
