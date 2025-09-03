@@ -10,6 +10,7 @@ import {
 import { useService } from "@/app/context/ServiceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 
 interface Review {
   _id: string;
@@ -27,6 +28,7 @@ export default function TopServices() {
       categoryName: string;
       discountedPrice: number;
       avgRating: number;
+      thumbnailImage: string;
     }[]
   >([]);
 
@@ -67,6 +69,7 @@ export default function TopServices() {
         categoryName: s.category?.name || "N/A",
         discountedPrice: s.discountedPrice,
         avgRating: avg,
+        thumbnailImage: s.thumbnailImage,
       };
     });
 
@@ -126,13 +129,25 @@ export default function TopServices() {
             {topServices.map((s) => (
               <TableRow key={s._id}>
                 <TableCell className="py-3">
-                  <div>
-                    <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {s.serviceName}
-                    </p>
-                    <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                      {s.categoryName}
-                    </span>
+                  <div className="flex items-center gap-3">
+
+                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md bg-gray-100">
+                      <Image
+                        width={50}
+                        height={50}
+                        src={s.thumbnailImage || "/images/fallback.png"}
+                        alt={s.serviceName}
+                        className="h-[50px] w-[50px] object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                        {s.serviceName}
+                      </p>
+                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
+                        {s.categoryName}
+                      </span>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
