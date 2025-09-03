@@ -76,7 +76,15 @@ export default function RecentOrders() {
           </TableHeader>
 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {checkouts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4).map((checkout) => (
+            {checkouts.length === 0 ? (
+              <TableRow>
+                <TableCell className="py-6 text-center" >
+                  <div className="text-gray-500 text-theme-sm dark:text-gray-400">
+                   No orders found
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (checkouts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4).map((checkout) => (
               <TableRow key={checkout._id}>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
@@ -112,7 +120,7 @@ export default function RecentOrders() {
                     {checkout.orderStatus}
                   </Badge>
                 </TableCell>
-              </TableRow>
+              </TableRow>)
             ))}
           </TableBody>
         </Table>
