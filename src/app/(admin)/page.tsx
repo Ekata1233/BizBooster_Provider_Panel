@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Check, AlertTriangle, ArrowRight } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { motion } from "framer-motion";
+import TopServices from "@/components/ecommerce/TopServices";
 
 type PendingModalProps = {
   isOpen: boolean;
@@ -258,7 +259,7 @@ export default function Ecommerce() {
         </div>
 
         <div className="col-span-12 xl:col-span-6">
-          <RecentOrders />
+          <TopServices />
         </div>
       </div>
 
