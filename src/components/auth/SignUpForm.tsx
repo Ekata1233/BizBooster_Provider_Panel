@@ -172,19 +172,15 @@ export default function ProviderOnboardingPage() {
 
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar mb-10">
-      <div className="w-full max-w-6xl sm:pt-10 mx-auto mb-6 px-6">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon />
-          Back to dashboard
-        </Link>
-      </div>
+     
 
       <div className="flex flex-col justify-center flex-1 w-full max-w-6xl mx-auto px-6">
         <div>
-          <div className="flex justify-center bg-gray-50 dark:bg-gray-900 py-16">
+         
+
+
+          <section className="mx-auto max-w-5xl px-8 py-5 mb-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+ <div className="flex justify-center py-5">
             <div className="text-center">
               <h1 className="font-bold text-gray-800 text-4xl md:text-5xl dark:text-white/90 mb-4">
                 Sign Up
@@ -195,9 +191,6 @@ export default function ProviderOnboardingPage() {
               <div className="mt-6 w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
             </div>
           </div>
-
-
-          <section className="mx-auto max-w-5xl px-8 py-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
             <Stepper storeDone={storeDone} kycDone={kycDone} activeStep={activeStep} />
 
             {/* ---------------- STEP 1 ---------------- */}
@@ -371,159 +364,159 @@ export default function ProviderOnboardingPage() {
             )}
 
             {/* ---------------- STEP 3 ---------------- */}
-           {/* ---------------- STEP 3 ---------------- */}
-{activeStep === 3 && (
-  <>
-    {provider && storeDone && !kycDone && (
-      <div className="mb-6 rounded-lg bg-green-50 p-4 text-center text-green-800">
-        ✅ Store information completed. Please upload your KYC documents.
-      </div>
-    )}
+            {/* ---------------- STEP 3 ---------------- */}
+            {activeStep === 3 && (
+              <>
+                {provider && storeDone && !kycDone && (
+                  <div className="mb-6 rounded-lg bg-green-50 p-4 text-center text-green-800">
+                    ✅ Store information completed. Please upload your KYC documents.
+                  </div>
+                )}
 
-    {!kycDone ? (
-      <form onSubmit={kycForm.handleSubmit(onKycSave)} className="space-y-6">
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">Step 3 • KYC Documents</h2>
+                {!kycDone ? (
+                  <form onSubmit={kycForm.handleSubmit(onKycSave)} className="space-y-6">
+                    <h2 className="text-xl font-semibold text-blue-700 mb-4">Step 3 • KYC Documents</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Aadhaar - REQUIRED */}
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              Aadhaar (up to 2) <span className="text-red-500">*</span>
-            </label>
-            <input
-              {...kycForm.register("aadhaarCard", {
-                required: "Aadhaar card is required",
-              })}
-              type="file"
-              multiple
-              accept="image/*,application/pdf"
-              className="block w-full text-sm text-gray-500
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Aadhaar - REQUIRED */}
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Aadhaar (up to 2) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...kycForm.register("aadhaarCard", {
+                            required: "Aadhaar card is required",
+                          })}
+                          type="file"
+                          multiple
+                          accept="image/*,application/pdf"
+                          className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-semibold
                 file:bg-blue-50 file:text-blue-700
                 hover:file:bg-blue-100"
-            />
-            {kycForm.formState.errors.aadhaarCard && (
-              <p className="text-red-500 text-sm mt-1">
-                {kycForm.formState.errors.aadhaarCard.message as string}
-              </p>
+                        />
+                        {kycForm.formState.errors.aadhaarCard && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {kycForm.formState.errors.aadhaarCard.message as string}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* PAN - REQUIRED */}
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          PAN Card <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...kycForm.register("panCard", {
+                            required: "PAN card is required",
+                          })}
+                          type="file"
+                          multiple
+                          accept="image/*,application/pdf"
+                          className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                        />
+                        {kycForm.formState.errors.panCard && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {kycForm.formState.errors.panCard.message as string}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Store Document - REQUIRED */}
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Store Document <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...kycForm.register("storeDocument", {
+                            required: "Store document is required",
+                          })}
+                          type="file"
+                          multiple
+                          accept="image/*,application/pdf"
+                          className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                        />
+                        {kycForm.formState.errors.storeDocument && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {kycForm.formState.errors.storeDocument.message as string}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* GST - Optional */}
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">GST Certificates</label>
+                        <input
+                          {...kycForm.register("GST")}
+                          type="file"
+                          multiple
+                          accept="image/*,application/pdf"
+                          className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                        />
+                      </div>
+
+                      {/* Other Docs - Optional */}
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">Other Docs</label>
+                        <input
+                          {...kycForm.register("other")}
+                          type="file"
+                          multiple
+                          accept="image/*,application/pdf"
+                          className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                        />
+                      </div>
+                    </div>
+
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+                    <div className="flex justify-end mt-6">
+                      <button
+                        type="submit"
+                        className="px-8 py-3 rounded text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 disabled:opacity-60"
+                        disabled={loading}
+                      >
+                        {loading ? "Uploading…" : "Submit KYC"}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="text-center py-20">
+                    <Check className="mx-auto h-16 w-16 text-green-600 mb-4" />
+                    <h2 className="text-2xl font-semibold text-green-700">
+                      All steps completed!
+                    </h2>
+                    <p className="text-gray-600 mt-2">
+                      🎉 All steps completed — your account is under review. We&apos;ll notify
+                      you once everything is verified.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
-          </div>
-
-          {/* PAN - REQUIRED */}
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              PAN Card <span className="text-red-500">*</span>
-            </label>
-            <input
-              {...kycForm.register("panCard", {
-                required: "PAN card is required",
-              })}
-              type="file"
-              multiple
-              accept="image/*,application/pdf"
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
-            {kycForm.formState.errors.panCard && (
-              <p className="text-red-500 text-sm mt-1">
-                {kycForm.formState.errors.panCard.message as string}
-              </p>
-            )}
-          </div>
-
-          {/* Store Document - REQUIRED */}
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              Store Document <span className="text-red-500">*</span>
-            </label>
-            <input
-              {...kycForm.register("storeDocument", {
-                required: "Store document is required",
-              })}
-              type="file"
-              multiple
-              accept="image/*,application/pdf"
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
-            {kycForm.formState.errors.storeDocument && (
-              <p className="text-red-500 text-sm mt-1">
-                {kycForm.formState.errors.storeDocument.message as string}
-              </p>
-            )}
-          </div>
-
-          {/* GST - Optional */}
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">GST Certificates</label>
-            <input
-              {...kycForm.register("GST")}
-              type="file"
-              multiple
-              accept="image/*,application/pdf"
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
-          </div>
-
-          {/* Other Docs - Optional */}
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">Other Docs</label>
-            <input
-              {...kycForm.register("other")}
-              type="file"
-              multiple
-              accept="image/*,application/pdf"
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
-          </div>
-        </div>
-
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
-        <div className="flex justify-end mt-6">
-          <button
-            type="submit"
-            className="px-8 py-3 rounded text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 disabled:opacity-60"
-            disabled={loading}
-          >
-            {loading ? "Uploading…" : "Submit KYC"}
-          </button>
-        </div>
-      </form>
-    ) : (
-      <div className="text-center py-20">
-        <Check className="mx-auto h-16 w-16 text-green-600 mb-4" />
-        <h2 className="text-2xl font-semibold text-green-700">
-          All steps completed!
-        </h2>
-        <p className="text-gray-600 mt-2">
-          🎉 All steps completed — your account is under review. We&apos;ll notify
-          you once everything is verified.
-        </p>
-      </div>
-    )}
-  </>
-)}
 
           </section>
         </div>
