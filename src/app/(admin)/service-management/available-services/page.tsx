@@ -12,7 +12,7 @@ import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import AllServices from "@/components/service/AllServices";
-import { ChevronDownIcon} from "@/icons";
+import { ChevronDownIcon } from "@/icons";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 
@@ -33,8 +33,8 @@ const Page = () => {
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
     const { services, loadingServices, errorServices, fetchSingleService } = useService();
-  
-    const { providerDetails,refreshProviderDetails  } = useAuth();
+
+    const { providerDetails, refreshProviderDetails } = useAuth();
 
     // 🔹 Module Options
     const modulesOptions: OptionType[] = modules.map((mod: ModuleType) => ({
@@ -56,12 +56,13 @@ const Page = () => {
     const subcategoryOptions: OptionType[] = useMemo(() => {
         if (!selectedCategory) return [];
         return subcategories
-            .filter((sub) => sub.category._id === selectedCategory)
+            .filter((sub) => sub.category?._id === selectedCategory) // 👈 fixed
             .map((sub) => ({
                 value: sub._id,
                 label: sub.name,
             }));
     }, [selectedCategory, subcategories]);
+
 
 
     // 🔹 Handlers
@@ -94,7 +95,7 @@ const Page = () => {
         return true;
     });
 
-    
+
 
     const handleClick = async (id: string) => {
         await fetchSingleService(id);
@@ -114,11 +115,11 @@ const Page = () => {
         }
     };
 
-      useEffect(() => {
+    useEffect(() => {
         refreshProviderDetails();
-      }, [refreshProviderDetails]);
+    }, [refreshProviderDetails]);
 
-      if (!providerDetails) return <div>Loading...</div>;
+    if (!providerDetails) return <div>Loading...</div>;
 
     if (loadingModules || loadingCategories || loadingSubcategories || loadingServices) return <p>Loading...</p>;
     if (errorModules) return <p>{errorModules}</p>;
@@ -203,11 +204,11 @@ const Page = () => {
             </div>
 
             <AllServices
-    services={filteredServices}  // ✅ Correct
-    subscribeStates={subscribeStates}
-    onSubscribe={handleSubscribeClick}
-    onView={handleClick}
-/>
+                services={filteredServices}  // ✅ Correct
+                subscribeStates={subscribeStates}
+                onSubscribe={handleSubscribeClick}
+                onView={handleClick}
+            />
 
         </div>
     );
