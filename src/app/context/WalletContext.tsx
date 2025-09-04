@@ -22,7 +22,6 @@ export interface ProviderWallet {
   bankAccount: string;
   upiId?: string;
   transactions: WalletTransaction[];
-  totalCredits: number;
   receivableBalance: number;
   withdrawableBalance: number;
   pendingWithdraw: number;
@@ -32,6 +31,8 @@ export interface ProviderWallet {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  totalCredits: number;
+
 }
 
 interface ProviderWalletContextType {
@@ -57,19 +58,19 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await axios.get(`${WALLET_API}/${providerId}`);
       setWallet(response.data.data); // assuming { success: true, data: {...wallet} }
     } catch (err: unknown) {
-  let message = "Error fetching wallet";
+      let message = "Error fetching wallet";
 
-  if (typeof err === "object" && err !== null) {
-    const maybeError = err as { message?: string; response?: { data?: { message?: string } } };
-    message =
-      maybeError.response?.data?.message ||
-      maybeError.message ||
-      message;
-  }
+      if (typeof err === "object" && err !== null) {
+        const maybeError = err as { message?: string; response?: { data?: { message?: string } } };
+        message =
+          maybeError.response?.data?.message ||
+          maybeError.message ||
+          message;
+      }
 
-  setError(message);
-}
-finally {
+      setError(message);
+    }
+    finally {
       setLoading(false);
     }
   };

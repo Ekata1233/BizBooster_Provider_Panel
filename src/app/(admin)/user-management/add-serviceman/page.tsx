@@ -192,7 +192,7 @@ export default function AddServiceManPage() {
         className="w-full max-w-7xl "
         encType="multipart/form-data"
       >
-        <ComponentCard title="Account Details">
+        <ComponentCard title="Serviceman Details">
           {/* Section 1: Basic Details */}
           <div>
             <h3 className="text-xl font-semibold mb-4 text-blue-600">

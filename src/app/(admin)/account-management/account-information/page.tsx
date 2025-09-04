@@ -163,7 +163,7 @@ const Page = () => {
             withdrawableBalance: safeWallet.withdrawableBalance,
             pendingWithdraw: safeWallet.pendingWithdraw,
             alreadyWithdrawn: safeWallet.alreadyWithdrawn,
-            totalEarning: safeWallet.totalEarning,
+            totalEarning: safeWallet.totalCredits,
           }}
         />
 
