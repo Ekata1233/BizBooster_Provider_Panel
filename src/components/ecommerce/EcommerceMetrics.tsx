@@ -63,10 +63,10 @@ export const EcommerceMetrics = () => {
             <span className="text-sm font-medium text-green-800">Subscribed Services</span>
             <h4 className="mt-2 font-bold text-title-sm text-green-800">{subscribedServicesCount}</h4>
           </div>
-          <Badge color="success">
+          {/* <Badge color="success">
             <ArrowUpIcon className="mr-1" />
             11.01%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
 
@@ -80,10 +80,10 @@ export const EcommerceMetrics = () => {
             <span className="text-sm font-medium text-red-800">Total Servicemen</span>
             <h4 className="mt-2 font-bold text-title-sm text-red-800">{serviceManCount}</h4>
           </div>
-          <Badge color="error">
+          {/* <Badge color="error">
             <ArrowDownIcon className="mr-1 text-error-500" />
             9.05%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
 
@@ -97,10 +97,10 @@ export const EcommerceMetrics = () => {
             <span className="text-sm font-medium text-indigo-800">Total Bookings</span>
             <h4 className="mt-2 font-bold text-title-sm text-indigo-800">{totalBookings}</h4>
           </div>
-          <Badge color="success">
+          {/* <Badge color="success">
             <ArrowUpIcon className="mr-1" />
             4.23%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
 
@@ -116,10 +116,10 @@ export const EcommerceMetrics = () => {
                ₹{wallet?.totalCredits?.toLocaleString("en-IN") ?? 0}
             </h4>
           </div>
-          <Badge color="success">
+          {/* <Badge color="success">
             <ArrowUpIcon className="mr-1" />
             6.88%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
     </div>
