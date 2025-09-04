@@ -172,25 +172,25 @@ export default function ProviderOnboardingPage() {
 
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar mb-10">
-     
+
 
       <div className="flex flex-col justify-center flex-1 w-full max-w-6xl mx-auto px-6">
         <div>
-         
+
 
 
           <section className="mx-auto max-w-5xl px-8 py-5 mb-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
- <div className="flex justify-center py-5">
-            <div className="text-center">
-              <h1 className="font-bold text-gray-800 text-4xl md:text-5xl dark:text-white/90 mb-4">
-                Sign Up
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-                Create your account to get started 🚀
-              </p>
-              <div className="mt-6 w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
+            <div className="flex justify-center py-5">
+              <div className="text-center">
+                <h1 className="font-bold text-gray-800 text-4xl md:text-5xl dark:text-white/90 mb-4">
+                  Sign Up
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 text-lg">
+                  Create your account to get started 🚀
+                </p>
+                <div className="mt-6 w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
+              </div>
             </div>
-          </div>
             <Stepper storeDone={storeDone} kycDone={kycDone} activeStep={activeStep} />
 
             {/* ---------------- STEP 1 ---------------- */}
