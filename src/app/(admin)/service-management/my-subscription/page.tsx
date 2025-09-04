@@ -22,6 +22,7 @@ interface TableData {
   providerPrice: number | null;
   providerMRP: number | null;       // ✅ new
   providerDiscount: number | null;
+  providerCommission: string | null;
   status: string;
 }
 
@@ -30,6 +31,7 @@ interface ProviderPrice {
   providerPrice?: number | null;
   providerMRP?: number | null;
   providerDiscount?: number | null;
+  providerCommission?: string| null;
 }
 
 interface ServiceType {
@@ -49,6 +51,7 @@ export interface SubscribedService {
   discountedPrice?: number | null;
   providerPrice?: number | null;
   providerMRP?: number | null;
+  providerCommission?: string | null;
   providerDiscount?: number | null;
 }
 
@@ -69,6 +72,10 @@ const MySubscriptionPage = () => {
     refreshProviderDetails();
   }, [pathname]);
 
+  useEffect(() => {
+  refreshProviderDetails();
+}, []);
+
   // ✅ Map subscribedServices to table format
   useEffect(() => {
     if (providerDetails?.subscribedServices?.length) {
@@ -84,6 +91,7 @@ const MySubscriptionPage = () => {
         let updatedProviderPrice: number | null = srv.providerPrice ?? null;
         let updatedProviderMRP: number | null = srv.providerMRP ?? null;
         let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
+        let updatedProviderCommission : string | null =srv.providerCommission ?? null;
 
         if (matchingService) {
           const providerPriceEntry = matchingService.providerPrices?.find(
@@ -100,6 +108,9 @@ const MySubscriptionPage = () => {
             if (providerPriceEntry.providerDiscount != null) {
               updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
             }
+             if (providerPriceEntry.providerCommission != null) {
+              updatedProviderCommission = (providerPriceEntry.providerCommission);
+            }
           }
         }
 
@@ -112,6 +123,7 @@ const MySubscriptionPage = () => {
           providerPrice: updatedProviderPrice,
           providerMRP: updatedProviderMRP,
           providerDiscount: updatedProviderDiscount,
+          providerCommission : updatedProviderCommission,
           status: 'Subscribed',
         };
       });
@@ -192,6 +204,12 @@ const MySubscriptionPage = () => {
         row.original.providerDiscount != null
           ? `${row.original.providerDiscount}%`
           : '—',
+    },
+    {
+      header: 'Commission',
+      accessor: 'providerCommission',
+      cell: (row: { providerCommission: string | null }) =>
+        row.providerCommission != null ? `${row.providerCommission}` : '—',
     },
     {
       header: 'Provider Price',

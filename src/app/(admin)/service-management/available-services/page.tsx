@@ -32,7 +32,7 @@ const Page = () => {
     const { modules, loadingModules, errorModules } = useModule();
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
-    const { services, loadingServices, errorServices, fetchSingleService } = useService();
+    const { services, loadingServices, errorServices, fetchSingleService,refetchServices } = useService();
 
     const { providerDetails, refreshProviderDetails } = useAuth();
 
@@ -106,6 +106,8 @@ const Page = () => {
         try {
             await subscribeToService(serviceId);
             alert("Subscribed successfully!");
+             await refreshProviderDetails();
+             await refetchServices();
         } catch (error: unknown) {
             if (error instanceof Error) {
                 alert(`Subscription failed: ${error.message}`);
