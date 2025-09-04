@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useProvider } from '@/context/ProviderContext';
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons';
-import Link from 'next/link';
+import {  EyeCloseIcon, EyeIcon } from '@/icons';
 import { Check, ArrowRightIcon, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
