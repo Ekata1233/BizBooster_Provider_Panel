@@ -30,16 +30,7 @@ interface ProviderDetails {
   kyc?: Record<string, string[]>;
 }
 
-function renderLocation(location?: Location) {
-  if (!location) return "-";
-  return (
-    <>
-      <p>Type: {location.type}</p>
-      <p>Longitude: {location.coordinates[0]}</p>
-      <p>Latitude: {location.coordinates[1]}</p>
-    </>
-  );
-}
+
 
 function renderImageArray(data?: string[]) {
   if (!data || data.length === 0) return <p className="text-sm text-gray-400">No files</p>;
