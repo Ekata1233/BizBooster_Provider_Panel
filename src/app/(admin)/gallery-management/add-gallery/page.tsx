@@ -3,6 +3,8 @@
 import React, { useState, useRef } from 'react';
 import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
+import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import ComponentCard from '@/components/common/ComponentCard';
 
 const AddGalleryImage = () => {
   const { uploadGalleryImages, fetchGallery, loading, error } = useProviderGallery();
@@ -33,37 +35,42 @@ const AddGalleryImage = () => {
     } catch (err) {
       alert("Upload failed ❌");
       console.log(err);
-      
+
     }
   };
 
   return (
-    <div className="my-6 p-4 border rounded shadow-sm bg-white">
-      <h2 className="text-lg font-semibold mb-2">Upload Gallery Images</h2>
+    <div>
+      <PageBreadcrumb pageTitle="Add Gallery" />
 
-      <input
-  ref={fileInputRef}
-  type="file"
-  accept="image/*"
-  multiple
-  onChange={handleFileChange}
-  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm  hover:file:bg-blue-100 my-3"
-/>
+      <ComponentCard title="Upload Gallery Images">
 
 
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileChange}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm  hover:file:bg-blue-100 my-3"
+        />
 
-      <button
-        onClick={handleUpload}
-        disabled={loading || !selectedFiles}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-      >
-        {loading ? 'Uploading...' : 'Upload'}
-      </button>
 
-      {error && (
-        <p className="mt-2 text-sm text-red-500">Error: {error}</p>
-      )}
+
+        <button
+          onClick={handleUpload}
+          disabled={loading || !selectedFiles}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-2"
+        >
+          {loading ? 'Uploading...' : 'Upload'}
+        </button>
+
+        {error && (
+          <p className="mt-2 text-sm text-red-500">Error: {error}</p>
+        )}
+      </ComponentCard>
     </div>
+
   );
 };
 

@@ -10,6 +10,7 @@ import { useAdContext } from '@/app/context/AdContext';
 import { useCategory } from '@/app/context/CategoryContext';
 import { Service, useService } from '@/app/context/ServiceContext';
 import { useAuth } from '@/app/context/AuthContext';
+import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 
 const AddAd = () => {
   const { createAd } = useAdContext();
@@ -34,11 +35,11 @@ const AddAd = () => {
       (id) => id.toString() === service._id.toString()
     )
   );
-  console.log("subscribes ",subscribedServices);
-  console.log("providers :",provider);
-  console.log("services",services);
-  
-  
+  console.log("subscribes ", subscribedServices);
+  console.log("providers :", provider);
+  console.log("services", services);
+
+
   // Get unique categories from subscribed services
   const subscribedCategories = categories.filter((category) =>
     subscribedServices.some(
@@ -132,114 +133,118 @@ const AddAd = () => {
   };
 
   return (
-    <ComponentCard title="Add New Advertisement">
-      <div className="space-y-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">
-        {/* Ad Type */}
-        <div>
-          <Label>Ad Type</Label>
-          <select
-            value={addType}
-            disabled
-            className="w-full border px-3 py-2 rounded-md bg-gray-100"
-          >
-            <option value="image">Image</option>
-          </select>
-        </div>
+    <div>
+      <PageBreadcrumb pageTitle="Add Advertise" />
 
-        {/* Category Selector */}
-        <div>
-          <Label>Category</Label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full border px-3 py-2 rounded-md"
-          >
-            <option value="">Select Category</option>
-            {loadingCategories ? (
-              <option disabled>Loading...</option>
-            ) : (
-              subscribedCategories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
-              ))
+      <ComponentCard title="Add New Advertisement">
+        <div className="space-y-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">
+          {/* Ad Type */}
+          <div>
+            <Label>Ad Type</Label>
+            <select
+              value={addType}
+              disabled
+              className="w-full border px-3 py-2 rounded-md bg-gray-100"
+            >
+              <option value="image">Image</option>
+            </select>
+          </div>
+
+          {/* Category Selector */}
+          <div>
+            <Label>Category</Label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full border px-3 py-2 rounded-md"
+            >
+              <option value="">Select Category</option>
+              {loadingCategories ? (
+                <option disabled>Loading...</option>
+              ) : (
+                subscribedCategories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+
+          {/* Service Selector */}
+          <div>
+            <Label>Service</Label>
+            <select
+              value={service}
+              onChange={(e) => setService(e.target.value)}
+              className="w-full border px-3 py-2 rounded-md"
+              disabled={!category}
+            >
+              <option value="">Select Service</option>
+              {loadingServices ? (
+                <option disabled>Loading...</option>
+              ) : (
+                filteredServices.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.serviceName}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+
+          {/* Start Date */}
+          <div>
+            <Label>Start Date</Label>
+            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          </div>
+
+          {/* End Date */}
+          <div>
+            <Label>End Date</Label>
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          </div>
+
+          {/* Title */}
+          <div>
+            <Label>Title</Label>
+            <Input
+              type="text"
+              placeholder="Enter title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <Label>Description</Label>
+            <Input
+              type="text"
+              placeholder="Enter description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          {/* File Input */}
+          <div>
+            <Label>Select Image</Label>
+            <FileInput onChange={handleFileChange} />
+            {selectedFile && (
+              <p className="text-xs text-gray-500 mt-1">Selected: {selectedFile.name}</p>
             )}
-          </select>
-        </div>
+          </div>
 
-        {/* Service Selector */}
-        <div>
-          <Label>Service</Label>
-          <select
-            value={service}
-            onChange={(e) => setService(e.target.value)}
-            className="w-full border px-3 py-2 rounded-md"
-            disabled={!category}
-          >
-            <option value="">Select Service</option>
-            {loadingServices ? (
-              <option disabled>Loading...</option>
-            ) : (
-              filteredServices.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.serviceName}
-                </option>
-              ))
-            )}
-          </select>
+          {/* Submit */}
+          <div className="mt-6">
+            <Button size="sm" variant="primary" onClick={handleSubmit} disabled={loading}>
+              {loading ? 'Submitting...' : 'Add Ad'}
+            </Button>
+          </div>
         </div>
-
-        {/* Start Date */}
-        <div>
-          <Label>Start Date</Label>
-          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-        </div>
-
-        {/* End Date */}
-        <div>
-          <Label>End Date</Label>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-        </div>
-
-        {/* Title */}
-        <div>
-          <Label>Title</Label>
-          <Input
-            type="text"
-            placeholder="Enter title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <Label>Description</Label>
-          <Input
-            type="text"
-            placeholder="Enter description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        {/* File Input */}
-        <div>
-          <Label>Select Image</Label>
-          <FileInput onChange={handleFileChange} />
-          {selectedFile && (
-            <p className="text-xs text-gray-500 mt-1">Selected: {selectedFile.name}</p>
-          )}
-        </div>
-
-        {/* Submit */}
-        <div className="mt-6">
-          <Button size="sm" variant="primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Submitting...' : 'Add Ad'}
-          </Button>
-        </div>
-      </div>
-    </ComponentCard>
+      </ComponentCard>
+    </div>
   );
 };
 

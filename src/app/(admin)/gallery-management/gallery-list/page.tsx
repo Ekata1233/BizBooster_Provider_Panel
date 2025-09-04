@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
+import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import ComponentCard from '@/components/common/ComponentCard';
 
 const Page = () => {
   const {
@@ -58,7 +60,9 @@ const Page = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Gallery Images</h1>
+            <PageBreadcrumb pageTitle="Gallery List" />
+
+      <ComponentCard title="Gallery Images">
       <div className="grid grid-cols-3 gap-6">
         {galleryImages.map((imgUrl, index) => (
           <div key={index} className="border p-3 rounded shadow flex flex-col justify-between">
@@ -114,6 +118,7 @@ ref={(el) => {
           />
         </div>
       )}
+      </ComponentCard>
     </div>
   );
 };
