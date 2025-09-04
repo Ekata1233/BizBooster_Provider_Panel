@@ -31,7 +31,7 @@ interface ProviderPrice {
   providerPrice?: number | null;
   providerMRP?: number | null;
   providerDiscount?: number | null;
-  providerCommission?: string| null;
+  providerCommission?: string | null;
 }
 
 interface ServiceType {
@@ -73,13 +73,13 @@ const MySubscriptionPage = () => {
   }, [pathname]);
 
   useEffect(() => {
-  refreshProviderDetails();
-}, []);
+    refreshProviderDetails();
+  }, []);
 
   // ✅ Map subscribedServices to table format
   useEffect(() => {
     if (providerDetails?.subscribedServices?.length) {
-      const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv) => {
+      const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv,index) => {
         const matchingService = (services as ServiceType[]).find((svc) => {
           if (!Array.isArray(svc.providerPrices)) return false;
           return svc.providerPrices.some(
@@ -91,7 +91,7 @@ const MySubscriptionPage = () => {
         let updatedProviderPrice: number | null = srv.providerPrice ?? null;
         let updatedProviderMRP: number | null = srv.providerMRP ?? null;
         let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
-        let updatedProviderCommission : string | null =srv.providerCommission ?? null;
+        let updatedProviderCommission: string | null = srv.providerCommission ?? null;
 
         if (matchingService) {
           const providerPriceEntry = matchingService.providerPrices?.find(
@@ -108,13 +108,14 @@ const MySubscriptionPage = () => {
             if (providerPriceEntry.providerDiscount != null) {
               updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
             }
-             if (providerPriceEntry.providerCommission != null) {
+            if (providerPriceEntry.providerCommission != null) {
               updatedProviderCommission = (providerPriceEntry.providerCommission);
             }
           }
         }
 
         return {
+           srNo: index + 1, 
           id: srv._id,
           serviceName: srv.serviceName || '—',
           categoryName: srv.categoryName || '—',
@@ -123,7 +124,7 @@ const MySubscriptionPage = () => {
           providerPrice: updatedProviderPrice,
           providerMRP: updatedProviderMRP,
           providerDiscount: updatedProviderDiscount,
-          providerCommission : updatedProviderCommission,
+          providerCommission: updatedProviderCommission,
           status: 'Subscribed',
         };
       });
@@ -184,6 +185,11 @@ const MySubscriptionPage = () => {
 
 
   const columns = [
+    {
+      header: 'Sr. No',
+      accessor: 'srNo',
+      cell: (_: any, rowIndex: number) => rowIndex + 1, // ✅ row index + 1
+    },
     { header: 'Service Name', accessor: 'serviceName' },
     {
       header: 'Price',
@@ -227,8 +233,8 @@ const MySubscriptionPage = () => {
           onClick={() => handleUnsubscribe(row.id)}
           disabled={unsubscribing === row.id}
           className={`${unsubscribing === row.id
-              ? 'bg-gray-400'
-              : 'bg-red-500 hover:bg-red-600'
+            ? 'bg-gray-400'
+            : 'bg-red-500 hover:bg-red-600'
             } text-white px-4 py-2 rounded-md transition duration-200`}
         >
           {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}

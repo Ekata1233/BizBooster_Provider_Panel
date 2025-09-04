@@ -91,6 +91,13 @@ useEffect(() => {
   };
 
   const columns = [
+    {
+    header: 'Sr No',
+    accessor: 'srNo',
+    render: (_: AdTableData, index: number) => (
+      <span>{index + 1}</span>
+    ),
+  },
     { header: 'Ad Type', accessor: 'addType' },
     { header: 'Title', accessor: 'title' },
     { header: 'Description', accessor: 'description' },

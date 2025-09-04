@@ -58,7 +58,8 @@ const ServicemanListPage = () => {
 
   useEffect(() => {
     if (serviceMenByProvider && serviceMenByProvider.length > 0) {
-      const formatted = serviceMenByProvider.map((man: ServiceMan) => ({
+      const formatted = serviceMenByProvider.map((man: ServiceMan, index: number) => ({
+        srNo: index + 1,
         id: man._id || '',
         name: man.name || '—',
         lastName: man.lastName || '—',
@@ -109,6 +110,7 @@ const ServicemanListPage = () => {
   };
 
   const columns = [
+    { header: 'Sr. No', accessor: 'srNo' },
     { header: 'Name', accessor: 'name' },
     { header: 'Last Name', accessor: 'lastName' },
     { header: 'Phone Number', accessor: 'phoneNo' },
