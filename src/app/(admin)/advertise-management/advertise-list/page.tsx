@@ -7,14 +7,14 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { TrashBinIcon, EyeIcon } from '@/icons';
-import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/modal';
+import Link from 'next/link';
 
 interface AdTableData {
   id: string;
-  addType: string;
-  category: string;
-  serviceName: string;
+  addType: string; // ✅ allow both "image" and "video"
+  category: string | { _id?: string; name: string };
+  serviceName: string | { _id?: string; serviceName: string };
   description: string;
   startDate: string;
   endDate: string;
@@ -23,10 +23,8 @@ interface AdTableData {
   status: string;
 }
 
-
 const AdvertiseList = () => {
-  const { ads } = useAdContext();
-  const router = useRouter();
+  const { ads, deleteAd } = useAdContext();
   const [tableData, setTableData] = useState<AdTableData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState<AdTableData[]>([]);
@@ -34,8 +32,7 @@ const AdvertiseList = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<{ type: string; url: string } | null>(null);
-   
-    
+
   const openModal = (type: string, url: string) => {
     setModalContent({ type, url });
     setIsOpen(true);
@@ -46,23 +43,23 @@ const AdvertiseList = () => {
     setModalContent(null);
   };
 
-useEffect(() => {
-  if (ads && ads.length > 0) {
-    const formatted = ads.map((ad: AdType) => ({
-      id: ad._id || '',
-      addType: ad.addType || '—',
-      category: ad.category || '—', // ✅ category is a string in your context
-      serviceName: ad.service || '—', // ✅ service is a string in your context
-      description: ad.description || '—',
-      startDate: ad.startDate?.slice(0, 10) || '—',
-      endDate: ad.endDate?.slice(0, 10) || '—',
-      fileUrl: ad.fileUrl || '',
-      title: ad.title || '—',
-      status: ad.isExpired ? 'Inactive' : 'Active',
-    }));
-    setTableData(formatted);
-  }
-}, [ads]);
+  useEffect(() => {
+    if (ads && ads.length > 0) {
+      const formatted = ads.map((ad: AdType) => ({
+        id: ad._id || '',
+        addType: ad.addType || 'image',
+        category: ad.category?.name || '—', // ✅ show category name
+        serviceName: ad.service?.serviceName || '—', // ✅ show service name
+        description: ad.description || '—',
+        startDate: ad.startDate?.slice(0, 10) || '—',
+        endDate: ad.endDate?.slice(0, 10) || '—',
+        fileUrl: ad.fileUrl || '',
+        title: ad.title || '—',
+        status: ad.isExpired ? 'Inactive' : 'Active',
+      }));
+      setTableData(formatted);
+    }
+  }, [ads]);
 
   useEffect(() => {
     const lowerSearch = searchQuery.toLowerCase();
@@ -83,21 +80,21 @@ useEffect(() => {
     return filteredData;
   };
 
-  const handleView = (id: string) => router.push(`/advertise-management/view/${id}`);
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this ad?')) {
-      alert(`Deleted Ad ID: ${id}`);
+      await deleteAd(id); // ✅ use context delete
+      // ✅ update local table data immediately
+      setTableData((prev) => prev.filter((ad) => ad.id !== id));
+      setFilteredData((prev) => prev.filter((ad) => ad.id !== id));
     }
   };
 
   const columns = [
     {
-    header: 'Sr No',
-    accessor: 'srNo',
-    render: (_: AdTableData, index: number) => (
-      <span>{index + 1}</span>
-    ),
-  },
+      header: 'Sr No',
+      accessor: 'srNo',
+      render: (_: AdTableData, index: number) => <span>{index + 1}</span>,
+    },
     { header: 'Ad Type', accessor: 'addType' },
     { header: 'Title', accessor: 'title' },
     { header: 'Description', accessor: 'description' },
@@ -106,8 +103,8 @@ useEffect(() => {
     {
       header: 'File',
       accessor: 'fileUrl',
-      render: (row: AdTableData) => {
-        return row.addType === 'video' ? (
+      render: (row: AdTableData) =>
+        row.addType === 'video' ? (
           <video
             src={row.fileUrl}
             className="w-32 h-20 rounded border object-cover cursor-pointer"
@@ -120,8 +117,7 @@ useEffect(() => {
             className="w-32 h-20 rounded border object-cover cursor-pointer"
             onClick={() => openModal('image', row.fileUrl)}
           />
-        );
-      },
+        ),
     },
     {
       header: 'Status',
@@ -144,24 +140,17 @@ useEffect(() => {
       accessor: 'actions',
       render: (row: AdTableData) => (
         <div className="flex gap-2">
-          {/* <button
-            onClick={() => handleEdit(row.id)}
-            className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
-          >
-            <PencilIcon />
-          </button> */}
           <button
             onClick={() => handleDelete(row.id)}
             className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
           >
             <TrashBinIcon />
           </button>
-          <button
-            onClick={() => handleView(row.id)}
-            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
-          >
-            <EyeIcon />
-          </button>
+          <Link href={`/advertise-management/view/${row.id}`} passHref>
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white">
+              <EyeIcon />
+            </button>
+          </Link>
         </div>
       ),
     },
@@ -206,7 +195,7 @@ useEffect(() => {
         </ComponentCard>
       </div>
 
-      {/* ✅ Modal with video fix */}
+      {/* ✅ Modal */}
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] m-4">
         <div className="relative w-full rounded-lg">
           {modalContent?.type === 'video' ? (
@@ -218,11 +207,7 @@ useEffect(() => {
               className="w-full h-auto rounded"
             />
           ) : (
-            <img
-              src={modalContent?.url}
-              alt="Preview"
-              className="w-full h-auto rounded"
-            />
+            <img src={modalContent?.url} alt="Preview" className="w-full h-auto rounded" />
           )}
         </div>
       </Modal>

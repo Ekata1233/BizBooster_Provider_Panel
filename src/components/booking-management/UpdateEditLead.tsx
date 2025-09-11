@@ -174,7 +174,7 @@ export default function EditLeadPage({ isOpen, closeModal, checkoutId }: EditLea
 
                   <div className="mb-2">
                     <label className="block text-sm font-medium text-gray-800 dark:text-white">
-                      Discount
+                      Discount (Only Rs.)
                     </label>
                     <input
                       type="number"
