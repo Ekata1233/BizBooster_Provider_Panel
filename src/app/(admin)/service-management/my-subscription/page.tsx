@@ -185,11 +185,11 @@ const MySubscriptionPage = () => {
 
 
   const columns = [
-    {
-      header: 'Sr. No',
-      accessor: 'srNo',
-      cell: (_: any, rowIndex: number) => rowIndex + 1, // ✅ row index + 1
-    },
+      {
+    header: 'Sr. No',
+    accessor: 'srNo',
+    cell: (_: unknown, rowIndex: number) => rowIndex + 1, // ✅ use unknown instead of any
+  },
     { header: 'Service Name', accessor: 'serviceName' },
     {
       header: 'Price',

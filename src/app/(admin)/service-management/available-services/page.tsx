@@ -20,7 +20,11 @@ interface OptionType {
     value: string;
     label: string;
 }
-
+interface CategoryWithModule {
+  _id: string;
+  module: string;
+  name?: string;
+}
 const Page = () => {
     const router = useRouter();
     const [selectedModule, setSelectedModule] = useState<string>('');
@@ -64,7 +68,6 @@ const Page = () => {
     }, [selectedCategory, subcategories]);
 
 
-
     // 🔹 Handlers
     const handleModuleChange = (value: string) => {
         setSelectedModule(value);
@@ -85,38 +88,34 @@ const Page = () => {
         setSearchQuery(e.target.value);
     };
 
-    // const filteredServices = services.filter(service => {
-    //     if (selectedCategory && service.category?._id !== selectedCategory) return false;
+    
 
-    //     if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
+const filteredServices = useMemo(() => {
+  if (!services) return [];
 
-    //     if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+  const providerModuleId = providerDetails?.storeInfo?.module;
 
-    //     return true;
-    // });
+  return services.filter(service => {
+    const category = service.category as CategoryWithModule | undefined;
 
-    const filteredServices = useMemo(() => {
-        if (!services) return [];
+    if (providerModuleId && category?.module !== providerModuleId) return false;
 
-        const providerModuleId = providerDetails?.storeInfo?.module;
+    // Category filter
+    if (selectedCategory && category?._id !== selectedCategory) return false;
 
-        return services.filter(service => {
-            // Module filter (safe check)
-            // if (providerModuleId && service.category?.module !== providerModuleId) return false;
-            if (providerModuleId && (service.category as any).module !== providerModuleId) return false;
+    // Subcategory filter
+    if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
 
-            // Category filter
-            if (selectedCategory && service.category?._id !== selectedCategory) return false;
+    // Search filter
+    if (
+      searchQuery &&
+      !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
 
-            // Subcategory filter
-            if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
-
-            // Search filter
-            if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-
-            return true;
-        });
-    }, [services, providerDetails, selectedCategory, selectedSubcategory, searchQuery]);
+    return true;
+  });
+}, [services, providerDetails, selectedCategory, selectedSubcategory, searchQuery]);
 
 
 
