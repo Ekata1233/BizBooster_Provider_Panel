@@ -3,14 +3,21 @@
 import axios from 'axios';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+// In AdContext.tsx
 export interface AdType {
   _id?: string;
   addType: 'image';
-  category: string;
-  service: string;
+  category?: {
+    _id?: string;
+    name: string;
+  };
+  service?: {
+    _id?: string;
+    serviceName: string;
+  };
   provider?: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   title: string;
   description: string;
   fileUrl: string;
@@ -19,6 +26,7 @@ export interface AdType {
   createdAt?: string;
   updatedAt?: string;
 }
+
 
 interface AdContextType {
   ads: AdType[];
