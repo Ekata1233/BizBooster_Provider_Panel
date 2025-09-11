@@ -85,15 +85,38 @@ const Page = () => {
         setSearchQuery(e.target.value);
     };
 
-    const filteredServices = services.filter(service => {
+    // const filteredServices = services.filter(service => {
+    //     if (selectedCategory && service.category?._id !== selectedCategory) return false;
+
+    //     if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
+
+    //     if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+
+    //     return true;
+    // });
+
+    const filteredServices = useMemo(() => {
+    if (!services) return [];
+
+    const providerModuleId = providerDetails?.storeInfo?.module;
+
+    return services.filter(service => {
+        // Module filter (safe check)
+        if (providerModuleId && service.category?.module !== providerModuleId) return false;
+
+        // Category filter
         if (selectedCategory && service.category?._id !== selectedCategory) return false;
 
+        // Subcategory filter
         if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
 
+        // Search filter
         if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
         return true;
     });
+}, [services, providerDetails, selectedCategory, selectedSubcategory, searchQuery]);
+
 
 
 

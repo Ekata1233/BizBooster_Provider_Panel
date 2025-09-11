@@ -649,12 +649,13 @@ const AllBookingsDetails = () => {
               }
 
 
-              alert("Lead status updated Successfully.");
 
               // router.push("/booking-management/all-bookings");
               await refreshBooking();
 
               closeModal();
+              alert("Lead status updated Successfully.");
+
             } catch (err) {
               console.error("Failed to save lead:", err);
               // ✅ `err` is now the message string
