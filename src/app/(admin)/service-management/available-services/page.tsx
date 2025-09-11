@@ -32,7 +32,7 @@ const Page = () => {
     const { modules, loadingModules, errorModules } = useModule();
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
-    const { services, loadingServices, errorServices, fetchSingleService,refetchServices } = useService();
+    const { services, loadingServices, errorServices, fetchSingleService, refetchServices } = useService();
 
     const { providerDetails, refreshProviderDetails } = useAuth();
 
@@ -96,26 +96,27 @@ const Page = () => {
     // });
 
     const filteredServices = useMemo(() => {
-    if (!services) return [];
+        if (!services) return [];
 
-    const providerModuleId = providerDetails?.storeInfo?.module;
+        const providerModuleId = providerDetails?.storeInfo?.module;
 
-    return services.filter(service => {
-        // Module filter (safe check)
-        if (providerModuleId && service.category?.module !== providerModuleId) return false;
+        return services.filter(service => {
+            // Module filter (safe check)
+            // if (providerModuleId && service.category?.module !== providerModuleId) return false;
+            if (providerModuleId && (service.category as any).module !== providerModuleId) return false;
 
-        // Category filter
-        if (selectedCategory && service.category?._id !== selectedCategory) return false;
+            // Category filter
+            if (selectedCategory && service.category?._id !== selectedCategory) return false;
 
-        // Subcategory filter
-        if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
+            // Subcategory filter
+            if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
 
-        // Search filter
-        if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+            // Search filter
+            if (searchQuery && !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
-        return true;
-    });
-}, [services, providerDetails, selectedCategory, selectedSubcategory, searchQuery]);
+            return true;
+        });
+    }, [services, providerDetails, selectedCategory, selectedSubcategory, searchQuery]);
 
 
 
@@ -129,8 +130,8 @@ const Page = () => {
         try {
             await subscribeToService(serviceId);
             alert("Subscribed successfully!");
-             await refreshProviderDetails();
-             await refetchServices();
+            await refreshProviderDetails();
+            await refetchServices();
         } catch (error: unknown) {
             if (error instanceof Error) {
                 alert(`Subscription failed: ${error.message}`);
