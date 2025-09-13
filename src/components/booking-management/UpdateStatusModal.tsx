@@ -497,7 +497,7 @@ console.log(assurityFeePrice)
 
                       }}
                     />
-                    <Label className="block mb-1 font-medium">Remaining Payment Amount111111</Label>
+                    <Label className="block mb-1 font-medium">Remaining Payment Amount</Label>
                     <Label className="text-red-700 block">
                       ₹ {finalRemainingAmount}
                     </Label>
@@ -508,7 +508,7 @@ console.log(assurityFeePrice)
                 <div className="my-3">
                   <Label className="block mb-1 font-medium">
                     {paymentType === "remaining"
-                      ? "Remaining Payment Amount2222222"
+                      ? "Remaining Payment Amount"
                       : "Full Payment Amount"}
                   </Label>
                   <Label className="text-red-700 block">
