@@ -133,14 +133,19 @@ export default function ProviderOnboardingPage() {
       await registerProvider(fd);
       // Don't reset the form here to preserve data when navigating back
       setActiveStep(2);
-    } catch (err: any) {
-      if (err.response?.data?.error?.includes('already registered') || 
-          err.response?.data?.error?.includes('already exists')) {
-        setApiError('Email or phone number is already registered');
-      } else {
-        setApiError('Registration failed. Please try again.');
-      }
-    }
+    } catch (err: unknown) {
+  const error = err as { response?: { data?: { error?: string } } };
+
+  if (
+    error.response?.data?.error?.includes("already registered") ||
+    error.response?.data?.error?.includes("already exists")
+  ) {
+    setApiError("Email or phone number is already registered");
+  } else {
+    setApiError("Registration failed. Please try again.");
+  }
+}
+
   };
 
   const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
@@ -157,9 +162,12 @@ export default function ProviderOnboardingPage() {
       await updateStoreInfo(fd);
       // Don't reset the form here to preserve data when navigating back
       setActiveStep(3);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setApiError('Failed to save store information. Please try again.');
+      console.log(err);
+      
     }
+
   };
 
   const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
@@ -180,8 +188,10 @@ export default function ProviderOnboardingPage() {
       setTimeout(() => {
         router.push("/");
       }, 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setApiError('Failed to upload KYC documents. Please try again.');
+      console.log(err);
+      
     }
   };
 

@@ -50,6 +50,7 @@ const Page = () => {
     pendingWithdraw: 0,
     alreadyWithdrawn: 0,
     totalEarning: 0,
+      totalCredits: 0,
     transactions: [],
   };
 
