@@ -58,7 +58,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
-console.log(linkType)
+  console.log(linkType) // dont remove
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -338,7 +338,7 @@ console.log(linkType)
 
 
   const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
-console.log(assurityFeePrice)
+  console.log(assurityFeePrice) //dont remove
 
   const finalFullAmount =
     Number(checkoutDetails?.grandTotal) > 0
