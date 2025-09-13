@@ -50,7 +50,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
-  console.log(linkType);
 
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
@@ -59,7 +58,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
-  console.log("eselected status type  : ", statusType)
 
 
   useEffect(() => {
@@ -90,14 +88,12 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
       if (leadData && Array.isArray(leadData.leads)) {
         setLeadStatusList(leadData.leads);
-        console.log("✅ Existing Lead Statuses:", leadData.leads);
       } else {
         console.warn("⚠️ No leads available or not an array");
       }
 
       if (leadData && Array.isArray(leadData.extraService)) {
         setExtraService(leadData.extraService);
-        console.log("✅ Extra Services:", leadData.extraService);
       } else {
         console.warn("⚠️ No extra services available or not an array");
       }
@@ -120,7 +116,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-    console.log("status type : ", statusType)
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -343,7 +338,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
 
   const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
-  console.log("assurityFeePrice :", assurityFeePrice);
 
 
   const finalFullAmount =
@@ -503,10 +497,9 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
                       }}
                     />
-                    <Label className="block mb-1 font-medium">Remaining Payment Amount</Label>
+                    <Label className="block mb-1 font-medium">Remaining Payment Amount111111</Label>
                     <Label className="text-red-700 block">
                       ₹ {finalRemainingAmount}
-
                     </Label>
 
                   </div>
@@ -515,7 +508,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                 <div className="my-3">
                   <Label className="block mb-1 font-medium">
                     {paymentType === "remaining"
-                      ? "Remaining Payment Amount"
+                      ? "Remaining Payment Amount2222222"
                       : "Full Payment Amount"}
                   </Label>
                   <Label className="text-red-700 block">

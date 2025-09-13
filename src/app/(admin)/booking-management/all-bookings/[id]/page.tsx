@@ -674,7 +674,7 @@ const AllBookingsDetails = () => {
           amount={
             (checkoutDetails.grandTotal && checkoutDetails.grandTotal > 0
               ? checkoutDetails.grandTotal - checkoutDetails.paidAmount
-              : checkoutDetails.totalAmount
+              : checkoutDetails.totalAmount - checkoutDetails.paidAmount
             )?.toString() || "000"
           }
 
