@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useModal } from "../../hooks/useModal";
+// import { useModal } from "../../hooks/useModal";
 
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
