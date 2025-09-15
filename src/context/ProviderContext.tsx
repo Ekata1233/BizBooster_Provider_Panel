@@ -44,7 +44,7 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
- // In your ProviderContext (context/ProviderContext.tsx)
+
 const registerProvider = async (formData: FormData) => {
   setLoading(true);
   try {

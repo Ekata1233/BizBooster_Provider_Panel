@@ -10,7 +10,7 @@ import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
 
 export default function UserMetaCard() {
-  const { isOpen, openModal, closeModal } = useModal();
+  const { isOpen, closeModal } = useModal();
   const { providerDetails } = useAuth();
 
   console.log("Provider details", providerDetails);
