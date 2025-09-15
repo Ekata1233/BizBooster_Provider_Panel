@@ -125,75 +125,82 @@ export default function ProviderOnboardingPage() {
     fetchProvider();
   }, [providerId]);
 
-  const onRegister = async (data: Record<string, FormDataEntryValue | Blob>) => {
-    try {
-      setApiError(null);
-      const fd = new FormData();
-      Object.entries(data).forEach(([k, v]) => fd.append(k, v as string));
-      await registerProvider(fd);
-      // Don't reset the form here to preserve data when navigating back
-      setActiveStep(2);
-    } catch (err: unknown) {
-  const error = err as { response?: { data?: { error?: string } } };
+const onRegister = async (data: Record<string, FormDataEntryValue | Blob>) => {
+  try {
+    setApiError(null);
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => fd.append(k, v as string));
+    
+    // This will throw an error if registration fails
+    await registerProvider(fd);
+    
+    // Only reach here if successful - move to next step
+    setActiveStep(2);
+  } catch (err: unknown) {
+    const error = err as Error;
 
-  if (
-    error.response?.data?.error?.includes("already registered") ||
-    error.response?.data?.error?.includes("already exists")
-  ) {
-    setApiError("Email or phone number is already registered");
-  } else {
-    setApiError("Registration failed. Please try again.");
+    if (
+      error.message?.includes("already registered") ||
+      error.message?.includes("already exists")
+    ) {
+      setApiError("Email or phone number is already registered");
+    } else {
+      setApiError("Registration failed. Please try again.");
+    }
+    // DON'T setActiveStep here - stay on current step
   }
-}
+};
 
-  };
+const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+  try {
+    setApiError(null);
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (v instanceof FileList) {
+        Array.from(v).forEach((file) => fd.append(k, file));
+      } else {
+        fd.append(k, v);
+      }
+    });
+    
+    // This will throw an error if store info update fails
+    await updateStoreInfo(fd);
+    
+    // Only reach here if successful - move to next step
+    setActiveStep(3);
+  } catch (err: unknown) {
+    setApiError('Failed to save store information. Please try again.');
+    console.log(err);
+    // DON'T setActiveStep here - stay on current step
+  }
+};
 
-  const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
-    try {
-      setApiError(null);
-      const fd = new FormData();
-      Object.entries(data).forEach(([k, v]) => {
-        if (v instanceof FileList) {
-          Array.from(v).forEach((file) => fd.append(k, file));
-        } else {
-          fd.append(k, v);
-        }
-      });
-      await updateStoreInfo(fd);
-      // Don't reset the form here to preserve data when navigating back
-      setActiveStep(3);
-    } catch (err: unknown) {
-      setApiError('Failed to save store information. Please try again.');
-      console.log(err);
-      
-    }
+const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
+  try {
+    setApiError(null);
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (v instanceof FileList) {
+        Array.from(v).forEach((file) => fd.append(k, file));
+      } else {
+        fd.append(k, v as string);
+      }
+    });
 
-  };
+    // This will throw an error if KYC update fails
+    await updateKycInfo(fd);
+    
+    // Only reach here if successful - redirect to home
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
+  } catch (err: unknown) {
+    setApiError('Failed to upload KYC documents. Please try again.');
+    console.log(err);
+    // DON'T redirect - stay on current step
+  }
+};
 
-  const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) => {
-    try {
-      setApiError(null);
-      const fd = new FormData();
-      Object.entries(data).forEach(([k, v]) => {
-        if (v instanceof FileList) {
-          Array.from(v).forEach((file) => fd.append(k, file));
-        } else {
-          fd.append(k, v as string);
-        }
-      });
-
-      await updateKycInfo(fd);
-      // Don't reset the form here to preserve data when navigating back
-
-      setTimeout(() => {
-        router.push("/");
-      }, 3000);
-    } catch (err: unknown) {
-      setApiError('Failed to upload KYC documents. Please try again.');
-      console.log(err);
-      
-    }
-  };
 
   const goToPreviousStep = () => {
     if (activeStep > 1) {
@@ -365,8 +372,6 @@ export default function ProviderOnboardingPage() {
                     )}
                   </div>
                 </div>
-
-                {/* {error && <p className="text-red-500 text-sm mt-2">{error}</p>} */}
 
                 <div className="flex justify-end mt-8">
                   <button
@@ -579,12 +584,10 @@ export default function ProviderOnboardingPage() {
                         {...storeForm.register("cover")}
                         type="file"
                         accept="image/*"
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        className="block w-full text-sm text-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                     </div>
                   </div>
-
-                  {/* {error && <p className="text-red-500 text-sm mt-2">{error}</p>} */}
 
                   <div className="flex justify-between mt-8">
                     <button

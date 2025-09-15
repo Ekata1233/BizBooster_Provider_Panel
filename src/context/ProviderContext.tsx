@@ -44,82 +44,87 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const registerProvider = async (formData: FormData) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE_URL}/register`, {
-        method: 'POST',
-        body: formData,
-         credentials: 'include',
-      });
+ // In your ProviderContext (context/ProviderContext.tsx)
+const registerProvider = async (formData: FormData) => {
+  setLoading(true);
+  try {
+    const res = await fetch(`${BASE_URL}/register`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
 
-      const data = await res.json();
-      console.log("data at the time of registration : ", data)
-      if (!res.ok) throw new Error(data.message || 'Registration failed');
-       if (data.token) {
+    const data = await res.json();
+    console.log("data at the time of registration : ", data);
+    
+    if (!res.ok) {
+      throw new Error(data.message || 'Registration failed');
+    }
+    
+    if (data.token) {
       localStorage.setItem('token', data.token);
     }
-      setProvider(data.provider);
-      setError(null);
-    } catch (err: unknown) {
-  const error = err as Error;
-  setError(error.message);
-}
- finally {
-      setLoading(false);
-    }
-  };
+    setProvider(data.provider);
+    setError(null);
+  } catch (err: unknown) {
+    const error = err as Error;
+    setError(error.message);
+    throw error; // Re-throw the error
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const updateStoreInfo = async (formData: FormData) => {
-    setLoading(true);
-    try {
-        const token = localStorage.getItem('token');
-        
-      const res = await fetch(`${BASE_URL}/store-info`, {
-        method: 'PUT',
-        body: formData,
-        headers: {
+// Apply the same pattern to updateStoreInfo and updateKycInfo
+const updateStoreInfo = async (formData: FormData) => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}/store-info`, {
+      method: 'PUT',
+      body: formData,
+      headers: {
         Authorization: `Bearer ${token}`,
       },
-      });
+    });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Store info update failed');
-      setProvider(data.provider);
-      setError(null);
-    } catch (err: unknown) {
-        const error = err as Error;
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Store info update failed');
+    setProvider(data.provider);
+    setError(null);
+  } catch (err: unknown) {
+    const error = err as Error;
+    setError(error.message);
+    throw error; // Re-throw the error
+  } finally {
+    setLoading(false);
+  }
+};
 
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateKycInfo = async (formData: FormData) => {
-    setLoading(true);
-    try {
-        const token = localStorage.getItem('token');
-      const res = await fetch(`${BASE_URL}/kyc`, {
-        method: 'PUT',
-        body: formData,
-         headers: {
-        Authorization: `Bearer ${token}`, // ✅ pass token here
+const updateKycInfo = async (formData: FormData) => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}/kyc`, {
+      method: 'PUT',
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      });
+    });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'KYC update failed');
-      setProvider(data.provider);
-      setError(null);
-    } catch (err: unknown) {
-        const error = err as Error;
-
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'KYC update failed');
+    setProvider(data.provider);
+    setError(null);
+  } catch (err: unknown) {
+    const error = err as Error;
+    setError(error.message);
+    throw error; // Re-throw the error
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getProviderById = async (id: string) => {
     setLoading(true);
