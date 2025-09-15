@@ -6,7 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function UserInfoCard() {
-  const {  closeModal } = useModal();
+  // const {  closeModal } = useModal();
   const { providerDetails } = useAuth();
   console.log("provider detials in to the user info : ", providerDetails)
  
