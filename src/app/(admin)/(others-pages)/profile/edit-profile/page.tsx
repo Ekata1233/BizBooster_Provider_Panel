@@ -74,7 +74,7 @@ export default function EditProfilePage() {
             } else {
                 setError("Failed to update profile.");
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
             setError("An error occurred while updating profile.");
         } finally {

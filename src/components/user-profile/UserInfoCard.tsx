@@ -1,14 +1,72 @@
 "use client";
-import React from "react";
-import { useModal } from "../../hooks/useModal";
+import React, { useEffect, useState } from "react";
+// import { useModal } from "../../hooks/useModal";
+
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function UserInfoCard() {
+  // const {  closeModal } = useModal();
   const { providerDetails } = useAuth();
   console.log("provider detials in to the user info : ", providerDetails)
-  
-  const router = useRouter(); 
+  const [moduleName, setModuleName] = useState<string>('Loading...');
+  const [zoneName, setZoneName] = useState<string>('Loading...');
+
+  useEffect(() => {
+    const fetchModule = async () => {
+      if (!providerDetails?.storeInfo?.module) {
+        setModuleName('No Module Registered');
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://api.fetchtrue.com/api/modules/${providerDetails.storeInfo.module}`);
+        const data = await res.json();
+        if (data.success && data.data?.name) {
+          setModuleName(data.data.name);
+        } else {
+          setModuleName('Module Not Found');
+        }
+      } catch (error) {
+        console.error('Error fetching module:', error);
+        setModuleName('Error fetching module');
+      }
+    };
+
+    const fetchZone = async () => {
+      if (!providerDetails?.storeInfo?.zone) {
+        setZoneName("No Zone Registered");
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://api.fetchtrue.com/api/zone/${providerDetails.storeInfo.zone}`
+        );
+
+        console.log("data of the res : ", res);
+
+        const data = await res.json();
+
+        console.log("data of the zone : ", data);
+
+        if (data.success && data.data?.name) {
+          setZoneName(data.data.name);
+        } else {
+          setZoneName("Zone Not Found");
+        }
+      } catch (error) {
+        console.error("Error fetching zone:", error);
+        setZoneName("Error fetching zone"); // ✅ fixed
+      }
+    };
+
+
+    fetchModule();
+    fetchZone();
+  }, [providerDetails?.storeInfo?.module, providerDetails?.storeInfo?.zone]);
+
+  const router = useRouter();
 
   const handleEdit = () => {
     router.push("/profile/edit-profile"); // Redirect to edit page
@@ -40,8 +98,6 @@ export default function UserInfoCard() {
               </p>
             </div>
 
-
-
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Phone
@@ -49,6 +105,20 @@ export default function UserInfoCard() {
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {providerDetails?.phoneNo || "User"}
               </p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Module Name
+              </p>
+              <p className="font-medium">{moduleName || 'No Any Moduel Registered'}</p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Zone Name
+              </p>
+              <p className="font-medium">{zoneName || 'No Any Zone Registered'}</p>
             </div>
           </div>
         </div>
