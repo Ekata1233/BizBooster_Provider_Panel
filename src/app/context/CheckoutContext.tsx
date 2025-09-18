@@ -104,7 +104,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setLoadingCheckouts(true);
     try {
       const res = await axios.get(
-        `https://biz-booster.vercel.app/api/checkout/${providerId}`
+        `https://api.fetchtrue.com/api/checkout/${providerId}`
       );
       setCheckouts(res.data?.data || []);
       setErrorCheckouts(null);
@@ -120,7 +120,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setLoadingCheckoutDetails(true);
     try {
       const res = await axios.get(
-        `https://biz-booster.vercel.app/api/checkout/details/${id}`
+        `https://api.fetchtrue.com/api/checkout/details/${id}`
       );
       setCheckoutDetails(res.data?.data || null);
       setErrorCheckoutDetails(null);
@@ -137,7 +137,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setLoadingUpdate(true);
     setErrorUpdate(null);
     try {
-      const res = await axios.put(`https://biz-booster.vercel.app/api/checkout/${id}`, data);
+      const res = await axios.put(`https://api.fetchtrue.com/api/checkout/${id}`, data);
       setCheckoutDetails(res.data?.data || null); // Update local detail if relevant
       
     }catch (err: unknown) {

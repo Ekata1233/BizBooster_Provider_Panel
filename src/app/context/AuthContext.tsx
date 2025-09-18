@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.clear(); // or remove specific keys
 
     try {
-      const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
+      const res = await fetch("https://api.fetchtrue.com/api/provider/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Fetch full provider details
       const providerDetailsRes = await fetch(
-        `https://biz-booster.vercel.app/api/provider/${provider._id}`,
+        `https://api.fetchtrue.com/api/provider/${provider._id}`,
         {
           method: "GET",
           headers: {
@@ -178,7 +178,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const res = await fetch(
-        `https://biz-booster.vercel.app/api/provider/${provider._id}`,
+        `https://api.fetchtrue.com/api/provider/${provider._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -219,7 +219,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("theme");
 
     try {
-      await fetch("https://biz-booster.vercel.app/api/provider/logout", {
+      await fetch("https://api.fetchtrue.com/api/provider/logout", {
         method: "POST",
         credentials: "include", 
       });

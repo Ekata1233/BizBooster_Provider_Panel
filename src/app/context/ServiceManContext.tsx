@@ -35,7 +35,7 @@ interface ServiceManContextType {
 
 const ServiceManContext = createContext<ServiceManContextType | undefined>(undefined);
 
-const API_BASE = "https://biz-booster.vercel.app/api/serviceman";
+const API_BASE = "https://api.fetchtrue.com/api/serviceman";
 
 export const ServiceManProvider = ({ children }: { children: React.ReactNode }) => {
   const [serviceMen, setServiceMen] = useState<ServiceMan[]>([]);

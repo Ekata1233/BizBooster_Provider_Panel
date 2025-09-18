@@ -50,7 +50,7 @@ export const SubcategoryProvider: React.FC<SubcategoryProviderProps> = ({
     setLoadingSubcategories(true);
     try {
       const res = await axios.get(
-        "https://biz-booster.vercel.app/api/subcategory"
+        "https://api.fetchtrue.com/api/subcategory"
       );
       setSubcategories(res.data?.data || []);
       setErrorSubcategories(null);

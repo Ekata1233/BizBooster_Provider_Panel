@@ -69,7 +69,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   useEffect(() => {
     const fetchCommission = async () => {
       try {
-        const res = await axios.get("https://biz-booster.vercel.app/api/commission");
+        const res = await axios.get("https://api.fetchtrue.com/api/commission");
         if (Array.isArray(res.data) && res.data.length > 0) {
           setAssurityFee(res.data[0].assurityfee); // store in state variable
         }
@@ -165,7 +165,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
     if (isCashInHand) {
       try {
-        const cashRes = await fetch(`https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`, {
+        const cashRes = await fetch(`https://api.fetchtrue.com/api/checkout/cash-in-hand/${checkoutId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -210,7 +210,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
     try {
       const res = await fetch(
-        "https://biz-booster.vercel.app/api/payment/generate-payment-link",
+        "https://api.fetchtrue.com/api/payment/generate-payment-link",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -250,7 +250,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
     try {
       const res = await fetch(
-        "https://biz-booster.vercel.app/api/provider/lead/verify-otp",
+        "https://api.fetchtrue.com/api/provider/lead/verify-otp",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -266,7 +266,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
         if (isCashInHand) {
           try {
             const cashRes = await fetch(
-              `https://biz-booster.vercel.app/api/checkout/cash-in-hand/${checkoutId}`,
+              `https://api.fetchtrue.com/api/checkout/cash-in-hand/${checkoutId}`,
               {
                 method: "PUT",
               }

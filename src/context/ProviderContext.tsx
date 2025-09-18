@@ -37,7 +37,7 @@ export const useProvider = () => {
   return context;
 };
 
-const BASE_URL = 'https://biz-booster.vercel.app/api/provider';
+const BASE_URL = 'https://api.fetchtrue.com/api/provider';
 
 export const ProviderContextProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);

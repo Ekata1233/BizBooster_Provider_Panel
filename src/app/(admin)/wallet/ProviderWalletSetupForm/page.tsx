@@ -28,7 +28,7 @@ const ProviderWalletSetupForm: React.FC = () => {
         setMessage(null);
 
         try {
-            const res = await fetch("https://biz-booster.vercel.app/api/provider/wallet/setup", {
+            const res = await fetch("https://api.fetchtrue.com/api/provider/wallet/setup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ providerId, ...formData }),

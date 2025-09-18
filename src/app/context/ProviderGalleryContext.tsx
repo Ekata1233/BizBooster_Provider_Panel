@@ -26,7 +26,7 @@ export const ProviderGalleryProvider = ({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const BASE_URL = "https://biz-booster.vercel.app/api/provider";
+  const BASE_URL = "https://api.fetchtrue.com/api/provider";
 
   const fetchGallery = async (providerId: string) => {
     setLoading(true);

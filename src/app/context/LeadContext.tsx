@@ -75,7 +75,7 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   const fetchLeads = async () => {
     setLoadingLeads(true);
     try {
-      const res = await axios.get("https://biz-booster.vercel.app/api/leads");
+      const res = await axios.get("https://api.fetchtrue.com/api/leads");
       setLeads(res.data || []);
       setErrorLeads(null);
     } catch (err) {
@@ -89,7 +89,7 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   const getLeadByCheckoutId = async (checkoutId: string): Promise<LeadType | null> => {
     try {
       const res = await axios.get(
-        `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
+        `https://api.fetchtrue.com/api/leads/FindByCheckout/${checkoutId}`
       );
       return res.data?.data || null;
     } catch (error: unknown) {
@@ -125,7 +125,7 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
     setLoadingLeads(true);
     try {
       const res = await axios.post(
-        "https://biz-booster.vercel.app/api/leads",
+        "https://api.fetchtrue.com/api/leads",
         formData,
         {
           headers: {
@@ -164,7 +164,7 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   ): Promise<{ data: LeadType | null; errorMessage?: string }> => {
     try {
       const res = await axios.put(
-        `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`,
+        `https://api.fetchtrue.com/api/leads/FindByCheckout/${checkoutId}`,
         updates
       );
       const updatedLead = res.data?.data;

@@ -45,7 +45,7 @@ export const ZoneProvider: React.FC<ZoneProviderProps> = ({ children }) => {
   const fetchZones = async () => {
     setLoadingZones(true);
     try {
-      const res = await axios.get("https://biz-booster.vercel.app/api/zone");
+      const res = await axios.get("https://api.fetchtrue.com/api/zone");
       setZones(res.data?.data || []);
       setErrorZones(null);
     } catch (err) {

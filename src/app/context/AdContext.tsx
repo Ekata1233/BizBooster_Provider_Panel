@@ -41,7 +41,7 @@ interface AdContextType {
 const AdContext = createContext<AdContextType | null>(null);
 
 // ✅ API base URL (use env variable for flexibility)
-const API_BASE_URL =  'https://biz-booster.vercel.app/api/ads';
+const API_BASE_URL =  'https://api.fetchtrue.com/api/ads';
 
 export const AdProvider = ({ children }: { children: ReactNode }) => {
   const [ads, setAds] = useState<AdType[]>([]);
