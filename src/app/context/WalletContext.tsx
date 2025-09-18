@@ -44,7 +44,7 @@ interface ProviderWalletContextType {
 
 const WalletContext = createContext<ProviderWalletContextType | undefined>(undefined);
 
-const WALLET_API = "https://biz-booster.vercel.app/api/provider/wallet"; // Update this
+const WALLET_API = "https://api.fetchtrue.com/api/provider/wallet"; // Update this
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const [wallet, setWallet] = useState<ProviderWallet | null>(null);

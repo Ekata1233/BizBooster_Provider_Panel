@@ -157,7 +157,7 @@ const MySubscriptionPage = () => {
     try {
       setUnsubscribing(serviceId);
 
-      const response = await fetch('https://biz-booster.vercel.app/api/provider/unsubscribe', {
+      const response = await fetch('https://api.fetchtrue.com/api/provider/unsubscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

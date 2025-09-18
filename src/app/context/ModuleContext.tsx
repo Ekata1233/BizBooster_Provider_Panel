@@ -28,7 +28,7 @@ export const ModuleProvider: React.FC<ModuleProviderProps> = ({ children }) => {
     const fetchModules = async () => {
         setLoadingModules(true);
         try {
-            const res = await axios.get("https://biz-booster.vercel.app/api/modules");
+            const res = await axios.get("https://api.fetchtrue.com/api/modules");
             setModules(res.data?.data || []);
             setErrorModules(null);
         } catch (err) {

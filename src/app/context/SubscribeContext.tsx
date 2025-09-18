@@ -25,7 +25,7 @@ export const SubscribeProvider: React.FC<SubscribeProviderProps> = ({ children }
 
     const [subscribeStates, setSubscribeStates] = useState<Record<string, SubscribeState>>({});
 
-    const API_URL = "https://biz-booster.vercel.app/api/provider/subscribe";
+    const API_URL = "https://api.fetchtrue.com/api/provider/subscribe";
 
     const subscribeToService = async (serviceId: string) => {
         if (!provider?._id) {

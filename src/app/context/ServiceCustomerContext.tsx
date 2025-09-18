@@ -45,7 +45,7 @@ export const ServiceCustomerProvider = ({ children }: { children: ReactNode }) =
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`https://biz-booster.vercel.app/api/service-customer/${id}`);
+      const response = await axios.get(`https://api.fetchtrue.com/api/service-customer/${id}`);
       setServiceCustomer(response.data.data);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };

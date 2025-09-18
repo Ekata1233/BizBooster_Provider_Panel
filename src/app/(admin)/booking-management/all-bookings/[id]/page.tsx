@@ -169,7 +169,7 @@ const AllBookingsDetails = () => {
       });
 
       try {
-        const res = await fetch("https://biz-booster.vercel.app/api/upcoming-lead-commission", {
+        const res = await fetch("https://api.fetchtrue.com/api/upcoming-lead-commission", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ checkoutId: checkoutDetails._id }),
@@ -607,7 +607,7 @@ const AllBookingsDetails = () => {
 
 
               if (statusType === "Lead completed") {
-                const res = await fetch("https://biz-booster.vercel.app/api/distributeLeadCommission", {
+                const res = await fetch("https://api.fetchtrue.com/api/distributeLeadCommission", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ checkoutId: checkoutDetails._id }),
@@ -628,7 +628,7 @@ const AllBookingsDetails = () => {
 
                 try {
                   const cancelRes = await fetch(
-                    `https://biz-booster.vercel.app/api/checkout/cancel-lead/${checkoutDetails?._id}`,
+                    `https://api.fetchtrue.com/api/checkout/cancel-lead/${checkoutDetails?._id}`,
                     { method: "PATCH" }
                   );
 
