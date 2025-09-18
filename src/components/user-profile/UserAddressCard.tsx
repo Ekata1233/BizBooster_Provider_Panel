@@ -65,7 +65,6 @@ export default function UserAddressCard() {
             { label: "Country", value: provider?.storeInfo?.country },
             { label: "Store Email", value: provider?.storeInfo?.storeEmail },
             { label: "Store Phone", value: provider?.storeInfo?.storePhone },
-            { label: "Zone", value: provider?.storeInfo?.zone },
           ].map((item, index) => (
             <div key={index} className="flex items-center gap-2">
               <p className="text-sm text-gray-500 whitespace-nowrap">{item.label}:</p>
