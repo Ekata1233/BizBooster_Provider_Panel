@@ -232,7 +232,7 @@ import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 
 export default function EditProfilePage() {
-    const { providerDetails, provider, refreshProviderDetails } = useAuth();
+    const { providerDetails, refreshProviderDetails } = useAuth();
     const countries = [{ code: "IN", label: "+91" }]; // Extendable
 
     const [fullName, setFullName] = useState(providerDetails?.fullName || "");
