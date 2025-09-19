@@ -312,6 +312,7 @@ export default function EditProfilePage() {
                         email,
                         phoneNo,
                         storeInfo: {
+                            ...providerDetails?.storeInfo,
                             storeName,
                             address,
                             city,
