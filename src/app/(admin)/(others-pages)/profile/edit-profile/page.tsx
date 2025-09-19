@@ -232,8 +232,7 @@ import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 
 export default function EditProfilePage() {
-    const { providerDetails } = useAuth();
-
+    const { providerDetails, provider, refreshProviderDetails } = useAuth();
     const countries = [{ code: "IN", label: "+91" }]; // Extendable
 
     const [fullName, setFullName] = useState(providerDetails?.fullName || "");
@@ -249,6 +248,13 @@ export default function EditProfilePage() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        refreshProviderDetails();
+    }, []);
+
+    console.log("proivder detail : ", providerDetails)
+
 
     useEffect(() => {
         if (providerDetails) {
@@ -322,6 +328,7 @@ export default function EditProfilePage() {
             console.log("Update API response:", data);
             if (response.ok) {
                 alert("Profile updated successfully!");
+                await refreshProviderDetails();
             } else {
                 setError("Failed to update profile.");
             }
@@ -336,10 +343,10 @@ export default function EditProfilePage() {
     return (
         <div>
             <PageBreadcrumb pageTitle="Edit Profile" />
-           <div className="m-4">
-                            {error && <p className="text-red-500">{error}</p>}
+            <div className="m-4">
+                {error && <p className="text-red-500">{error}</p>}
 
-           </div>
+            </div>
 
             <div className="space-y-6">
                 {/* Personal Info */}
@@ -466,8 +473,8 @@ export default function EditProfilePage() {
                         onClick={handleUpdate}
                         disabled={loading}
                         className={`px-6 py-2 text-white rounded ${loading
-                                ? "bg-gray-400"
-                                : "bg-blue-600 hover:bg-blue-700"
+                            ? "bg-gray-400"
+                            : "bg-blue-600 hover:bg-blue-700"
                             }`}
                     >
                         {loading ? "Updating..." : "Update"}
