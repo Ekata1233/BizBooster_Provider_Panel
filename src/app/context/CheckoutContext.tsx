@@ -48,6 +48,7 @@ export interface CheckoutType {
   remainingPaymentStatus: 'pending' | 'paid' | 'failed';
   paymentStatus: 'pending' | 'paid' | 'failed';
   orderStatus: 'processing' | 'in_progress' | 'completed' | 'cancelled';
+  cashInHandAmount?: number;
   notes?: string;
   isVerified: boolean;
   isAccepted: boolean;
