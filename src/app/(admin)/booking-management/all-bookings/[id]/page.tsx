@@ -409,7 +409,7 @@ const AllBookingsDetails = () => {
                   // ✅ calculated assurity fee amount
                   const assurityFee = (assurityFeePercent / 100) * priceAfterDiscount;
 
-                  const grandTotal = subtotal - totalDiscount - (checkoutDetails.couponDiscount || 0) - champaignDiscount + serviceGST + assurityFee;
+                 const grandTotal = priceAfterDiscount + serviceGST + assurityFee;
                   finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
                   console.log("subtotal : ", subtotal)
                   console.log("champaignDiscount : ", champaignDiscount)
