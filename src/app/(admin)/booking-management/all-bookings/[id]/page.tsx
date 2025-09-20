@@ -581,8 +581,9 @@ const AllBookingsDetails = () => {
                 const paymentStatus = checkoutDetails?.paymentStatus?.trim().toLowerCase() || "";
                 const cashInHand = Boolean(checkoutDetails?.cashInHand);
                 const cashInHandAmount = Number(checkoutDetails?.cashInHandAmount ?? 0);
+                const paidAmount =  Number(checkoutDetails?.paidAmount ?? 0);
 
-                if (paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
+                if (paidAmount > 0 || paidAmount > 0 || paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
                   alert("Lead cannot be canceled because payment is already made.");
                   console.log("Lead cancel blocked due to existing payment:", {
                     paymentStatus,
