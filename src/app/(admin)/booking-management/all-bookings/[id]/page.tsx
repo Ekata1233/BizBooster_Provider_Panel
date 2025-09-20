@@ -412,7 +412,7 @@ const AllBookingsDetails = () => {
                   ['Listing Price', checkoutDetails?.listingPrice ?? 0],
                   [`Service Discount (${checkoutDetails?.serviceDiscount ?? 0}%)`, -(checkoutDetails?.serviceDiscountPrice ?? 0)],
                   ['Price After Discount', checkoutDetails?.priceAfterDiscount ?? 0],
-                  [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}%)`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
+                  [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}${checkoutDetails?.couponDiscountType})`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
                   [`Service GST (${checkoutDetails?.gst ?? 0}%)`, checkoutDetails?.serviceGSTPrice ?? 0],
                   [`Platform Fee `, checkoutDetails?.platformFeePrice ?? 0],
                   [`Fetch True Assurity Charges (${checkoutDetails?.assurityfee ?? 0}%)`, checkoutDetails?.assurityChargesPrice ?? 0],

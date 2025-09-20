@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
 import {
-  FaUsers,
   FaChartLine,
-  FaMoneyBill,
   FaClipboardList,
   FaStore,
   FaTools,
