@@ -130,12 +130,12 @@ const Page = () => {
       render: (row: Transaction) =>
         row.type === "credit" ? `₹${row.amount}` : "-",
     },
-    {
-      header: "Withdraw",
-      accessor: "withdraw",
-      render: (row: Transaction) =>
-        row.source === "withdraw" ? `₹${row.amount}` : "-",
-    },
+    // {
+    //   header: "Withdraw",
+    //   accessor: "withdraw",
+    //   render: (row: Transaction) =>
+    //     row.source === "withdraw" ? `₹${row.amount}` : "-",
+    // },
     {
       header: "Balance",
       accessor: "balance",
@@ -188,69 +188,69 @@ const Page = () => {
 
         {/* Transaction Table */}
         <ComponentCard title="Transaction Summary">
-          <div>
-            {!isWalletAvailable ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
-                <FaWallet className="text-5xl mb-4 text-blue-400" />
-                <h2 className="text-xl font-semibold mb-2">No Wallet Found</h2>
-                <p className="text-sm max-w-md">
-                  This wallet doesn&rsquo;t have any transactions yet. Once
-                  transactions are made, they will appear here.
-                </p>
+  <div>
+    {!isWalletAvailable ? (
+      <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+        <FaWallet className="text-5xl mb-4 text-blue-400" />
+        <h2 className="text-xl font-semibold mb-2">No Wallet Found</h2>
+        <p className="text-sm max-w-md">
+          This wallet doesn’t have any transactions yet. Once transactions are made, they will appear here.
+        </p>
+      </div>
+    ) : (
+      <>
+        {/* Tabs + Download */}
+        <div className="flex justify-between items-center border-b mb-4">
+          <div className="flex gap-4">
+            {tabs.map((tab) => (
+              <div
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`cursor-pointer px-4 py-2 text-sm font-medium ${
+                  activeTab === tab
+                    ? "border-b-2 border-blue-600 text-blue-600"
+                    : "text-gray-600"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                <span className="ml-2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {counts[tab]}
+                </span>
               </div>
-            ) : (
-              <>
-                {/* ✅ Tabs + Download Button */}
-                <div className="flex justify-between items-center border-b mb-4">
-                  <div className="flex gap-4">
-                    {tabs.map((tab) => (
-                      <div
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`cursor-pointer px-4 py-2 text-sm font-medium ${
-                          activeTab === tab
-                            ? "border-b-2 border-blue-600 text-blue-600"
-                            : "text-gray-600"
-                        }`}
-                      >
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                        <span className="ml-2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-                          {counts[tab]}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={handleDownload}
-                    className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition"
-                  >
-                    <FaFileDownload className="w-5 h-5" />
-                    <span>Download Excel</span>
-                  </button>
-                </div>
-
-                {filteredTransactions.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
-                    <FaMoneyBillWave className="text-5xl mb-4 text-blue-400" />
-                    <h2 className="text-xl font-semibold mb-2">
-                      No Transactions Found
-                    </h2>
-                    <p className="text-sm max-w-md">
-                      This wallet doesn&rsquo;t have any transactions yet. Once
-                      transactions are made, they will appear here.
-                    </p>
-                  </div>
-                ) : (
-                  <BasicTableOne
-                    columns={columnsWallet}
-                    data={filteredTransactions}
-                  />
-                )}
-              </>
-            )}
+            ))}
           </div>
-        </ComponentCard>
+
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition"
+          >
+            <FaFileDownload className="w-5 h-5" />
+            <span>Download Excel</span>
+          </button>
+        </div>
+
+        {filteredTransactions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+            <FaMoneyBillWave className="text-5xl mb-4 text-blue-400" />
+            <h2 className="text-xl font-semibold mb-2">No Transactions Found</h2>
+            <p className="text-sm max-w-md">
+              This wallet doesn’t have any transactions yet. Once transactions are made, they will appear here.
+            </p>
+          </div>
+        ) : (
+          // ✅ Fullscreen table wrapper
+          <div className="w-full overflow-x-auto">
+            <BasicTableOne
+              columns={columnsWallet}
+              data={filteredTransactions}
+            />
+          </div>
+        )}
+      </>
+    )}
+  </div>
+</ComponentCard>
+
       </div>
     </div>
   );
