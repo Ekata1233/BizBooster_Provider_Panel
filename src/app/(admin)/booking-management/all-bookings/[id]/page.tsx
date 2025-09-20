@@ -478,35 +478,7 @@ const AllBookingsDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-              {/* {checkoutDetails.isCompleted === false  ? (
-                <div className="px-8 py-6 bg-gray-100 m-3 rounded-xl">
-                <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Booking Setup</h4>
-                <hr className="my-4 border-gray-300 dark:border-gray-700" />
-
-                {!checkoutDetails?.isAccepted ? (
-                  <div className="flex flex-col sm:flex-row justify-end gap-4 mt-4">
-                    <button className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200">
-                      Ignore
-                    </button>
-                    <button
-                      onClick={handleAccept}
-                      disabled={loadingUpdate}
-                      className="bg-blue-500 text-white px-7 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-                    >
-                      {loadingUpdate ? "Accepting..." : "Accept"}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={openModal}
-                    className="bg-red-500 text-white px-7 py-2 rounded-md hover:bg-red-600 transition duration-200"
-                  >
-                    Update Status
-                  </button>
-                )}
-
-
-              </div>) : (<></>)} */}
+            
 
               {!checkoutDetails?.isCompleted &&
                 !lead?.leads?.some(l => l.statusType === "Lead cancel") && (
@@ -599,12 +571,30 @@ const AllBookingsDetails = () => {
           onClose={closeModal}
           onSubmit={async (formData) => {
             try {
-              await createLead(formData);
+              // await createLead(formData);
 
               const statusType = formData.get("leads")
                 ? JSON.parse(formData.get("leads") as string)?.[0]?.statusType
                 : null;
 
+              if (statusType === "Lead cancel") {
+                const paymentStatus = checkoutDetails?.paymentStatus?.trim().toLowerCase() || "";
+                const cashInHand = Boolean(checkoutDetails?.cashInHand);
+                const cashInHandAmount = Number(checkoutDetails?.cashInHandAmount ?? 0);
+
+                if (paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
+                  alert("Lead cannot be canceled because payment is already made.");
+                  console.log("Lead cancel blocked due to existing payment:", {
+                    paymentStatus,
+                    cashInHand,
+                    cashInHandAmount,
+                  });
+                  return; // EXIT here, before calling createLead
+                }
+              }
+
+              // Only call createLead if payment conditions are okay
+              await createLead(formData);
 
               if (statusType === "Lead completed") {
                 const res = await fetch("https://api.fetchtrue.com/api/distributeLeadCommission", {
@@ -620,12 +610,25 @@ const AllBookingsDetails = () => {
                 alert("Commission distributed successfully.");
               }
 
+
               if (statusType === "Lead cancel") {
-                if (checkoutDetails?.paymentStatus?.toLowerCase() === "paid") {
-                  alert("Lead cannot be canceled because payment is already paid.");
-                  return;
+                // Normalize values to prevent type/format issues
+                const paymentStatus = checkoutDetails?.paymentStatus?.trim().toLowerCase() || "";
+                const cashInHand = Boolean(checkoutDetails?.cashInHand);
+                const cashInHandAmount = Number(checkoutDetails?.cashInHandAmount ?? 0);
+
+                // Block cancellation if any payment exists
+                if (paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
+                  alert("Lead cannot be canceled because payment is already made.");
+                  console.log("Lead cancel blocked due to existing payment:", {
+                    paymentStatus,
+                    cashInHand,
+                    cashInHandAmount,
+                  });
+                  return; // EXIT here, do NOT call the API
                 }
 
+                // Proceed with lead cancel API only if no payment exists
                 try {
                   const cancelRes = await fetch(
                     `https://api.fetchtrue.com/api/checkout/cancel-lead/${checkoutDetails?._id}`,
@@ -638,6 +641,7 @@ const AllBookingsDetails = () => {
                     if (typeof fetchCheckoutsDetailsById === "function") {
                       await fetchCheckoutsDetailsById(checkoutDetails?._id);
                     }
+                    alert("Lead canceled successfully.");
                   } else {
                     alert("Failed to cancel lead: " + (cancelData?.message || "Unknown error"));
                     console.error("Lead cancel failed:", cancelData);
@@ -647,7 +651,6 @@ const AllBookingsDetails = () => {
                   alert("An error occurred while canceling the lead. Please try again.");
                 }
               }
-
 
 
               // router.push("/booking-management/all-bookings");
