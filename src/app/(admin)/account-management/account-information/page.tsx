@@ -19,7 +19,7 @@ interface Transaction {
   createdAt: string;
   amount: number;
   leadId?: string;
-  runningBalance?: number;
+  balanceAfterTransaction?: number;
 }
 
 const tabs: Array<"all" | "credit" | "debit"> = ["all", "credit", "debit"];
@@ -29,6 +29,7 @@ const Page = () => {
   const { wallet, fetchWalletByProvider, loading } = useProviderWallet();
   const [activeTab, setActiveTab] = useState<"all" | "credit" | "debit">("all");
 
+  console.log("wallet of provider : ", wallet)
   const providerId = providerDetails?._id;
 
   useEffect(() => {
@@ -53,17 +54,13 @@ const Page = () => {
   const allTransactions = safeWallet.transactions || [];
 
   // Add running balance
-  let runningBalance = 0;
   const transactionsWithBalance: Transaction[] = allTransactions.map(
-    (txn: Transaction) => {
-      if (txn.type === "credit") {
-        runningBalance += txn.amount;
-      } else if (txn.type === "debit") {
-        runningBalance -= txn.amount;
-      }
-      return { ...txn, runningBalance };
-    }
+    (txn: Transaction) => ({
+      ...txn,
+      runningBalance: txn.balanceAfterTransaction, // use API value
+    })
   );
+
 
   // ✅ reverse so newest at top
   const reversedTransactions = [...transactionsWithBalance].reverse();
@@ -160,7 +157,7 @@ const Page = () => {
       Debit: txn.type === "debit" ? txn.amount : "-",
       Credit: txn.type === "credit" ? txn.amount : "-",
       Withdraw: txn.source === "withdraw" ? txn.amount : "-",
-      Balance: txn.runningBalance ?? "-",
+      Balance: txn.balanceAfterTransaction ?? "-",
       Date: new Date(txn.createdAt).toLocaleString(),
     }));
 
@@ -207,11 +204,10 @@ const Page = () => {
                       <div
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`cursor-pointer px-4 py-2 text-sm font-medium ${
-                          activeTab === tab
+                        className={`cursor-pointer px-4 py-2 text-sm font-medium ${activeTab === tab
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-600"
-                        }`}
+                          }`}
                       >
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         <span className="ml-2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
