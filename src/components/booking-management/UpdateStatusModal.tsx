@@ -624,7 +624,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
         <Modal
           isOpen={isOtpModalOpen}
-          onClose={() => setIsOtpModalOpen(false)}
+          onClose={() => {
+            setIsOtpModalOpen(false);
+            onClose(); // also close parent status modal
+          }}
           className="max-w-sm"
         >
           <div className="p-4">

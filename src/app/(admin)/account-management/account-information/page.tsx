@@ -130,12 +130,12 @@ const Page = () => {
       render: (row: Transaction) =>
         row.type === "credit" ? `₹${row.amount}` : "-",
     },
-    {
-      header: "Withdraw",
-      accessor: "withdraw",
-      render: (row: Transaction) =>
-        row.source === "withdraw" ? `₹${row.amount}` : "-",
-    },
+    // {
+    //   header: "Withdraw",
+    //   accessor: "withdraw",
+    //   render: (row: Transaction) =>
+    //     row.source === "withdraw" ? `₹${row.amount}` : "-",
+    // },
     {
       header: "Balance",
       accessor: "balance",
