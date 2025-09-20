@@ -76,6 +76,34 @@ const RefundedRequestDetails = () => {
     }, [checkoutDetails]);
     console.log("leads :",lead);
     
+ // Download invoice
+  const handleDownloadInvoice = async () => {
+    if (!checkoutDetails?._id) return;
+
+    try {
+      const response = await fetch(
+        `https://api.fetchtrue.com/api/invoice/${checkoutDetails._id}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch invoice');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `invoice-${checkoutDetails.bookingId || checkoutDetails._id}.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice. Please try again.');
+    }
+  };
+
     // Fetch checkout by ID
     useEffect(() => {
         if (id) fetchCheckoutsDetailsById(id);
@@ -117,7 +145,7 @@ const RefundedRequestDetails = () => {
 
     return (
         <div>
-            <PageBreadcrumb pageTitle="Canceled Booking Details" />
+            <PageBreadcrumb pageTitle="Refunded Booking Details" />
 
             <div className="space-y-6">
                 {/* Booking Summary Header */}
@@ -131,11 +159,14 @@ const RefundedRequestDetails = () => {
                                 Status: <span className="font-medium">{getStatusLabel()}</span>
                             </p>
                         </div>
-                        <InvoiceDownload
-                            leadDetails={lead}
-                            checkoutDetails={checkoutDetails}
-                            serviceCustomer={serviceCustomer}
-                        />
+                         <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-4">
+              <button
+                onClick={handleDownloadInvoice}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Download Invoice
+              </button>
+            </div>
                     </div>
                 </ComponentCard>
 

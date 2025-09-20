@@ -214,9 +214,9 @@ const RefundedRequest = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Canceled Request" />
+      <PageBreadcrumb pageTitle="Refunded Request" />
       <div className="space-y-6">
-        <ComponentCard title="Canceled Request">
+        <ComponentCard title="Refunded Request">
           <div className="mb-4">
             <Input
               type="text"
