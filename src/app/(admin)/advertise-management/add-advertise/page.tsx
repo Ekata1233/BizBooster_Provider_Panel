@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Input from '@/components/form/input/InputField';
 import FileInput from '@/components/form/input/FileInput';
 import Label from '@/components/form/Label';
@@ -35,9 +35,8 @@ const AddAd = () => {
       (id) => id.toString() === service._id.toString()
     )
   );
-  console.log("subscribes ", subscribedServices);
-  console.log("providers :", provider);
-  console.log("services", services);
+
+  console.log("subscribedServices s : ", provider)
 
 
   // Get unique categories from subscribed services
@@ -46,6 +45,13 @@ const AddAd = () => {
       (service) => service.category?._id.toString() === category._id.toString()
     )
   );
+
+  const fetchCategories = useMemo(() => {
+    if (!provider?.storeInfo?.module) return [];
+    return categories.filter(
+      (cat) => cat.module?._id === provider?.storeInfo?.module
+    );
+  }, [categories, provider]);
 
   // Log subscribed services for debugging
   useEffect(() => {
@@ -162,7 +168,7 @@ const AddAd = () => {
               {loadingCategories ? (
                 <option disabled>Loading...</option>
               ) : (
-                subscribedCategories.map((cat) => (
+                fetchCategories.map((cat) => (
                   <option key={cat._id} value={cat._id}>
                     {cat.name}
                   </option>
@@ -173,7 +179,7 @@ const AddAd = () => {
 
           {/* Service Selector */}
           <div>
-            <Label>Service</Label>
+            <Label>Service (Subscribed Services)</Label>
             <select
               value={service}
               onChange={(e) => setService(e.target.value)}
