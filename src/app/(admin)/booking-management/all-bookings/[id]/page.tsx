@@ -154,6 +154,32 @@ const AllBookingsDetails = () => {
   console.log(baseAmount)
 
 
+  const handleDownloadInvoice = async () => {
+    if (!checkoutDetails?._id) return;
+
+    try {
+      const response = await fetch(
+        `https://api.fetchtrue.com/api/invoice/${checkoutDetails._id}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch invoice');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `invoice-${checkoutDetails.bookingId || checkoutDetails._id}.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice. Please try again.');
+    }
+  };
 
 
   const handleAccept = async () => {
@@ -247,6 +273,7 @@ const AllBookingsDetails = () => {
               <h2 className="text-lg font-semibold">
                 Booking ID : <span className="text-blue-600">{checkoutDetails.bookingId}</span>
               </h2>
+
               <p className="text-md text-gray-600 mt-2 flex items-center gap-1">
                 Status :
                 <span
@@ -257,7 +284,7 @@ const AllBookingsDetails = () => {
               </p>
 
             </div>
-
+            
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
               {checkoutDetails.isCompleted === false && (
                 <div className="flex flex-col">
@@ -286,12 +313,19 @@ const AllBookingsDetails = () => {
                   checkoutId={checkoutDetails._id}
                 />
               )}
-
-              <InvoiceDownload
+<div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 ">
+              <button
+                onClick={handleDownloadInvoice}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Download Invoice
+              </button>
+            </div>
+              {/* <InvoiceDownload
                 leadDetails={lead}
                 checkoutDetails={checkoutDetails}
                 serviceCustomer={serviceCustomer}
-              />
+              /> */}
             </div>
 
           </div>
@@ -409,7 +443,7 @@ const AllBookingsDetails = () => {
                   // ✅ calculated assurity fee amount
                   const assurityFee = (assurityFeePercent / 100) * priceAfterDiscount;
 
-                 const grandTotal = priceAfterDiscount + serviceGST + assurityFee;
+                  const grandTotal = priceAfterDiscount + serviceGST + assurityFee;
                   finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
                   console.log("subtotal : ", subtotal)
                   console.log("champaignDiscount : ", champaignDiscount)
@@ -478,7 +512,7 @@ const AllBookingsDetails = () => {
 
             {/* RIGHT SIDE */}
             <div className="w-full lg:w-1/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            
+
 
               {!checkoutDetails?.isCompleted &&
                 !lead?.leads?.some(l => l.statusType === "Lead cancel") && (
@@ -581,7 +615,7 @@ const AllBookingsDetails = () => {
                 const paymentStatus = checkoutDetails?.paymentStatus?.trim().toLowerCase() || "";
                 const cashInHand = Boolean(checkoutDetails?.cashInHand);
                 const cashInHandAmount = Number(checkoutDetails?.cashInHandAmount ?? 0);
-                const paidAmount =  Number(checkoutDetails?.paidAmount ?? 0);
+                const paidAmount = Number(checkoutDetails?.paidAmount ?? 0);
 
                 if (paidAmount > 0 || paidAmount > 0 || paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
                   alert("Lead cannot be canceled because payment is already made.");

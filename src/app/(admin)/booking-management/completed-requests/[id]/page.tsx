@@ -52,6 +52,34 @@ const CompletedBookingDetails = () => {
     }
   }, [checkoutDetails]);
 
+ const handleDownloadInvoice = async () => {
+    if (!checkoutDetails?._id) return;
+
+    try {
+      const response = await fetch(
+        `https://api.fetchtrue.com/api/invoice/${checkoutDetails._id}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch invoice');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute(
+        'download',
+        `invoice-${checkoutDetails.bookingId || checkoutDetails._id}.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice. Please try again.');
+    }
+  };
+
+
   // Fetch service men
   useEffect(() => {
     if (provider?._id) {
@@ -90,9 +118,14 @@ const CompletedBookingDetails = () => {
                 Status: <span className="font-medium">{getStatusLabel()}</span>
               </p>
             </div>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-              Download Invoice
-            </button>
+             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-4">
+              <button
+                onClick={handleDownloadInvoice}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Download Invoice
+              </button>
+            </div>
           </div>
         </ComponentCard>
 
