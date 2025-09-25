@@ -15,7 +15,6 @@ import { useModal } from '@/hooks/useModal';
 import { LeadType, useLead } from '@/app/context/LeadContext';
 import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
 import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
-import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
 
 const AllBookingsDetails = () => {
   const [showAll, setShowAll] = useState(false);
