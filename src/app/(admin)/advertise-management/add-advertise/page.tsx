@@ -40,11 +40,11 @@ const AddAd = () => {
 
 
   // Get unique categories from subscribed services
-  const subscribedCategories = categories.filter((category) =>
-    subscribedServices.some(
-      (service) => service.category?._id.toString() === category._id.toString()
-    )
-  );
+  // const subscribedCategories = categories.filter((category) =>
+  //   subscribedServices.some(
+  //     (service) => service.category?._id.toString() === category._id.toString()
+  //   )
+  // );
 
   const fetchCategories = useMemo(() => {
     if (!provider?.storeInfo?.module) return [];
