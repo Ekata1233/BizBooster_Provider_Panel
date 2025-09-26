@@ -154,7 +154,7 @@ export default function EditProfilePage() {
         kycDocs[key].forEach((file) => formData.append(key, file));
       });
 
-      const response = await fetch(`https://api.fetchtrue.com/api/provider/edit-profile/${providerDetails?._id}`, { method: "PUT", body: formData });
+      const response = await fetch(`https://api.fetchtrue.com/api/provider/edit-profile/${providerDetails?._id}`, { method: "PATCH", body: formData });
       const data = await response.json();
 
       if (response.ok && data.success) {
