@@ -76,12 +76,17 @@ export default function EditProfilePage() {
   }, [providerDetails]);
 
   // Single file handler (logo/cover)
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: Function, previewSetter?: Function) => {
-    if (!e.target.files) return;
-    const file = e.target.files[0];
-    setter(file);
-    if (previewSetter && file) previewSetter(URL.createObjectURL(file));
-  };
+  const handleFileChange = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  setter: (file: File | null) => void,
+  previewSetter?: (url: string) => void
+) => {
+  if (!e.target.files) return;
+  const file = e.target.files[0];
+  setter(file);
+  if (previewSetter && file) previewSetter(URL.createObjectURL(file));
+};
+
 
   // Gallery handler (multiple files)
   const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
