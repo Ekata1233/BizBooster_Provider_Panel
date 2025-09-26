@@ -6,6 +6,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
+import { useRouter } from "next/navigation";
 
 export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
@@ -50,6 +51,7 @@ export default function EditProfilePage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+const router = useRouter();
 
   useEffect(() => {
     if (providerDetails) {
@@ -160,6 +162,7 @@ export default function EditProfilePage() {
       if (response.ok && data.success) {
         alert("Profile updated successfully!");
         await refreshProviderDetails();
+         router.push("/profile");
       } else {
         setError(data.message || "Failed to update profile.");
       }
