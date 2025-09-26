@@ -55,6 +55,7 @@ type ProviderDetails = {
   step1Completed?: boolean;
   storeInfoCompleted?: boolean;
   kycCompleted?: boolean;
+  galleryImages?: string[];
   registrationStatus?: string;
   createdAt?: string;
   updatedAt?: string;
