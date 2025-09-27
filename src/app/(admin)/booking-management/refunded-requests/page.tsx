@@ -28,7 +28,7 @@ type BookingRow = {
 const RefundedRequest = () => {
   const { provider } = useAuth();
   const { leads, refetchLeads } = useLead();
-  const { checkouts, loadingCheckouts, errorCheckouts, fetchCheckoutsByProviderId } = useCheckout();
+  const { loadingCheckouts, errorCheckouts, fetchCheckoutsByProviderId } = useCheckout();
 
   const [search, setSearch] = useState('');
   useEffect(() => {

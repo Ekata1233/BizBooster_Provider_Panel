@@ -48,7 +48,7 @@ const CanceledRequests = () => {
             checkout.serviceCustomer?.city?.toLowerCase().includes(search.toLowerCase())
           )
       )
-      .map((checkout, idx) => {
+      .map((checkout) => {
         const customer: ServiceCustomer = checkout.serviceCustomer;
         return {
           _id: checkout._id,

@@ -36,8 +36,8 @@ const AllBookings = () => {
   const { provider } = useAuth();
   const { checkouts, loadingCheckouts, errorCheckouts, fetchCheckoutsByProviderId } = useCheckout();
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const rowsPerPage = 10;
 
   useEffect(() => {
     if (provider?._id) fetchCheckoutsByProviderId(provider._id);

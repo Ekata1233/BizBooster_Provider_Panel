@@ -27,7 +27,7 @@ interface BookingRow {
 
 const BookingRequests = () => {
   const { provider } = useAuth();
-  const { checkouts, loadingCheckouts, errorCheckouts, fetchCheckoutsByProviderId } = useCheckout();
+  const { checkouts, fetchCheckoutsByProviderId } = useCheckout();
   const [search, setSearch] = useState('');
   const [filteredData, setFilteredData] = useState<BookingRow[]>([]);
 
