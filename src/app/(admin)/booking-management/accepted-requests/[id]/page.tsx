@@ -14,7 +14,6 @@ import BookingStatus from '@/components/booking-management/BookingStatus';
 import { useModal } from '@/hooks/useModal';
 import { LeadType, useLead } from '@/app/context/LeadContext';
 import UpdateStatusModal from '@/components/booking-management/UpdateStatusModal';
-import InvoiceDownload from '@/components/booking-management/InvoiceDownload';
 import UpdateEditLead from '@/components/booking-management/UpdateEditLead';
 
 const AcceptedBookingDetails = () => {
