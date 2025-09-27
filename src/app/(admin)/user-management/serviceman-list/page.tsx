@@ -49,7 +49,7 @@ const ServicemanListPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // ✅
   const [isOpen, setIsOpen] = useState(false); // ✅
   const router = useRouter();
-
+  
   useEffect(() => {
     if (provider?._id) {
       fetchServiceMenByProvider(provider._id);
@@ -179,7 +179,7 @@ const ServicemanListPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="All ServiceMen" />
+      <PageBreadcrumb pageTitle="All ServiceMan" />
 
       <div className="my-5">
         <ComponentCard title="ServiceMan List">
