@@ -49,6 +49,7 @@ const ServicemanListPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // ✅
   const [isOpen, setIsOpen] = useState(false); // ✅
   const router = useRouter();
+  console.log("serviceman",serviceMenByProvider);
   
   useEffect(() => {
     if (provider?._id) {
@@ -200,7 +201,7 @@ const ServicemanListPage = () => {
               >
                 All
               </li>
-              <li
+              {/* <li
                 className={`cursor-pointer px-4 py-2 ${activeTab === 'active' ? 'border-b-2 border-blue-600 text-blue-600' : ''}`}
                 onClick={() => setActiveTab('active')}
               >
@@ -211,7 +212,7 @@ const ServicemanListPage = () => {
                 onClick={() => setActiveTab('inactive')}
               >
                 Inactive
-              </li>
+              </li> */}
             </ul>
           </div>
 
