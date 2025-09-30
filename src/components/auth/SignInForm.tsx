@@ -48,6 +48,40 @@ export default function SignInForm() {
     }
   }, [providerDetails, loading, router]);
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Please enter your registered email first.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        "https://api.fetchtrue.com/api/provider/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Reset password link has been sent to your registered email!");
+      } else {
+        alert(data.message || "Failed to send reset link.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -114,12 +148,19 @@ export default function SignInForm() {
                     Keep me logged in
                   </span>
                 </div>
-                <Link
+                {/* <Link
                   href="/reset-password"
                   className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Forgot password?
-                </Link>
+                </Link> */}
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                >
+                  Forgot password?
+                </button>
               </div>
               <div>
                 <Button className="w-full" size="sm" disabled={loading}>
