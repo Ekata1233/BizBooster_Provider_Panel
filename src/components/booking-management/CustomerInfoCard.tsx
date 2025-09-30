@@ -4,7 +4,7 @@ type CustomerInfo = {
   fullName: string;
   phone: string;
   address: string;
-  city: string;
+  city?: string;
   state: string;
 };
 

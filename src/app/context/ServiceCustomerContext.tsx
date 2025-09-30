@@ -16,7 +16,7 @@ export interface IServiceCustomer {
   email: string;
   description: string;
   address: string;
-  city: string;
+  city?: string;
   state: string;
   country: string;
   isDeleted: boolean;
