@@ -61,6 +61,7 @@ type ProviderDetails = {
   updatedAt?: string;
   storeInfo?: StoreInfo;
   kyc?: KYC;
+  providerId?: string;
 };
 
 // ✅ If needed, use same structure for Provider

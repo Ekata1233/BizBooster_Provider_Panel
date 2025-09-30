@@ -53,6 +53,7 @@ export default function SignInForm() {
       alert("Please enter your registered email first.");
       return;
     }
+    console.log("origin : ",window.location.origin);
 
     try {
       setLoading(true);
