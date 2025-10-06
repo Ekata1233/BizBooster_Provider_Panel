@@ -7,7 +7,7 @@ import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
-import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import { EyeIcon } from '@/icons';
 import Link from 'next/link';
 import * as XLSX from 'xlsx';
 import { FaFileDownload } from 'react-icons/fa';
