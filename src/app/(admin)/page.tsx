@@ -179,12 +179,14 @@ export default function Ecommerce() {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  console.log("provider details in dashboard  : ", providerDetails)
+
   useEffect(() => {
     if (!providerDetails) {
       router.push("/signin");
     } 
     // ❌ Rejected provider → logout and redirect to /signup
-    else if (providerDetails.isRejected && !providerDetails.isApproved) {
+    else if ((providerDetails.isRejected && !providerDetails.isApproved )|| providerDetails.isDeleted) {
       logout?.(); // Clear auth
       router.push("/signup");
     } 

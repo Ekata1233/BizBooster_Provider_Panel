@@ -26,7 +26,6 @@ export default function SignInForm() {
     try {
       setLoading(true);
       await login(email, password);
-      // ⛔️ Removed router.push here – will redirect inside useEffect when providerDetails is ready
     } catch (err: unknown) {
       console.error("Login failed:", err);
       if (err instanceof Error) {
@@ -53,6 +52,7 @@ export default function SignInForm() {
       alert("Please enter your registered email first.");
       return;
     }
+    console.log("origin : ",window.location.origin);
 
     try {
       setLoading(true);
