@@ -163,7 +163,7 @@ const BookingRequests = () => {
               <EyeIcon />
             </button>
           </Link>
-          <button
+          {/* <button
             onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
           >
@@ -174,7 +174,7 @@ const BookingRequests = () => {
             className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
           >
             <TrashBinIcon />
-          </button>
+          </button> */}
         </div>
       ),
     },
