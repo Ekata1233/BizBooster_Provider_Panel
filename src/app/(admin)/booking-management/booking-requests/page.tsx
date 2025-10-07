@@ -7,7 +7,7 @@ import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
-import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
+import { EyeIcon} from '@/icons';
 import Link from 'next/link';
 import { FaFileDownload } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
@@ -163,7 +163,7 @@ const BookingRequests = () => {
               <EyeIcon />
             </button>
           </Link>
-          <button
+          {/* <button
             onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
           >
@@ -174,7 +174,7 @@ const BookingRequests = () => {
             className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
           >
             <TrashBinIcon />
-          </button>
+          </button> */}
         </div>
       ),
     },
