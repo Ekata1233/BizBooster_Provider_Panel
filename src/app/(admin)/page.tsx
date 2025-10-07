@@ -103,16 +103,14 @@ function PendingModal({
         <div className="grid grid-cols-3 gap-6 justify-center">
           {/* Step 1 */}
           <div
-            className={`rounded-2xl p-6 flex flex-col items-center justify-center shadow-md transition ${
-              step1Completed
+            className={`rounded-2xl p-6 flex flex-col items-center justify-center shadow-md transition ${step1Completed
                 ? "bg-green-100 border border-green-300 text-green-700"
                 : "bg-white border border-gray-200 text-gray-400"
-            }`}
+              }`}
           >
             <Check
-              className={`h-6 w-6 mb-2 ${
-                step1Completed ? "text-green-600" : "text-gray-400"
-              }`}
+              className={`h-6 w-6 mb-2 ${step1Completed ? "text-green-600" : "text-gray-400"
+                }`}
             />
             <p className="text-sm font-semibold">
               {step1Completed ? "Done" : "Pending"}
@@ -122,16 +120,14 @@ function PendingModal({
 
           {/* Step 2 */}
           <div
-            className={`rounded-2xl p-6 flex flex-col items-center justify-center shadow-md transition ${
-              storeInfoCompleted
+            className={`rounded-2xl p-6 flex flex-col items-center justify-center shadow-md transition ${storeInfoCompleted
                 ? "bg-green-100 border border-green-300 text-green-700"
                 : "bg-white border border-gray-200 text-gray-400"
-            }`}
+              }`}
           >
             <Check
-              className={`h-6 w-6 mb-2 ${
-                storeInfoCompleted ? "text-green-600" : "text-gray-400"
-              }`}
+              className={`h-6 w-6 mb-2 ${storeInfoCompleted ? "text-green-600" : "text-gray-400"
+                }`}
             />
             <p className="text-sm font-semibold">
               {storeInfoCompleted ? "Done" : "Pending"}
@@ -141,16 +137,14 @@ function PendingModal({
 
           {/* Step 3 */}
           <div
-            className={`rounded-2xl p-6 flex flex-col items-center justify-center shadow-md transition ${
-              kycCompleted
+            className={`rounded-2xl p-6 flex flex-col items-center justify-center shadow-md transition ${kycCompleted
                 ? "bg-green-100 border border-green-300 text-green-700"
                 : "bg-white border border-gray-200 text-gray-400"
-            }`}
+              }`}
           >
             <Check
-              className={`h-6 w-6 mb-2 ${
-                kycCompleted ? "text-green-600" : "text-gray-400"
-              }`}
+              className={`h-6 w-6 mb-2 ${kycCompleted ? "text-green-600" : "text-gray-400"
+                }`}
             />
             <p className="text-sm font-semibold">
               {kycCompleted ? "Done" : "Pending"}
@@ -184,12 +178,12 @@ export default function Ecommerce() {
   useEffect(() => {
     if (!providerDetails) {
       router.push("/signin");
-    } 
+    }
     // ❌ Rejected provider → logout and redirect to /signup
-    else if ((providerDetails.isRejected && !providerDetails.isApproved )|| providerDetails.isDeleted) {
+    else if ((providerDetails.isRejected && !providerDetails.isApproved) || providerDetails.isDeleted) {
       logout?.(); // Clear auth
       router.push("/signup");
-    } 
+    }
     // 🔔 Not approved → show pending modal
     else if (!providerDetails.isApproved) {
       setIsOpen(true);
@@ -202,7 +196,7 @@ export default function Ecommerce() {
 
   const {
     isApproved = false,
-   
+
     step1Completed = false,
     storeInfoCompleted = false,
     kycCompleted = false,
