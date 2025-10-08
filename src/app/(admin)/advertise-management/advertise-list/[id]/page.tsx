@@ -9,7 +9,7 @@ import ComponentCard from '@/components/common/ComponentCard';
 import { useAdContext } from '@/app/context/AdContext';
 
 interface AdType {
-  _id?: string;   // ✅ make it optional
+  _id?: string;
   title: string;
   description: string;
   fileUrl: string;
@@ -22,7 +22,12 @@ interface AdType {
     _id?: string;
     serviceName: string;
   };
-  provider?: string;
+  provider?: {
+    _id?: string;
+    fullName?: string;
+    email?: string;
+    phoneNo?: string;
+  } | string;
   startDate?: string;
   endDate?: string;
   isApproved?: boolean;
@@ -30,7 +35,6 @@ interface AdType {
   createdAt?: string;
   updatedAt?: string;
 }
-
 
 const AdDetailsPage = () => {
   const { id } = useParams();
@@ -46,6 +50,12 @@ const AdDetailsPage = () => {
   }, [id, ads]);
 
   if (!ad) return <div className="p-4">Loading...</div>;
+
+  // ✅ Handle provider safely (string or object)
+  const providerName =
+    typeof ad.provider === 'object'
+      ? ad.provider?.fullName || ad.provider?.email || 'N/A'
+      : ad.provider || 'N/A';
 
   return (
     <div>
@@ -95,8 +105,8 @@ const AdDetailsPage = () => {
             </div>
 
             <div>
-              <h2 className="text-lg font-semibold">Provider ID:</h2>
-              <p className="text-gray-700">{ad.provider || 'N/A'}</p>
+              <h2 className="text-lg font-semibold">Provider:</h2>
+              <p className="text-gray-700">{providerName}</p>
             </div>
 
             <div>

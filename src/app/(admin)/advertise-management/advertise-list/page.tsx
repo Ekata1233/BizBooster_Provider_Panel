@@ -146,7 +146,7 @@ const AdvertiseList = () => {
           >
             <TrashBinIcon />
           </button>
-          <Link href={`/advertise-management/view/${row.id}`} passHref>
+          <Link href={`/advertise-management/advertise-list/${row.id}`} passHref>
             <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white">
               <EyeIcon />
             </button>

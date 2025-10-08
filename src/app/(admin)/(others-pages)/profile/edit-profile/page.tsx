@@ -15,6 +15,7 @@ export default function EditProfilePage() {
   // Personal info
   const [fullName, setFullName] = useState(providerDetails?.fullName || "");
   const [phoneNo, setPhoneNo] = useState(providerDetails?.phoneNo || "");
+  const [email, setEmail] = useState(providerDetails?.email || ""); // ✅ Added email state
 
   // Store info
   const [storeName, setStoreName] = useState(providerDetails?.storeInfo?.storeName || "");
@@ -51,12 +52,13 @@ export default function EditProfilePage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-const router = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     if (providerDetails) {
       setFullName(providerDetails.fullName || "");
       setPhoneNo(providerDetails.phoneNo || "");
+      setEmail(providerDetails.email || ""); // ✅ Sync email from providerDetails
       setStoreName(providerDetails.storeInfo?.storeName || "");
       setStoreEmail(providerDetails.storeInfo?.storeEmail || "");
       setStorePhone(providerDetails.storeInfo?.storePhone || "");
@@ -79,16 +81,15 @@ const router = useRouter();
 
   // Single file handler (logo/cover)
   const handleFileChange = (
-  e: React.ChangeEvent<HTMLInputElement>,
-  setter: (file: File | null) => void,
-  previewSetter?: (url: string) => void
-) => {
-  if (!e.target.files) return;
-  const file = e.target.files[0];
-  setter(file);
-  if (previewSetter && file) previewSetter(URL.createObjectURL(file));
-};
-
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (file: File | null) => void,
+    previewSetter?: (url: string) => void
+  ) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+    setter(file);
+    if (previewSetter && file) previewSetter(URL.createObjectURL(file));
+  };
 
   // Gallery handler (multiple files)
   const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,6 +116,7 @@ const router = useRouter();
   // Validation
   const validate = () => {
     if (!fullName.trim()) return "Full Name is required.";
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Enter a valid email."; // ✅ Email validation
     if (!phoneNo.trim() || !/^\d{10}$/.test(phoneNo)) return "Enter a valid 10-digit phone number.";
     if (!storeName.trim()) return "Store Name is required.";
     if (!address.trim()) return "Address is required.";
@@ -138,6 +140,7 @@ const router = useRouter();
 
       formData.append("fullName", fullName);
       formData.append("phoneNo", phoneNo);
+      formData.append("email", email); // ✅ Added email to formData
 
       formData.append("storeInfo.storeName", storeName);
       formData.append("storeInfo.storeEmail", storeEmail);
@@ -156,13 +159,16 @@ const router = useRouter();
         kycDocs[key].forEach((file) => formData.append(key, file));
       });
 
-      const response = await fetch(`https://api.fetchtrue.com/api/provider/edit-profile/${providerDetails?._id}`, { method: "PATCH", body: formData });
+      const response = await fetch(
+        `https://api.fetchtrue.com/api/provider/edit-profile/${providerDetails?._id}`,
+        { method: "PATCH", body: formData }
+      );
       const data = await response.json();
 
       if (response.ok && data.success) {
         alert("Profile updated successfully!");
         await refreshProviderDetails();
-         router.push("/profile");
+        router.push("/profile");
       } else {
         setError(data.message || "Failed to update profile.");
       }
@@ -182,6 +188,7 @@ const router = useRouter();
 
         <ComponentCard title="Personal Information">
           <Input placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} /> {/* ✅ Added email input */}
           <Input placeholder="Phone" value={phoneNo} onChange={(e) => setPhoneNo(e.target.value)} />
         </ComponentCard>
 
