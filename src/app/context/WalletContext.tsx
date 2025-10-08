@@ -32,7 +32,7 @@ export interface ProviderWallet {
   createdAt: string;
   updatedAt: string;
   totalCredits: number;
-
+adjustmentCash: number;
 }
 
 interface ProviderWalletContextType {

@@ -47,6 +47,7 @@ const Page = () => {
     alreadyWithdrawn: 0,
     totalEarning: 0,
     totalCredits: 0,
+    adjustmentCash: 0,
     transactions: [],
   };
 
@@ -180,6 +181,7 @@ const Page = () => {
             pendingWithdraw: safeWallet.pendingWithdraw,
             alreadyWithdrawn: safeWallet.alreadyWithdrawn,
             totalEarning: safeWallet.totalCredits,
+            adjustmentCash: safeWallet.adjustmentCash,
           }}
         />
 
