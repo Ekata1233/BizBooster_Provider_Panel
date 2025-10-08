@@ -187,7 +187,7 @@ const ServicemanListPage = () => {
           <div className="mb-4">
             <Input
               type="text"
-              placeholder="Search servicemen…"
+              placeholder="Search Serviceman"
               value={searchQuery}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             />
