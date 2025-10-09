@@ -18,7 +18,6 @@ type ServiceMan = {
   };
 };
 
-
 export default function UpdateServiceManPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -35,8 +34,16 @@ export default function UpdateServiceManPage() {
     identityImage: null as File | null,
   });
 
-  const [existingData, setExistingData] = useState<ServiceMan | null>(null);
+  const [errors, setErrors] = useState({
+    name: '',
+    lastName: '',
+    phoneNo: '',
+    email: '',
+    identityType: '',
+    identityNumber: '',
+  });
 
+  const [existingData, setExistingData] = useState<ServiceMan | null>(null);
 
   useEffect(() => {
     if (serviceMenByProvider.length === 0) return;
@@ -59,6 +66,7 @@ export default function UpdateServiceManPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: '' })); // clear error on change
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,8 +76,47 @@ export default function UpdateServiceManPage() {
     }
   };
 
+  const validate = () => {
+    const newErrors: typeof errors = {
+      name: '',
+      lastName: '',
+      phoneNo: '',
+      email: '',
+      identityType: '',
+      identityNumber: '',
+    };
+    let isValid = true;
+
+    if (!form.name.trim()) {
+      newErrors.name = 'First Name is required';
+      isValid = false;
+    }
+    if (!form.lastName.trim()) {
+      newErrors.lastName = 'Last Name is required';
+      isValid = false;
+    }
+    if (!form.phoneNo.trim()) {
+      newErrors.phoneNo = 'Phone Number is required';
+      isValid = false;
+    }
+    if (!form.email.trim()) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    }
+    if ((form.identityType && !form.identityNumber) || (!form.identityType && form.identityNumber)) {
+      if (!form.identityType) newErrors.identityType = 'Identity Type is required when Identity Number is filled';
+      if (!form.identityNumber) newErrors.identityNumber = 'Identity Number is required when Identity Type is filled';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async () => {
     if (!id) return;
+    if (!validate()) return;
+
     const formData = new FormData();
     formData.append('name', form.name);
     formData.append('lastName', form.lastName);
@@ -104,6 +151,7 @@ export default function UpdateServiceManPage() {
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />
+          {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
         </div>
 
         {/* Last Name */}
@@ -116,6 +164,7 @@ export default function UpdateServiceManPage() {
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />
+          {errors.lastName && <p className="text-red-600 text-sm mt-1">{errors.lastName}</p>}
         </div>
 
         {/* Phone Number */}
@@ -128,6 +177,7 @@ export default function UpdateServiceManPage() {
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />
+          {errors.phoneNo && <p className="text-red-600 text-sm mt-1">{errors.phoneNo}</p>}
         </div>
 
         {/* Email */}
@@ -140,6 +190,7 @@ export default function UpdateServiceManPage() {
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />
+          {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
         </div>
 
         {/* Identity Type */}
@@ -152,6 +203,7 @@ export default function UpdateServiceManPage() {
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />
+          {errors.identityType && <p className="text-red-600 text-sm mt-1">{errors.identityType}</p>}
         </div>
 
         {/* Identity Number */}
@@ -164,6 +216,7 @@ export default function UpdateServiceManPage() {
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />
+          {errors.identityNumber && <p className="text-red-600 text-sm mt-1">{errors.identityNumber}</p>}
         </div>
 
         {/* General Image */}
