@@ -15,7 +15,12 @@ export interface AdType {
     _id?: string;
     serviceName: string;
   };
-  provider?: string;
+provider?: {
+  _id?: string;
+  fullName?: string;
+  email?: string;
+  phoneNo?: string;
+} | string;
   startDate?: string;
   endDate?: string;
   title: string;
@@ -24,6 +29,8 @@ export interface AdType {
   isExpired?: boolean;
   isApproved?: boolean;
   createdAt?: string;
+  isDeleted: boolean; // ✅ include isDeleted
+
   updatedAt?: string;
 }
 
@@ -42,6 +49,7 @@ const AdContext = createContext<AdContextType | null>(null);
 
 // ✅ API base URL (use env variable for flexibility)
 const API_BASE_URL =  'https://api.fetchtrue.com/api/ads';
+const API_BASE_URL_ALL =  'https://api.fetchtrue.com/api/ads/all';
 
 export const AdProvider = ({ children }: { children: ReactNode }) => {
   const [ads, setAds] = useState<AdType[]>([]);
@@ -52,7 +60,7 @@ export const AdProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(API_BASE_URL);
+      const res = await axios.get(API_BASE_URL_ALL);
       setAds(res.data.data || []);
     } catch (err) {
       console.error('Failed to fetch ads:', err);
