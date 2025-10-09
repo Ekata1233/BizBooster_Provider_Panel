@@ -3,6 +3,7 @@ import React from "react";
 import {
   FaChartLine,
   FaClipboardList,
+  FaMoneyBill,
   FaStore,
   FaTools,
 } from 'react-icons/fa';
@@ -16,6 +17,7 @@ interface WalletStatsProps {
     pendingWithdraw: number;
     alreadyWithdrawn: number;
     totalEarning: number;
+    adjustmentCash: number;
   };
 }
 
@@ -35,13 +37,13 @@ const WalletStats: React.FC<WalletStatsProps> = ({ wallet }) => {
       gradient: 'from-blue-100 to-blue-200',
       textColor: 'text-blue-800',
     },
-    // {
-    //   title: "Withdrawable Balance",
-    //   value: wallet.withdrawableBalance.toFixed(2),
-    //   icon: <FaMoneyBill size={48} />,
-    //   gradient: 'from-green-100 to-green-200',
-    //   textColor: 'text-green-800',
-    // },
+    {
+      title: "Pay to Fetch True",
+      value: wallet.adjustmentCash.toFixed(2),
+      icon: <FaMoneyBill size={48} />,
+      gradient: 'from-green-100 to-green-200',
+      textColor: 'text-green-800',
+    },
     {
       title: "Pending Withdraw",
       value: wallet.pendingWithdraw.toFixed(2),
