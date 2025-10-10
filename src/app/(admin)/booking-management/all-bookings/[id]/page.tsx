@@ -240,6 +240,7 @@ const AllBookingsDetails = () => {
   const champaignDiscount = checkoutDetails?.champaignDiscount || 0;
 
   let extraAmount = 0;
+  console.log(extraAmount)
 
   // Only calculate if extra services exist
   if (lead?.extraService && lead.extraService.length > 0) {
@@ -487,12 +488,10 @@ const AllBookingsDetails = () => {
                   const totalDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
                   const priceAfterDiscount = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
 
-                  const champaignDiscount = checkoutDetails.champaignDiscount || 0;
                   const gstPercent = checkoutDetails?.gst ?? gstValue ?? 0;
 
                   // GST calculated only on priceAfterDiscount
-                  const serviceGST = (gstPercent / 100) * priceAfterDiscount; const platformFee = platformFeeValue || 0;
-                  // percentage value (from checkoutDetails or fallback)
+                  const serviceGST = (gstPercent / 100) * priceAfterDiscount; 
                   const assurityFeePercent = checkoutDetails?.assurityfee ?? assurityFeeValue ?? 0;
 
                   // ✅ calculated assurity fee amount

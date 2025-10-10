@@ -24,6 +24,7 @@ const RefundedRequestDetails = () => {
   const { serviceMenByProvider, fetchServiceMenByProvider } = useServiceMan();
 
   const [lead, setLead] = useState<LeadType | null>(null);
+  console.log(lead)
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'status'>('details');
 
