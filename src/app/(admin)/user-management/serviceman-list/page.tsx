@@ -7,9 +7,10 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { useRouter } from 'next/navigation';
 import Input from '@/components/form/input/InputField';
-import { PencilIcon, TrashBinIcon } from '@/icons';
+import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import { useAuth } from '@/app/context/AuthContext';
 import { Modal } from '@/components/ui/modal';
+import Link from 'next/link';
 
 interface ServiceManTableData {
   id: string;
@@ -158,6 +159,12 @@ const ServicemanListPage = () => {
       accessor: 'actions',
       render: (row: ServiceManTableData) => (
         <div className="flex gap-2">
+           <Link
+                            href={`/user-management/serviceman-list/details/${row.id}`}
+                            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
+                          >
+                            <EyeIcon size={16} />
+                          </Link>
           <button
             onClick={() => handleEdit(row.id)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"

@@ -34,6 +34,7 @@ interface AdType {
   isExpired?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  isDeleted:boolean;
 }
 
 const AdDetailsPage = () => {
@@ -131,11 +132,10 @@ const AdDetailsPage = () => {
             <div>
               <h2 className="text-lg font-semibold">Status:</h2>
               <p
-                className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${
-                  ad.isApproved
+                className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${ad.isApproved
                     ? 'text-green-600 bg-green-100 border border-green-300'
                     : 'text-yellow-600 bg-yellow-100 border border-yellow-300'
-                }`}
+                  }`}
               >
                 {ad.isApproved ? 'Approved' : 'Pending'}
               </p>
@@ -145,6 +145,20 @@ const AdDetailsPage = () => {
               <h2 className="text-lg font-semibold">Expired:</h2>
               <p className="text-gray-700">{ad.isExpired ? 'Yes' : 'No'}</p>
             </div>
+
+            {/* ✅ New Section for Active/Inactive */}
+            <div>
+              <h2 className="text-lg font-semibold">Ad Status:</h2>
+              <p
+                className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${ad.isDeleted
+                    ? 'text-red-600 bg-red-100 border border-red-300'
+                    : 'text-green-600 bg-green-100 border border-green-300'
+                  }`}
+              >
+                {ad.isDeleted ? 'Inactive' : 'Active'}
+              </p>
+            </div>
+
 
             <div>
               <h2 className="text-lg font-semibold">Created At:</h2>
