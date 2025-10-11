@@ -432,7 +432,9 @@ const AllBookingsDetails = () => {
                       const commissionValue = parseFloat(service.commission || "0");
                       return !commissionValue || commissionValue <= 0;
                     });
-
+                    if (extraServices.length === 0) {
+                      return null; // 👈 Don't render anything if no extra services
+                    }
 
                     return (
                       <>
@@ -491,7 +493,7 @@ const AllBookingsDetails = () => {
                   const gstPercent = checkoutDetails?.gst ?? gstValue ?? 0;
 
                   // GST calculated only on priceAfterDiscount
-                  const serviceGST = (gstPercent / 100) * priceAfterDiscount; 
+                  const serviceGST = (gstPercent / 100) * priceAfterDiscount;
                   const assurityFeePercent = checkoutDetails?.assurityfee ?? assurityFeeValue ?? 0;
 
                   // ✅ calculated assurity fee amount
