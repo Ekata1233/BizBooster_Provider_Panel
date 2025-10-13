@@ -56,7 +56,7 @@ const OngoingRequests = () => {
       header: 'Customer Info',
       accessor: 'customerInfo',
       render: (row: BookingRow) => {
-        console.log("Customer Info Row:", row); 
+        console.log("Customer Info Row:", row);
         return (
           <div className="text-sm">
             <p className="font-medium text-gray-900">{row.serviceCustomer?.fullName || 'N/A'}</p>
@@ -92,14 +92,20 @@ const OngoingRequests = () => {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
       render: (row: BookingRow) => (
-        <span>{row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A'}</span>
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            : 'N/A'}
+        </span>
       ),
     },
     {
       header: 'Booking Date',
       accessor: 'bookingDate',
       render: (row: BookingRow) => (
-        <span>{new Date(row.bookingDate).toLocaleString()}</span>
+        <span>
+          {new Date(row.bookingDate).toLocaleString('en-GB', { timeZone: 'UTC' })}
+        </span>
       ),
     },
     {
@@ -134,10 +140,10 @@ const OngoingRequests = () => {
       render: (row: BookingRow) => (
         <div className="flex gap-2">
           <Link href={`/booking-management/ongoing-requests/${row._id}`} passHref>
-              <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
-                <EyeIcon />
-              </button>
-            </Link>
+            <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white hover:border-blue-500">
+              <EyeIcon />
+            </button>
+          </Link>
           <button
             onClick={() => alert(`Editing booking ID: ${row.bookingId}`)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white"
@@ -155,21 +161,21 @@ const OngoingRequests = () => {
     },
   ];
 
-const data: BookingRow[] = checkouts
-  .filter((checkout) => checkout.isAccepted === true && checkout.isCompleted === false)
-  .map((checkout) => {
-    const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
-    return {
-      bookingId: checkout.bookingId,
-      serviceCustomer: customer,
-      totalAmount: checkout.totalAmount,
-      paymentStatus: checkout.paymentStatus,
-      scheduleDate: checkout.createdAt,
-      bookingDate: checkout.createdAt,
-      orderStatus: checkout.orderStatus,
-      _id: checkout._id,
-    };
-  });
+  const data: BookingRow[] = checkouts
+    .filter((checkout) => checkout.isAccepted === true && checkout.isCompleted === false)
+    .map((checkout) => {
+      const customer: ServiceCustomer = checkout.serviceCustomer; // 👈 parse string to object
+      return {
+        bookingId: checkout.bookingId,
+        serviceCustomer: customer,
+        totalAmount: checkout.totalAmount,
+        paymentStatus: checkout.paymentStatus,
+        scheduleDate: checkout.updatedAt,
+        bookingDate: checkout.createdAt,
+        orderStatus: checkout.orderStatus,
+        _id: checkout._id,
+      };
+    });
 
 
   return (

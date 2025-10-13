@@ -56,7 +56,7 @@ const CanceledRequests = () => {
           serviceCustomer: customer,
           totalAmount: checkout.totalAmount,
           paymentStatus: checkout.paymentStatus,
-          scheduleDate: (checkout.scheduleDate as string | Date | null) ?? (checkout.createdAt as string | Date),
+          scheduleDate: (checkout.scheduleDate as string | Date | null) ?? (checkout.updatedAt as string | Date),
           bookingDate: (checkout.bookingDate as string | Date | null) ?? (checkout.createdAt as string | Date),
           orderStatus: checkout.orderStatus,
         };
@@ -122,15 +122,25 @@ const CanceledRequests = () => {
         return <span className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}>{row.paymentStatus}</span>;
       },
     },
-    {
+     {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
-      render: (row: BookingRow) => row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A',
+      render: (row: BookingRow) => (
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            : 'N/A'}
+        </span>
+      ),
     },
     {
       header: 'Booking Date',
       accessor: 'bookingDate',
-      render: (row: BookingRow) => new Date(row.bookingDate).toLocaleString(),
+      render: (row: BookingRow) => (
+        <span>
+          {new Date(row.bookingDate).toLocaleString('en-GB', { timeZone: 'UTC' })}
+        </span>
+      ),
     },
     {
       header: 'Status',

@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/modal';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AdType, useAdContext } from '@/app/context/AdContext';
-import { useAuth } from '@/app/context/AuthContext'; // ✅ Import AuthContext
+import { useAuth } from '@/app/context/AuthContext'; 
 
 interface AdTableData {
   // _id:string;
@@ -28,7 +28,7 @@ interface AdTableData {
 
 const AdvertiseList = () => {
   const { ads, deleteAd } = useAdContext();
-  const { providerDetails } = useAuth(); // ✅ Logged-in provider info
+  const { providerDetails } = useAuth(); 
 
   const [tableData, setTableData] = useState<AdTableData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,8 +153,8 @@ const AdvertiseList = () => {
       render: (row: AdTableData) => (
         <span
           className={`px-3 py-1 rounded-full text-sm font-semibold ${row.status === 'Inactive'
-              ? 'text-red-600 bg-red-100 border border-red-300'
-              : 'text-green-600 bg-green-100 border border-green-300'
+            ? 'text-red-600 bg-red-100 border border-red-300'
+            : 'text-green-600 bg-green-100 border border-green-300'
             }`}
         >
           {row.status}
