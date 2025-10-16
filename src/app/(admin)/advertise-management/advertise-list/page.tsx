@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/modal';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AdType, useAdContext } from '@/app/context/AdContext';
-import { useAuth } from '@/app/context/AuthContext'; // ✅ Import AuthContext
+import { useAuth } from '@/app/context/AuthContext'; 
 
 interface AdTableData {
   // _id:string;
@@ -28,7 +28,7 @@ interface AdTableData {
 
 const AdvertiseList = () => {
   const { ads, deleteAd } = useAdContext();
-  const { providerDetails } = useAuth(); // ✅ Logged-in provider info
+  const { providerDetails } = useAuth(); 
 
   const [tableData, setTableData] = useState<AdTableData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,13 +54,13 @@ const AdvertiseList = () => {
 
     // ✅ Filter by provider ID
     const providerAds = ads.filter(
-  (ad: AdType) =>
-    ad.provider &&
-    typeof ad.provider === 'object' && // ✅ ensure it's an object first
-    ad.provider._id === providerDetails._id
-);
+      (ad: AdType) =>
+        ad.provider &&
+        typeof ad.provider === 'object' && // ✅ ensure it's an object first
+        ad.provider._id === providerDetails._id
+    );
 
- console.log('📦 Provider Ads:', providerAds); 
+    console.log('📦 Provider Ads:', providerAds);
     // ✅ Format for table
     const formatted: AdTableData[] = providerAds.map((ad: AdType) => ({
       id: ad._id || '',
@@ -102,15 +102,15 @@ const AdvertiseList = () => {
   };
 
   // ✅ Soft Delete (Mark as Inactive)
- const handleDelete = async (id: string) => {
-  if (confirm('Are you sure you want to mark this ad as inactive?')) {
-    await deleteAd(id);
-    alert('Advertisement marked as inactive.');
-    setTableData((prev) =>
-      prev.map((ad) => (ad.id === id ? { ...ad, status: 'Inactive' } : ad))
-    );
-  }
-};
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to mark this ad as inactive?')) {
+      await deleteAd(id);
+      alert('Advertisement marked as inactive.');
+      setTableData((prev) =>
+        prev.map((ad) => (ad.id === id ? { ...ad, status: 'Inactive' } : ad))
+      );
+    }
+  };
 
 
   // ✅ Table Columns
@@ -152,11 +152,10 @@ const AdvertiseList = () => {
       accessor: 'status',
       render: (row: AdTableData) => (
         <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${
-            row.status === 'Inactive'
-              ? 'text-red-600 bg-red-100 border border-red-300'
-              : 'text-green-600 bg-green-100 border border-green-300'
-          }`}
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${row.status === 'Inactive'
+            ? 'text-red-600 bg-red-100 border border-red-300'
+            : 'text-green-600 bg-green-100 border border-green-300'
+            }`}
         >
           {row.status}
         </span>
@@ -167,14 +166,26 @@ const AdvertiseList = () => {
       accessor: 'actions',
       render: (row: AdTableData) => (
         <div className="flex gap-2">
-          {row.status === 'Active' && (
+          {/* {row.status === 'Active' && (
             <button
               onClick={() => handleDelete(row.id)}
               className="text-red-500 border border-red-500 rounded-md p-2 hover:bg-red-500 hover:text-white"
             >
               <TrashBinIcon />
             </button>
-          )}
+          )} */}
+          <button
+            onClick={() => handleDelete(row.id)}
+            disabled={row.status !== 'Active'}
+            className={`rounded-md p-2 border 
+    ${row.status === 'Active'
+                ? 'text-red-500 border-red-500 hover:bg-red-500 hover:text-white'
+                : 'text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
+          >
+            <TrashBinIcon />
+          </button>
+
           <Link href={`/advertise-management/advertise-list/${row.id}`} passHref>
             <button className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white">
               <EyeIcon />
@@ -206,9 +217,8 @@ const AdvertiseList = () => {
               {['all', 'active', 'inactive'].map((status) => (
                 <li
                   key={status}
-                  className={`cursor-pointer px-4 py-2 ${
-                    activeTab === status ? 'border-b-2 border-blue-600 text-blue-600' : ''
-                  }`}
+                  className={`cursor-pointer px-4 py-2 ${activeTab === status ? 'border-b-2 border-blue-600 text-blue-600' : ''
+                    }`}
                   onClick={() => setActiveTab(status as 'all' | 'active' | 'inactive')}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -218,8 +228,8 @@ const AdvertiseList = () => {
                         status === 'all'
                           ? true
                           : status === 'active'
-                          ? ad.status === 'Active'
-                          : ad.status === 'Inactive'
+                            ? ad.status === 'Active'
+                            : ad.status === 'Inactive'
                       ).length
                     }
                   </span>

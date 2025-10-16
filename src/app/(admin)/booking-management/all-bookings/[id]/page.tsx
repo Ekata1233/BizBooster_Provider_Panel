@@ -28,7 +28,7 @@ const AllBookingsDetails = () => {
   const visibleServiceMen = showAll ? serviceMenByProvider : serviceMenByProvider.slice(0, 2);
   const [lead, setLead] = useState<LeadType | null>(null);
 
-  console.log("-------------------: ", lead)
+
 
   const params = useParams();
   const id = params?.id as string;
@@ -151,6 +151,7 @@ const AllBookingsDetails = () => {
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
   const baseAmount = lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0;
   console.log(baseAmount)
+  console.log("hasExtraServices : ", hasExtraServices)
 
 
   const handleDownloadInvoice = async () => {
@@ -203,7 +204,6 @@ const AllBookingsDetails = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Failed to create upcoming commission.");
 
-        console.log("Upcoming commission API success:", data);
       } catch (apiError) {
         console.error("Upcoming commission API error:", apiError);
         alert("Booking accepted, but failed to create upcoming commission.");
@@ -219,7 +219,6 @@ const AllBookingsDetails = () => {
     }
   };
 
-  console.log("checkout details in all bookings  : ", checkoutDetails)
 
   const serviceGSTPercent = checkoutDetails?.gst || 0;
   const platformFeePercent = checkoutDetails?.platformFee || 0;
@@ -290,7 +289,7 @@ const AllBookingsDetails = () => {
               </p>
 
             </div>
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
               {!isBookingCancelled && !isBookingCompleted && (
                 <div className="flex flex-col">
@@ -437,19 +436,77 @@ const AllBookingsDetails = () => {
                   </div>
                 ))}
 
+                {!hasExtraServices && (
+                  (() => {
+                    const extraServices = lead?.extraService || [];
+                    console.log("extra services : ", extraServices);
+
+                    const allCommissionInvalid = extraServices.every(service => {
+                      const commissionValue = parseFloat(service.commission || "0");
+                      return !commissionValue || commissionValue <= 0;
+                    });
+                    if (extraServices.length === 0) {
+                      return null; // 👈 Don't render anything if no extra services
+                    }
+
+                    return (
+                      <>
+                        <h4 className="text-sm font-semibold text-gray-700 my-3">Extra Services</h4>
+                        <table className="w-full table-auto border border-gray-200 text-sm mb-5">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="border px-4 py-2 text-left">SL</th>
+                              <th className="border px-4 py-2 text-left">Service Name</th>
+                              <th className="border px-4 py-2 text-left">Price</th>
+                              <th className="border px-4 py-2 text-left">Discount</th>
+                              <th className="border px-4 py-2 text-left">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {extraServices.map((service, index) => (
+                              <tr key={index}>
+                                <td className="border px-4 py-2 text-left">{index + 1}</td>
+                                <td className="border px-4 py-2 text-left">{service.serviceName}</td>
+                                <td className="border px-4 py-2 text-left">{formatPrice(service.price)}</td>
+                                <td className="border px-4 py-2 text-left">{formatPrice(service.discount)}</td>
+                                <td className="border px-4 py-2 text-left">{formatPrice(service.total)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+
+                        {allCommissionInvalid && (
+                          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-5 rounded-md">
+                            <p className="font-medium">Approval Pending</p>
+                            <p className="text-sm">
+                              The commission for this service is not approved yet by the admin. Please wait for admin approval to see detailed calculations.
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()
+                )}
+
+
 
                 {hasExtraServices && (() => {
                   const extraServices = lead!.extraService!;
+                  console.log("extra services : ", extraServices)
+
+                  const allCommissionInvalid = extraServices.every(service => {
+                    const commissionValue = parseFloat(service.commission || "0");
+                    return !commissionValue || commissionValue <= 0;
+                  });
+
                   const subtotal = extraServices.reduce((acc, service) => acc + (service.price || 0), 0);
                   const totalDiscount = extraServices.reduce((acc, service) => acc + (service.discount || 0), 0);
                   const priceAfterDiscount = extraServices.reduce((acc, service) => acc + (service.total || 0), 0);
 
-                  const champaignDiscount = checkoutDetails.champaignDiscount || 0;
                   const gstPercent = checkoutDetails?.gst ?? gstValue ?? 0;
 
                   // GST calculated only on priceAfterDiscount
-                  const serviceGST = (gstPercent / 100) * priceAfterDiscount; const platformFee = platformFeeValue || 0;
-                  // percentage value (from checkoutDetails or fallback)
+                  const serviceGST = (gstPercent / 100) * priceAfterDiscount;
                   const assurityFeePercent = checkoutDetails?.assurityfee ?? assurityFeeValue ?? 0;
 
                   // ✅ calculated assurity fee amount
@@ -457,13 +514,7 @@ const AllBookingsDetails = () => {
 
                   const grandTotal = priceAfterDiscount + serviceGST + assurityFee;
                   finalGrandTotal = (checkoutDetails?.totalAmount ?? 0) + (grandTotal || 0);
-                  console.log("subtotal : ", subtotal)
-                  console.log("champaignDiscount : ", champaignDiscount)
-                  console.log("champaignDiscount : ", champaignDiscount)
-                  console.log("serviceGST : ", serviceGST)
-                  console.log("platformFee : ", platformFee)
-                  console.log("assurityFee : ", assurityFee)
-                  console.log("grandTotal : ", grandTotal)
+
 
                   return (
                     <>
@@ -491,24 +542,31 @@ const AllBookingsDetails = () => {
                         </tbody>
                       </table>
 
-                      {/* Summary section */}
-                      {([
-                        ['Listing Price', subtotal],
-                        [`Service Discount `, -(totalDiscount || 0)],
-                        [`Price After Discount`, priceAfterDiscount || 0],
-                        // show coupon if you want to include coupon for extra services — commented out to match previous code
-                        // [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}%)`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
-                        [`Service GST (${checkoutDetails?.gst ?? 0}%)`, serviceGST || 0],
-                        // [`Platform Fee`, platformFee || 0], // uncomment if platform fee applies to extra services
-                        [`Fetch True Assurity Charges (${assurityFeePercent}%)`, assurityFee || 0],
-                        ['Extra Service Total', grandTotal || 0],
-                      ] as [string, number][]).map(([label, amount]) => (
-                        <div className="flex justify-between mb-1" key={label}>
-                          <span className="font-medium">{label}:</span>
-                          <span>{formatPrice(Number(amount))}</span>
+                      {allCommissionInvalid ? (
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-5 rounded-md">
+                          <p className="font-medium">Approval Pending</p>
+                          <p className="text-sm">The commission for this service is not approved yet by the admin. Please wait for admin approval to see detailed calculations.</p>
                         </div>
-                      ))}
-
+                      ) : (
+                        <>
+                          {([
+                            ['Listing Price', subtotal],
+                            [`Service Discount `, -(totalDiscount || 0)],
+                            [`Price After Discount`, priceAfterDiscount || 0],
+                            // show coupon if you want to include coupon for extra services — commented out to match previous code
+                            // [`Coupon Discount (${checkoutDetails?.couponDiscount ?? 0}%)`, -(checkoutDetails?.couponDiscountPrice ?? 0)],
+                            [`Service GST (${checkoutDetails?.gst ?? 0}%)`, serviceGST || 0],
+                            // [`Platform Fee`, platformFee || 0], // uncomment if platform fee applies to extra services
+                            [`Fetch True Assurity Charges (${assurityFeePercent}%)`, assurityFee || 0],
+                            ['Extra Service Total', grandTotal || 0],
+                          ] as [string, number][]).map(([label, amount]) => (
+                            <div className="flex justify-between mb-1" key={label}>
+                              <span className="font-medium">{label}:</span>
+                              <span>{formatPrice(Number(amount))}</span>
+                            </div>
+                          ))}
+                        </>
+                      )}
                     </>
                   );
                 })()}

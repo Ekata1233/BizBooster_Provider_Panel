@@ -64,7 +64,7 @@ const AcceptedRequests = () => {
           serviceCustomer: customer,
           totalAmount: checkout.totalAmount,
           paymentStatus: checkout.paymentStatus,
-          scheduleDate: checkout.createdAt,
+          scheduleDate: checkout.updatedAt,
           bookingDate: checkout.createdAt,
           orderStatus: checkout.orderStatus,
           _id: checkout._id,
@@ -134,12 +134,22 @@ const AcceptedRequests = () => {
     {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
-      render: (row: BookingRow) => row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A',
+      render: (row: BookingRow) => (
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            : 'N/A'}
+        </span>
+      ),
     },
     {
       header: 'Booking Date',
       accessor: 'bookingDate',
-      render: (row: BookingRow) => new Date(row.bookingDate).toLocaleString(),
+      render: (row: BookingRow) => (
+        <span>
+          {new Date(row.bookingDate).toLocaleString('en-GB', { timeZone: 'UTC' })}
+        </span>
+      ),
     },
     {
       header: 'Status',

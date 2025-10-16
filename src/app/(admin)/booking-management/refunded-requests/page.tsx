@@ -97,7 +97,9 @@ const RefundedRequest = () => {
       accessor: 'scheduleDate',
       render: (row: BookingRow) => (
         <span>
-          {row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A'}
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            : 'N/A'}
         </span>
       ),
     },
@@ -105,7 +107,9 @@ const RefundedRequest = () => {
       header: 'Booking Date',
       accessor: 'bookingDate',
       render: (row: BookingRow) => (
-        <span>{new Date(row.bookingDate).toLocaleString()}</span>
+        <span>
+          {new Date(row.bookingDate).toLocaleString('en-GB', { timeZone: 'UTC' })}
+        </span>
       ),
     },
     {
@@ -178,6 +182,7 @@ const RefundedRequest = () => {
         scheduleDate?: string | Date;
         bookingDate?: string | Date;
         createdAt: string | Date;
+        updatedAt: string | Date;
         orderStatus: string;
       };
 
@@ -186,7 +191,7 @@ const RefundedRequest = () => {
         serviceCustomer: checkoutObj.serviceCustomer,
         totalAmount: checkoutObj.totalAmount,
         paymentStatus: checkoutObj.paymentStatus,
-        scheduleDate: checkoutObj.scheduleDate ?? checkoutObj.createdAt,
+        scheduleDate: checkoutObj.scheduleDate ?? checkoutObj.updatedAt,
         bookingDate: checkoutObj.bookingDate ?? checkoutObj.createdAt,
         orderStatus: checkoutObj.orderStatus,
         _id: leadItem._id ?? '',

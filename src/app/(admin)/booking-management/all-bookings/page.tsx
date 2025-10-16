@@ -7,7 +7,7 @@ import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useAuth } from '@/app/context/AuthContext';
-import { EyeIcon} from '@/icons';
+import { EyeIcon } from '@/icons';
 import Link from 'next/link';
 import * as XLSX from 'xlsx';
 import { FaFileDownload } from 'react-icons/fa';
@@ -15,7 +15,7 @@ import { FaFileDownload } from 'react-icons/fa';
 interface ServiceCustomer {
   fullName: string;
   email: string;
-  city?: string; 
+  city?: string;
 }
 
 interface BookingRow {
@@ -36,8 +36,9 @@ const AllBookings = () => {
   const { provider } = useAuth();
   const { checkouts, loadingCheckouts, errorCheckouts, fetchCheckoutsByProviderId } = useCheckout();
   const [search, setSearch] = useState('');
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const rowsPerPage = 10;
+
+  console.log("checkdout data in all booking : ", checkouts)
+
 
   useEffect(() => {
     if (provider?._id) fetchCheckoutsByProviderId(provider._id);
@@ -48,33 +49,33 @@ const AllBookings = () => {
 
   // ✅ Filter data across multiple fields
   // First filter
-const filteredCheckouts = [...checkouts]
-  .reverse()
-  .filter(
-    (checkout) =>
-      checkout.bookingId?.toLowerCase().includes(search.toLowerCase()) ||
-      checkout.serviceCustomer?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-      checkout.serviceCustomer?.email?.toLowerCase().includes(search.toLowerCase()) ||
-       (checkout.serviceCustomer?.city ?? '').toLowerCase().includes(search.toLowerCase()) || // ✅ fix
-      String(checkout.totalAmount || checkout.grandTotal)?.includes(search)
-  );
+  const filteredCheckouts = [...checkouts]
+    .reverse()
+    .filter(
+      (checkout) =>
+        checkout.bookingId?.toLowerCase().includes(search.toLowerCase()) ||
+        checkout.serviceCustomer?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+        checkout.serviceCustomer?.email?.toLowerCase().includes(search.toLowerCase()) ||
+        (checkout.serviceCustomer?.city ?? '').toLowerCase().includes(search.toLowerCase()) || // ✅ fix
+        String(checkout.totalAmount || checkout.grandTotal)?.includes(search)
+    );
 
-// Then map with serial numbers
-const filteredData: BookingRow[] = filteredCheckouts.map((checkout, idx) => ({
-  bookingId: checkout.bookingId,
-  serviceCustomer: checkout.serviceCustomer as ServiceCustomer,
-  totalAmount:
-    Number(checkout.grandTotal ?? 0) > 0 ? Number(checkout.grandTotal) : Number(checkout.totalAmount),
-  paymentStatus: checkout.paymentStatus,
-  scheduleDate: checkout.createdAt,
-  bookingDate: checkout.createdAt,
-  orderStatus: checkout.orderStatus,
-  _id: checkout._id,
-  isPartialPayment: checkout.isPartialPayment as boolean | undefined,
-  paidAmount: checkout.paidAmount,
-  serialNo: filteredCheckouts.length - idx, 
+  // Then map with serial numbers
+  const filteredData: BookingRow[] = filteredCheckouts.map((checkout, idx) => ({
+    bookingId: checkout.bookingId,
+    serviceCustomer: checkout.serviceCustomer as ServiceCustomer,
+    totalAmount:
+      Number(checkout.grandTotal ?? 0) > 0 ? Number(checkout.grandTotal) : Number(checkout.totalAmount),
+    paymentStatus: checkout.paymentStatus,
+    scheduleDate: checkout.updatedAt,
+    bookingDate: checkout.createdAt,
+    orderStatus: checkout.orderStatus,
+    _id: checkout._id,
+    isPartialPayment: checkout.isPartialPayment as boolean | undefined,
+    paidAmount: checkout.paidAmount,
+    serialNo: filteredCheckouts.length - idx,
 
-}));
+  }));
 
 
   const columns = [
@@ -107,22 +108,32 @@ const filteredData: BookingRow[] = filteredCheckouts.map((checkout, idx) => ({
           status === 'paid'
             ? 'bg-green-100 text-green-700 border-green-300'
             : status === 'unpaid'
-            ? 'bg-red-100 text-red-700 border-red-300'
-            : status === 'partpay'
-            ? 'bg-purple-100 text-purple-700 border-purple-300'
-            : 'bg-yellow-100 text-yellow-700 border-yellow-300';
+              ? 'bg-red-100 text-red-700 border-red-300'
+              : status === 'partpay'
+                ? 'bg-purple-100 text-purple-700 border-purple-300'
+                : 'bg-yellow-100 text-yellow-700 border-yellow-300';
         return <span className={`px-3 py-1 rounded-full text-sm border ${statusColor}`}>{status}</span>;
       },
     },
     {
       header: 'Schedule Date',
       accessor: 'scheduleDate',
-      render: (row: BookingRow) => <span>{row.scheduleDate ? new Date(row.scheduleDate).toLocaleString() : 'N/A'}</span>,
+      render: (row: BookingRow) => (
+        <span>
+          {row.scheduleDate
+            ? new Date(row.scheduleDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+            : 'N/A'}
+        </span>
+      ),
     },
     {
       header: 'Booking Date',
       accessor: 'bookingDate',
-      render: (row: BookingRow) => <span>{new Date(row.bookingDate).toLocaleString()}</span>,
+      render: (row: BookingRow) => (
+        <span>
+          {new Date(row.bookingDate).toLocaleString('en-GB', { timeZone: 'UTC' })}
+        </span>
+      ),
     },
     {
       header: 'Status',
