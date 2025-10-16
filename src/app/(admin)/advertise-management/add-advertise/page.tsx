@@ -199,17 +199,31 @@ const AddAd = () => {
             </select>
           </div>
 
-          {/* Start Date */}
-          <div>
-            <Label>Start Date</Label>
-            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-          </div>
+      {/* Start Date & Time */}
+      <div>
+        <Label htmlFor="startDate">Start Date</Label>
+        <Input
+          id="startDate"
+          type="datetime-local"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="w-full border rounded-md p-2"
+        />
+      </div>
 
-          {/* End Date */}
-          <div>
-            <Label>End Date</Label>
-            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          </div>
+      {/* End Date & Time */}
+      <div>
+        <Label htmlFor="endDate">End Date</Label>
+        <Input
+          id="endDate"
+          type="datetime-local"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="w-full border rounded-md p-2"
+          min={startDate || undefined} // optional: prevent end before start
+        />
+      </div>
+    
 
           {/* Title */}
           <div>

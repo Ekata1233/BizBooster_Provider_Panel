@@ -260,6 +260,13 @@ const AllBookingsDetails = () => {
   if (errorCheckoutDetails) return <p>Error: {errorCheckoutDetails}</p>;
   if (!checkoutDetails) return <p>No details found.</p>;
 
+  // Check if booking is cancelled or completed
+  const isBookingCancelled = checkoutDetails?.isCanceled === true;
+  const isBookingCompleted = checkoutDetails?.isCompleted === true;
+  
+  // Determine if add on service button should be disabled
+  const isAddOnServiceDisabled = isBookingCancelled || isBookingCompleted || hasExtraServices;
+
   return (
     <div>
       <PageBreadcrumb pageTitle="All Bookings Details" />
@@ -285,21 +292,27 @@ const AllBookingsDetails = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 mt-2">
-              {checkoutDetails.isCompleted === false && (
+              {!isBookingCancelled && !isBookingCompleted && (
                 <div className="flex flex-col">
                   <button
-                    className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${hasExtraServices
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'hover:bg-blue-900'
-                      }`}
-                    onClick={() => !hasExtraServices && setIsEditOpen(true)}
-                    disabled={hasExtraServices}
+                    className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${
+                      isAddOnServiceDisabled
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'hover:bg-blue-900'
+                    }`}
+                    onClick={() => !isAddOnServiceDisabled && setIsEditOpen(true)}
+                    disabled={isAddOnServiceDisabled}
                   >
                     + Add on Service
                   </button>
-                  {hasExtraServices && (
+                  {isAddOnServiceDisabled && (
                     <p className="text-xs text-gray-500 mt-1">
-                      Already one additional service added
+                      {isBookingCancelled 
+                        ? 'Cannot add services to cancelled booking'
+                        : isBookingCompleted
+                        ? 'Cannot add services to completed booking'
+                        : 'Already one additional service added'
+                      }
                     </p>
                   )}
                 </div>
@@ -312,14 +325,14 @@ const AllBookingsDetails = () => {
                   checkoutId={checkoutDetails._id}
                 />
               )}
-<div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 ">
-              <button
-                onClick={handleDownloadInvoice}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Download Invoice
-              </button>
-            </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-2 ">
+                <button
+                  onClick={handleDownloadInvoice}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Download Invoice
+                </button>
+              </div>
               {/* <InvoiceDownload
                 leadDetails={lead}
                 checkoutDetails={checkoutDetails}
