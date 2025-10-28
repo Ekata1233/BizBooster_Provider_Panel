@@ -160,7 +160,17 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-    onSubmit(formData);
+    // 🧩 If Lead Completed → OTP must be verified before submit
+if (statusType === "Lead completed") {
+  if (!otpSuccess) {
+    setIsOtpModalOpen(true); // open OTP modal again if not verified
+    alert("Please verify OTP before completing the lead.");
+    return; // stop submit — no commission, no lead complete
+  }
+}
+
+onSubmit(formData); // ✅ Only runs when OTP is verified
+
 
 
     if (isCashInHand) {
@@ -287,10 +297,11 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           handleSubmit();
         }, 1000);
       } else {
-  setOtpError(data.message || "Invalid OTP. Please try again.");
-  setOtpSuccess(false);
-  return; // ⬅ prevents lead completion and commission distribution
-}
+        setOtpError(data.message || "Invalid OTP. Please try again.");
+        setOtpSuccess(false);
+         setIsOtpModalOpen(true);
+        return; // ⬅ prevents lead completion and commission distribution
+      }
     } catch (error) {
       console.error(error); // or log to external service
       setOtpError("Something went wrong. Please try again.");
@@ -628,10 +639,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           isOpen={isOtpModalOpen}
           onClose={() => {
             setIsOtpModalOpen(false);
-            onClose(); // also close parent status modal
+            setOtp(["", "", "", "", "", ""]); // clear entered OTP
+            setOtpError(""); // clear error
+            setOtpSuccess(false); // clear success
+            // ❌ remove onClose(); – this was closing parent modal incorrectly
           }}
           className="max-w-sm"
         >
+
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
               Enter OTP
