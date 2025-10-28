@@ -710,7 +710,10 @@ const AllBookingsDetails = () => {
 
 
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Commission distribution failed.");
+                if (!res.ok) {
+                  alert(data.message || "Commission distribution failed.");
+                  return;
+                }
 
                 alert("Commission distributed successfully.");
               }
