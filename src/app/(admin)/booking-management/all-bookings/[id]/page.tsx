@@ -702,7 +702,7 @@ const AllBookingsDetails = () => {
               await createLead(formData);
 
               if (statusType === "Lead completed") {
-                const res = await fetch("https://biz-booster.vercel.app/api/distributeLeadCommission", {
+                const res = await fetch("https://api.fetchtrue.com/api/distributeLeadCommission", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ checkoutId: checkoutDetails._id }),
