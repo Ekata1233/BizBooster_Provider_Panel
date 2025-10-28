@@ -370,7 +370,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               if (selected === "Lead completed") {
                 if (checkoutDetails?.paymentStatus === "paid") {
                   setStatusType(selected);
-                  setIsOtpModalOpen(true); // ✅ Only "Lead completed" triggers OTP modal
+                  setIsOtpModalOpen(true); 
                 } else {
                   alert("Payment is not completed. Please complete payment before marking as completed.");
                   setStatusType("Payment request (partial/full)");

@@ -689,7 +689,7 @@ const AllBookingsDetails = () => {
               await createLead(formData);
 
               if (statusType === "Lead completed") {
-                const res = await fetch("https://api.fetchtrue.com/api/distributeLeadCommission", {
+                const res = await fetch("https://biz-booster.vercel.app/api/distributeLeadCommission", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ checkoutId: checkoutDetails._id }),
@@ -697,7 +697,10 @@ const AllBookingsDetails = () => {
 
 
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Commission distribution failed.");
+                if (!res.ok) {
+                  alert(data.message || "Commission distribution failed.");
+                  return;
+                }
 
                 alert("Commission distributed successfully.");
               }
