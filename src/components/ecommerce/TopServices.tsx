@@ -36,6 +36,7 @@ export default function TopServices() {
     const fetchReviews = async () => {
       try {
         const res = await axios.get("https://api.fetchtrue.com/api/service/review");
+         console.log("Fetched Reviews:", res.data.reviews); // 🔍 log reviews response
         setReviews(res.data.reviews);
       } catch (err) {
         console.error("Error fetching reviews:", err);
@@ -48,7 +49,8 @@ export default function TopServices() {
   useEffect(() => {
     if (!services || services.length === 0) return;
     if (!reviews || reviews.length === 0) return;
-
+ console.log("All Services:", services); // 🔍 log services from context
+    console.log("All Reviews:", reviews);
     // Group reviews by serviceId
     const reviewMap: Record<string, number[]> = {};
     reviews.forEach((r) => {

@@ -287,8 +287,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           handleSubmit();
         }, 1000);
       } else {
-        setOtpError(data.message || "Invalid OTP. Please try again.");
-      }
+  setOtpError(data.message || "Invalid OTP. Please try again.");
+  setOtpSuccess(false);
+  return; // ⬅ prevents lead completion and commission distribution
+}
     } catch (error) {
       console.error(error); // or log to external service
       setOtpError("Something went wrong. Please try again.");
