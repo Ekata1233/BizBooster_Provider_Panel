@@ -110,12 +110,11 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
   };
 
-  const handleSubmit = async () => {
-    if (!statusType) {
-      alert("Please select a status type.");
-      return;
-    }
-
+const handleSubmit = async (fromOtp = false) => {
+  if (!statusType) {
+    alert("Please select a status type.");
+    return;
+  }
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -160,16 +159,17 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-    // 🧩 If Lead Completed → OTP must be verified before submit
-if (statusType === "Lead completed") {
+    // 🧩 Require OTP verification before lead completion
+if (statusType === "Lead completed" && !fromOtp) {
   if (!otpSuccess) {
-    setIsOtpModalOpen(true); // open OTP modal again if not verified
+    setIsOtpModalOpen(true);
     alert("Please verify OTP before completing the lead.");
     return; // stop submit — no commission, no lead complete
   }
 }
 
-onSubmit(formData); // ✅ Only runs when OTP is verified
+
+    onSubmit(formData); // ✅ Only runs when OTP is verified
 
 
 
@@ -293,13 +293,14 @@ onSubmit(formData); // ✅ Only runs when OTP is verified
         }
 
         setTimeout(() => {
-          setIsOtpModalOpen(false);
-          handleSubmit();
-        }, 1000);
+  setIsOtpModalOpen(false);
+  handleSubmit(true); // ✅ Pass flag to skip OTP recheck
+}, 1000);
+
       } else {
         setOtpError(data.message || "Invalid OTP. Please try again.");
         setOtpSuccess(false);
-         setIsOtpModalOpen(true);
+        setIsOtpModalOpen(true);
         return; // ⬅ prevents lead completion and commission distribution
       }
     } catch (error) {
@@ -383,7 +384,7 @@ onSubmit(formData); // ✅ Only runs when OTP is verified
               if (selected === "Lead completed") {
                 if (checkoutDetails?.paymentStatus === "paid") {
                   setStatusType(selected);
-                  setIsOtpModalOpen(true); 
+                  setIsOtpModalOpen(true);
                 } else {
                   alert("Payment is not completed. Please complete payment before marking as completed.");
                   setStatusType("Payment request (partial/full)");
@@ -619,7 +620,7 @@ onSubmit(formData); // ✅ Only runs when OTP is verified
         <div className="text-right">
           <button
             className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
             disabled={
               loading ||
               (statusType === "Payment request (partial/full)" &&
