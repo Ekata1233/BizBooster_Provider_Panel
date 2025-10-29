@@ -58,7 +58,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
-  console.log(linkType) // dont remove
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -208,32 +207,83 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           .toString()
           .padStart(2, "0")}`;
 
+    // try {
+    //   const res = await fetch(
+    //     "https://api.fetchtrue.com/api/payment/generate-payment-link",
+    //     {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({
+    //         amount: amountToPay,
+    //         customerId: serviceCustomerId,
+    //         customerName: "Customer Name",
+    //         customerEmail: "customer@example.com",
+    //         customerPhone: "9999999999",
+    //         checkoutId,
+    //         orderId,
+    //       }),
+    //     }
+    //   );
+
+    //   const data = await res.json();
+    //   setPaymentLink(data.paymentLink || "");
+    // } catch (error) {
+    //   console.error("Payment link generation failed", error);
+    //   alert("Failed to generate payment link.");
+    // } finally {
+    //   setGeneratingPaymentLink(false);
+    // }
+
     try {
-      const res = await fetch(
-        "https://api.fetchtrue.com/api/payment/generate-payment-link",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: amountToPay,
-            customerId: serviceCustomerId,
-            customerName: "Customer Name",
-            customerEmail: "customer@example.com",
-            customerPhone: "9999999999",
-            checkoutId,
-            orderId,
-          }),
-        }
-      );
+      const res = await fetch("https://api.fetchtrue.com/api/pay-u/create-payment-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subAmount: amountToPay, // dynamic value
+          isPartialPaymentAllowed: false,
+          description: "Fetch True Payment",
+          orderId: orderId,
+          customer: {
+            customer_id: serviceCustomerId,
+            customer_name: "Aniket Patil",
+            customer_email: "aniket@email.com",
+            customer_phone: "9999999999",
+          },
+          udf: {
+            udf1: orderId,
+            udf2: checkoutId,
+            udf3: serviceCustomerId, // can also be dynamic if needed
+          },
+        }),
+      });
 
       const data = await res.json();
-      setPaymentLink(data.paymentLink || "");
+      console.log("payment data : ", data)
+
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to generate payment link");
+      }
+
+      // ✅ Extract payment link from new API structure
+      const paymentLink = data?.result?.paymentLink;
+
+      console.log("payment link : ", paymentLink)
+
+      if (paymentLink) {
+        setPaymentLink(paymentLink);
+        console.log("Payment link generated:", paymentLink);
+      } else {
+        console.error("Payment link not found in response:", data);
+        alert("Something went wrong — payment link not generated.");
+      }
     } catch (error) {
-      console.error("Payment link generation failed", error);
-      alert("Failed to generate payment link.");
+      console.error("Error generating payment link:", error);
+      alert(error.message || "An unexpected error occurred");
     } finally {
       setGeneratingPaymentLink(false);
     }
+
   };
 
 
@@ -287,10 +337,10 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           handleSubmit();
         }, 1000);
       } else {
-  setOtpError(data.message || "Invalid OTP. Please try again.");
-  setOtpSuccess(false);
-  return; // ⬅ prevents lead completion and commission distribution
-}
+        setOtpError(data.message || "Invalid OTP. Please try again.");
+        setOtpSuccess(false);
+        return; // ⬅ prevents lead completion and commission distribution
+      }
     } catch (error) {
       console.error(error); // or log to external service
       setOtpError("Something went wrong. Please try again.");
@@ -350,7 +400,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       )
       : Number(Number(amount).toFixed(2));
 
-  console.log("1st service :", amount);
 
 
 
@@ -372,7 +421,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
               if (selected === "Lead completed") {
                 if (checkoutDetails?.paymentStatus === "paid") {
                   setStatusType(selected);
-                  setIsOtpModalOpen(true); 
+                  setIsOtpModalOpen(true);
                 } else {
                   alert("Payment is not completed. Please complete payment before marking as completed.");
                   setStatusType("Payment request (partial/full)");
