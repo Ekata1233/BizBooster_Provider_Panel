@@ -7,6 +7,7 @@ import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
 import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
 import axios from "axios";
+import { useServiceCustomer } from "@/app/context/ServiceCustomerContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -47,18 +48,23 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [isCashInHand, setIsCashInHand] = useState(false);
-
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
-
-
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
   const [extraService, setExtraService] = useState<IExtraService[]>([]);
   const [assurityFee, setAssurityFee] = useState<number>(0);
-
+  const { serviceCustomer, loading: customerLoading, error, fetchServiceCustomer } = useServiceCustomer();
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
   console.log(linkType) // dont remove
+  useEffect(() => {
+    if (serviceCustomerId) {
+      fetchServiceCustomer(serviceCustomerId);
+    }
+  }, [serviceCustomerId]);
+
+  console.log("service cusotmer : ", serviceCustomer);
+
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -256,14 +262,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           orderId: orderId,
           customer: {
             customer_id: serviceCustomerId,
-            customer_name: "Test User",
-            customer_email: "test@email.com",
-            customer_phone: "9999999999",
+            customer_name: serviceCustomer?.fullName,
+            customer_email: serviceCustomer?.email,
+            customer_phone: serviceCustomer?.phone,
           },
           udf: {
             udf1: orderId,
             udf2: checkoutId,
-            udf3: serviceCustomerId, // can also be dynamic if needed
+            udf3: serviceCustomerId,
           },
         }),
       });
