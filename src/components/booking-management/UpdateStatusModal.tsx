@@ -289,7 +289,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       }
     } catch (error) {
       console.error("Error generating payment link:", error);
-      alert(error.message || "An unexpected error occurred");
+      alert("Something went wrong — payment link not generated.");
     } finally {
       setGeneratingPaymentLink(false);
     }
