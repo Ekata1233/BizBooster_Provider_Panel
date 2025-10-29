@@ -53,7 +53,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
   const [extraService, setExtraService] = useState<IExtraService[]>([]);
   const [assurityFee, setAssurityFee] = useState<number>(0);
-  const { serviceCustomer, loading: customerLoading, error, fetchServiceCustomer } = useServiceCustomer();
+  const { serviceCustomer, fetchServiceCustomer } = useServiceCustomer();
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
   console.log(linkType) // dont remove
