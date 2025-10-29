@@ -58,6 +58,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
 
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
+  console.log(linkType) // dont remove
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -159,7 +160,17 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       return;
     }
 
-    onSubmit(formData);
+    // 🧩 If Lead Completed → OTP must be verified before submit
+    if (statusType === "Lead completed") {
+      if (!otpSuccess) {
+        setIsOtpModalOpen(true); // open OTP modal again if not verified
+        alert("Please verify OTP before completing the lead.");
+        return; // stop submit — no commission, no lead complete
+      }
+    }
+
+    onSubmit(formData); // ✅ Only runs when OTP is verified
+
 
 
     if (isCashInHand) {
@@ -245,8 +256,8 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           orderId: orderId,
           customer: {
             customer_id: serviceCustomerId,
-            customer_name: "Aniket Patil",
-            customer_email: "aniket@email.com",
+            customer_name: "Test User",
+            customer_email: "test@email.com",
             customer_phone: "9999999999",
           },
           udf: {
@@ -265,7 +276,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
         throw new Error(data.message || "Failed to generate payment link");
       }
 
-      // ✅ Extract payment link from new API structure
       const paymentLink = data?.result?.paymentLink;
 
       console.log("payment link : ", paymentLink)
@@ -283,7 +293,6 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     } finally {
       setGeneratingPaymentLink(false);
     }
-
   };
 
 
@@ -339,6 +348,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       } else {
         setOtpError(data.message || "Invalid OTP. Please try again.");
         setOtpSuccess(false);
+        setIsOtpModalOpen(true);
         return; // ⬅ prevents lead completion and commission distribution
       }
     } catch (error) {
@@ -400,6 +410,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
       )
       : Number(Number(amount).toFixed(2));
 
+  console.log("1st service :", amount);
 
 
 
@@ -677,10 +688,14 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           isOpen={isOtpModalOpen}
           onClose={() => {
             setIsOtpModalOpen(false);
-            onClose(); // also close parent status modal
+            setOtp(["", "", "", "", "", ""]); // clear entered OTP
+            setOtpError(""); // clear error
+            setOtpSuccess(false); // clear success
+            // ❌ remove onClose(); – this was closing parent modal incorrectly
           }}
           className="max-w-sm"
         >
+
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
               Enter OTP
