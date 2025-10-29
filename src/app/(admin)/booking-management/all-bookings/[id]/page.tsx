@@ -151,7 +151,6 @@ const AllBookingsDetails = () => {
   const formatPrice = (amount: number) => `₹${amount?.toFixed(2)}`;
   const baseAmount = lead?.afterDicountAmount ?? checkoutDetails?.totalAmount ?? 0;
   console.log(baseAmount)
-  console.log("hasExtraServices : ", hasExtraServices)
 
 
   const handleDownloadInvoice = async () => {

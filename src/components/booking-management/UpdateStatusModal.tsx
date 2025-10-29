@@ -7,6 +7,7 @@ import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
 import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
 import axios from "axios";
+import { useServiceCustomer } from "@/app/context/ServiceCustomerContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -47,18 +48,23 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [isCashInHand, setIsCashInHand] = useState(false);
-
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
-
-
   const { getLeadByCheckoutId } = useLead();
   const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
   const [extraService, setExtraService] = useState<IExtraService[]>([]);
   const [assurityFee, setAssurityFee] = useState<number>(0);
-
+  const { serviceCustomer, loading: customerLoading, error, fetchServiceCustomer } = useServiceCustomer();
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
 
   console.log(linkType) // dont remove
+  useEffect(() => {
+    if (serviceCustomerId) {
+      fetchServiceCustomer(serviceCustomerId);
+    }
+  }, [serviceCustomerId]);
+
+  console.log("service cusotmer : ", serviceCustomer);
+
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
@@ -168,7 +174,6 @@ if (statusType === "Lead completed" && !fromOtp) {
   }
 }
 
-
     onSubmit(formData); // ✅ Only runs when OTP is verified
 
 
@@ -218,29 +223,78 @@ if (statusType === "Lead completed" && !fromOtp) {
           .toString()
           .padStart(2, "0")}`;
 
+    // try {
+    //   const res = await fetch(
+    //     "https://api.fetchtrue.com/api/payment/generate-payment-link",
+    //     {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({
+    //         amount: amountToPay,
+    //         customerId: serviceCustomerId,
+    //         customerName: "Customer Name",
+    //         customerEmail: "customer@example.com",
+    //         customerPhone: "9999999999",
+    //         checkoutId,
+    //         orderId,
+    //       }),
+    //     }
+    //   );
+
+    //   const data = await res.json();
+    //   setPaymentLink(data.paymentLink || "");
+    // } catch (error) {
+    //   console.error("Payment link generation failed", error);
+    //   alert("Failed to generate payment link.");
+    // } finally {
+    //   setGeneratingPaymentLink(false);
+    // }
+
     try {
-      const res = await fetch(
-        "https://api.fetchtrue.com/api/payment/generate-payment-link",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: amountToPay,
-            customerId: serviceCustomerId,
-            customerName: "Customer Name",
-            customerEmail: "customer@example.com",
-            customerPhone: "9999999999",
-            checkoutId,
-            orderId,
-          }),
-        }
-      );
+      const res = await fetch("https://api.fetchtrue.com/api/pay-u/create-payment-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subAmount: amountToPay, // dynamic value
+          isPartialPaymentAllowed: false,
+          description: "Fetch True Payment",
+          orderId: orderId,
+          customer: {
+            customer_id: serviceCustomerId,
+            customer_name: serviceCustomer?.fullName,
+            customer_email: serviceCustomer?.email,
+            customer_phone: serviceCustomer?.phone,
+          },
+          udf: {
+            udf1: orderId,
+            udf2: checkoutId,
+            udf3: serviceCustomerId,
+          },
+        }),
+      });
 
       const data = await res.json();
-      setPaymentLink(data.paymentLink || "");
+      console.log("payment data : ", data)
+
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to generate payment link");
+      }
+
+      const paymentLink = data?.result?.paymentLink;
+
+      console.log("payment link : ", paymentLink)
+
+      if (paymentLink) {
+        setPaymentLink(paymentLink);
+        console.log("Payment link generated:", paymentLink);
+      } else {
+        console.error("Payment link not found in response:", data);
+        alert("Something went wrong — payment link not generated.");
+      }
     } catch (error) {
-      console.error("Payment link generation failed", error);
-      alert("Failed to generate payment link.");
+      console.error("Error generating payment link:", error);
+      alert("Something went wrong — payment link not generated.");
     } finally {
       setGeneratingPaymentLink(false);
     }
@@ -292,10 +346,11 @@ if (statusType === "Lead completed" && !fromOtp) {
           }
         }
 
-        setTimeout(() => {
+       setTimeout(() => {
   setIsOtpModalOpen(false);
   handleSubmit(true); // ✅ Pass flag to skip OTP recheck
 }, 1000);
+
 
       } else {
         setOtpError(data.message || "Invalid OTP. Please try again.");
