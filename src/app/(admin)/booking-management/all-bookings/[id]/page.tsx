@@ -261,7 +261,7 @@ const AllBookingsDetails = () => {
   // Check if booking is cancelled or completed
   const isBookingCancelled = checkoutDetails?.isCanceled === true;
   const isBookingCompleted = checkoutDetails?.isCompleted === true;
-  
+
   // Determine if add on service button should be disabled
   const isAddOnServiceDisabled = isBookingCancelled || isBookingCompleted || hasExtraServices;
 
@@ -293,11 +293,10 @@ const AllBookingsDetails = () => {
               {!isBookingCancelled && !isBookingCompleted && (
                 <div className="flex flex-col">
                   <button
-                    className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${
-                      isAddOnServiceDisabled
+                    className={`bg-blue-800 text-white px-6 py-2 rounded-md transition duration-300 ${isAddOnServiceDisabled
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'hover:bg-blue-900'
-                    }`}
+                      }`}
                     onClick={() => !isAddOnServiceDisabled && setIsEditOpen(true)}
                     disabled={isAddOnServiceDisabled}
                   >
@@ -305,11 +304,11 @@ const AllBookingsDetails = () => {
                   </button>
                   {isAddOnServiceDisabled && (
                     <p className="text-xs text-gray-500 mt-1">
-                      {isBookingCancelled 
+                      {isBookingCancelled
                         ? 'Cannot add services to cancelled booking'
                         : isBookingCompleted
-                        ? 'Cannot add services to completed booking'
-                        : 'Already one additional service added'
+                          ? 'Cannot add services to completed booking'
+                          : 'Already one additional service added'
                       }
                     </p>
                   )}
@@ -688,17 +687,12 @@ const AllBookingsDetails = () => {
 
                 if (paidAmount > 0 || paidAmount > 0 || paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
                   alert("Lead cannot be canceled because payment is already made.");
-                  console.log("Lead cancel blocked due to existing payment:", {
-                    paymentStatus,
-                    cashInHand,
-                    cashInHandAmount,
-                  });
                   return; // EXIT here, before calling createLead
                 }
               }
 
               // Only call createLead if payment conditions are okay
-              await createLead(formData);
+              // await createLead(formData);
 
               if (statusType === "Lead completed") {
                 const res = await fetch("https://api.fetchtrue.com/api/distributeLeadCommission", {
@@ -709,12 +703,15 @@ const AllBookingsDetails = () => {
 
 
                 const data = await res.json();
+                console.log("Data of the complete lead : ", data);
                 if (!res.ok) {
                   alert(data.message || "Commission distribution failed.");
                   return;
                 }
-
-                alert("Commission distributed successfully.");
+                await createLead(formData);
+              }
+              else {
+                await createLead(formData);
               }
 
 
@@ -727,11 +724,6 @@ const AllBookingsDetails = () => {
                 // Block cancellation if any payment exists
                 if (paymentStatus === "paid" || cashInHand || cashInHandAmount > 0) {
                   alert("Lead cannot be canceled because payment is already made.");
-                  console.log("Lead cancel blocked due to existing payment:", {
-                    paymentStatus,
-                    cashInHand,
-                    cashInHandAmount,
-                  });
                   return; // EXIT here, do NOT call the API
                 }
 
