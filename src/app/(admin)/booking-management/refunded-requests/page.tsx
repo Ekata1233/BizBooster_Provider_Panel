@@ -56,6 +56,7 @@ const RefundedRequest = () => {
     )
     .map((leadItem) => {
       const checkoutObj = leadItem.checkout as unknown as {
+         _id?: string;
         bookingId: string;
         serviceCustomer: string | { _id: string };
         totalAmount: number;
@@ -81,7 +82,7 @@ const RefundedRequest = () => {
         scheduleDate: checkoutObj.scheduleDate ?? checkoutObj.updatedAt,
         bookingDate: checkoutObj.bookingDate ?? checkoutObj.createdAt,
         orderStatus: checkoutObj.orderStatus,
-        _id: leadItem?.checkout?._id ?? '',
+        _id: checkoutObj?._id ?? '',
       };
     })
     .reverse();
