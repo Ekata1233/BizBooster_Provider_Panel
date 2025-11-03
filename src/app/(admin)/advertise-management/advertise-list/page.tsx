@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/modal';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AdType, useAdContext } from '@/app/context/AdContext';
-import { useAuth } from '@/app/context/AuthContext'; 
+import { useAuth } from '@/app/context/AuthContext';
 
 interface AdTableData {
   // _id:string;
@@ -28,7 +28,7 @@ interface AdTableData {
 
 const AdvertiseList = () => {
   const { ads, deleteAd } = useAdContext();
-  const { providerDetails } = useAuth(); 
+  const { providerDetails } = useAuth();
 
   const [tableData, setTableData] = useState<AdTableData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,6 +72,7 @@ const AdvertiseList = () => {
       endDate: ad.endDate?.slice(0, 10) || '—',
       fileUrl: ad.fileUrl || '',
       title: ad.title || '—',
+      expire: ad.isExpired ? 'Expired' : 'Active',
       status: ad.isDeleted ? 'Inactive' : 'Active',
     }));
 
@@ -120,12 +121,12 @@ const AdvertiseList = () => {
       accessor: 'srNo',
       render: (_: AdTableData, index: number) => <span>{index + 1}</span>,
     },
-    { header: 'Ad Type', accessor: 'addType' },
+    // { header: 'Ad Type', accessor: 'addType' },
     { header: 'Title', accessor: 'title' },
     { header: 'Category', accessor: 'categoryName' },
-    { header: 'Service', accessor: 'serviceName' },
-    { header: 'Start Date', accessor: 'startDate' },
-    { header: 'End Date', accessor: 'endDate' },
+    // { header: 'Service', accessor: 'serviceName' },
+    // { header: 'Start Date', accessor: 'startDate' },
+    // { header: 'End Date', accessor: 'endDate' },
     {
       header: 'Preview',
       accessor: 'fileUrl',
@@ -148,7 +149,21 @@ const AdvertiseList = () => {
         ),
     },
     {
-      header: 'Status',
+      header: 'Expire Status',
+      accessor: 'expire',
+      render: (row: AdTableData) => (
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${row.status === 'Inactive'
+            ? 'text-red-600 bg-red-100 border border-red-300'
+            : 'text-green-600 bg-green-100 border border-green-300'
+            }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      header: 'Delete Status',
       accessor: 'status',
       render: (row: AdTableData) => (
         <span
