@@ -72,7 +72,7 @@ const AdvertiseList = () => {
       endDate: ad.endDate?.slice(0, 10) || '—',
       fileUrl: ad.fileUrl || '',
       title: ad.title || '—',
-      status: ad.isDeleted ? 'Inactive' : 'Active',
+      status: ad.isDeleted || ad.isExpired ? 'Inactive' : 'Active',
     }));
 
     setTableData(formatted);
