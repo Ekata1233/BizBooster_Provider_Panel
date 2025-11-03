@@ -781,6 +781,9 @@ const AllBookingsDetails = () => {
                   </div>
                 ))}
 
+                                <hr className="my-4 border-t border-gray-500" />
+
+
                 {!hasExtraServices && (
                   (() => {
                     const extraServices = lead?.extraService || [];
