@@ -179,7 +179,7 @@ export default function AddServiceManPage() {
       console.log("response of add serviceman : ", response)
 
       // ✅ Handle API response properly
-      if (response?.status === 200||201) {
+      if (response?.status === 200 || 201) {
         window.alert("Serviceman added successfully!");
         setFormState({
           name: "",
@@ -202,20 +202,19 @@ export default function AddServiceManPage() {
         setFormError(msg);
         window.alert(msg);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error adding serviceman:", err);
 
-      // ✅ Handle duplicate email error specifically
-      if (err?.response?.data?.error?.includes("duplicate key")) {
-        const msg = "This email is already registered. Please use another email.";
+      if (err instanceof Error) {
+        const msg = err.message || "Something went wrong.";
         setFormError(msg);
         window.alert(msg);
       } else {
-        const msg = err?.response?.data?.message || "Something went wrong.";
-        setFormError(msg);
-        window.alert(msg);
+        setFormError("Something went wrong.");
+        window.alert("Something went wrong.");
       }
     }
+
   };
 
 
