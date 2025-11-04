@@ -98,6 +98,7 @@ const ServicemanListPage = () => {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this serviceman?')) {
       await deleteServiceMan(id);
+       alert('Serviceman deleted successfully!');
     }
   };
 

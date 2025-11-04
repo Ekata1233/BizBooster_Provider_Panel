@@ -20,7 +20,7 @@ const identityOptions = [
 export default function AddServiceManPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [identityError, setIdentityError] = useState<string | null>(null);
- const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const { provider } = useAuth();
@@ -110,6 +110,46 @@ export default function AddServiceManPage() {
     return true;
   };
 
+  // const handleSubmit = async (e: FormEvent) => {
+  //   e.preventDefault();
+
+  //   const validationError = validateForm();
+  //   if (validationError) {
+  //     setFormError(validationError);
+  //     return;
+  //   }
+  //   setFormError(null);
+
+  //   const formData = new FormData();
+  //   const completeFormState = {
+  //     ...formState,
+  //     provider: provider?._id || "",
+  //   };
+
+  //   Object.entries(completeFormState).forEach(([key, value]) => {
+  //     formData.append(key, value);
+  //   });
+
+  //   if (generalImageFile) formData.append("generalImage", generalImageFile);
+  //   if (identityImageFile) formData.append("identityImage", identityImageFile);
+
+  //   await addServiceMan(formData);
+  //   window.alert("Serviceman added successfully!");
+
+  //   setFormState({
+  //     name: "",
+  //     lastName: "",
+  //     phoneNo: "",
+  //     email: "",
+  //     password: "",
+  //     confirmPassword: "",
+  //     identityType: "",
+  //     identityNumber: "",
+  //   });
+  //   setGeneralImageFile(null);
+  //   setIdentityImageFile(null);
+  // };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -133,22 +173,52 @@ export default function AddServiceManPage() {
     if (generalImageFile) formData.append("generalImage", generalImageFile);
     if (identityImageFile) formData.append("identityImage", identityImageFile);
 
-    await addServiceMan(formData);
-    window.alert("Serviceman added successfully!");
+    try {
+      const response = await addServiceMan(formData);
 
-    setFormState({
-      name: "",
-      lastName: "",
-      phoneNo: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      identityType: "",
-      identityNumber: "",
-    });
-    setGeneralImageFile(null);
-    setIdentityImageFile(null);
+      console.log("response of add serviceman : ", response)
+
+      // ✅ Handle API response properly
+      if (response?.success) {
+        window.alert("Serviceman added successfully!");
+        setFormState({
+          name: "",
+          lastName: "",
+          phoneNo: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          identityType: "",
+          identityNumber: "",
+        });
+        setGeneralImageFile(null);
+        setIdentityImageFile(null);
+        setFormError(null);
+      } else {
+        // If backend sends an error or non-success response
+        const msg =
+          response?.error ||
+          response?.message ||
+          "Failed to add serviceman. Please try again.";
+        setFormError(msg);
+        window.alert(msg);
+      }
+    } catch (err: any) {
+      console.error("Error adding serviceman:", err);
+
+      // ✅ Handle duplicate email error specifically
+      if (err?.response?.data?.error?.includes("duplicate key")) {
+        const msg = "This email is already registered. Please use another email.";
+        setFormError(msg);
+        window.alert(msg);
+      } else {
+        const msg = err?.response?.data?.message || "Something went wrong.";
+        setFormError(msg);
+        window.alert(msg);
+      }
+    }
   };
+
 
   const validateForm = () => {
     const {
@@ -282,65 +352,65 @@ export default function AddServiceManPage() {
           </div>
 
           {/* Section 3: Account Details */}
-            <div>
-      <h3 className="text-xl font-semibold mb-4 text-blue-600">
-        3. Account Details
-      </h3>
-      <div className="grid grid-cols-2 gap-6">
-        {/* Email */}
-        <Input
-          name="email"
-          type="email"
-          value={formState.email}
-          onChange={handleChange}
-          placeholder="Email"
-          required
-          className="border px-3 py-2 rounded w-full"
-        />
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-blue-600">
+              3. Account Details
+            </h3>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Email */}
+              <Input
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={handleChange}
+                placeholder="Email"
+                required
+                className="border px-3 py-2 rounded w-full"
+              />
 
-        {/* Password */}
-        <div className="relative w-full">
-          <Input
-            name="password"
-            type={showPassword ? "text" : "password"}
-            value={formState.password}
-            onChange={handleChange}
-            placeholder="Password"
-            required
-            minLength={6}
-            className="border px-3 py-2 rounded w-full pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-          >
-            {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
-          </button>
-        </div>
+              {/* Password */}
+              <div className="relative w-full">
+                <Input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formState.password}
+                  onChange={handleChange}
+                  placeholder="Password"
+                  required
+                  minLength={6}
+                  className="border px-3 py-2 rounded w-full pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                </button>
+              </div>
 
-        {/* Confirm Password */}
-        <div className="relative w-full">
-          <Input
-            name="confirmPassword"
-            type={showConfirm ? "text" : "password"}
-            value={formState.confirmPassword}
-            onChange={handleChange}
-            placeholder="Confirm Password"
-            required
-            minLength={6}
-            className="border px-3 py-2 rounded w-full pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-          >
-            {showConfirm ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
-          </button>
-        </div>
-      </div>
-    </div>
+              {/* Confirm Password */}
+              <div className="relative w-full">
+                <Input
+                  name="confirmPassword"
+                  type={showConfirm ? "text" : "password"}
+                  value={formState.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm Password"
+                  required
+                  minLength={6}
+                  className="border px-3 py-2 rounded w-full pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showConfirm ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                </button>
+              </div>
+            </div>
+          </div>
 
           <Button
             variant="primary"

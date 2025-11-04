@@ -26,7 +26,9 @@ interface ServiceManContextType {
   serviceMenByProvider: ServiceMan[];
   fetchServiceMen: () => void;
   fetchServiceMenByProvider: (providerId: string) => void;
-  addServiceMan: (formData: FormData) => Promise<void>;
+  addServiceMan: (
+    formData: FormData
+  ) => Promise<{ status: number; message: string; data: any } | undefined>;
   updateServiceMan: (id: string, formData: FormData) => Promise<void>;
   deleteServiceMan: (id: string) => Promise<void>;
   loading: boolean;
@@ -88,6 +90,11 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       if (!res.ok) throw new Error(data.message || "Failed to create serviceman");
 
       fetchServiceMen();
+      return {
+        status: res.status,
+        message: data?.message || "Serviceman created successfully",
+        data,
+      };
     } catch (err: unknown) {
       const error = err as { message?: string };
       setError(error.message || "Add failed");
