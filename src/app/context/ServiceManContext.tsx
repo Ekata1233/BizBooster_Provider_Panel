@@ -21,6 +21,13 @@ export interface ServiceMan {
   updatedAt?: string;
 }
 
+interface ApiResponse<T = unknown> {
+  status: number;
+  message: string;
+  data: T;
+}
+
+
 interface ServiceManContextType {
   serviceMen: ServiceMan[];
   serviceMenByProvider: ServiceMan[];
@@ -28,7 +35,7 @@ interface ServiceManContextType {
   fetchServiceMenByProvider: (providerId: string) => void;
   addServiceMan: (
     formData: FormData
-  ) => Promise<{ status: number; message: string; data: any } | undefined>;
+  ) => Promise<ApiResponse<ServiceMan> | undefined>;
   updateServiceMan: (id: string, formData: FormData) => Promise<void>;
   deleteServiceMan: (id: string) => Promise<void>;
   loading: boolean;
@@ -78,7 +85,10 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const addServiceMan = async (formData: FormData) => {
+  const addServiceMan = async (
+    formData: FormData
+  ): Promise<ApiResponse<ServiceMan> | undefined> => {
+
     setLoading(true);
     setError(null);
     try {
