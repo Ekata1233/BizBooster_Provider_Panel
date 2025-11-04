@@ -62,19 +62,29 @@ const AdvertiseList = () => {
 
     console.log('📦 Provider Ads:', providerAds);
     // ✅ Format for table
-    const formatted: AdTableData[] = providerAds.map((ad: AdType) => ({
-      id: ad._id || '',
-      addType: ad.addType || 'image',
-      categoryName: ad.category?.name || '—',
-      serviceName: ad.service?.serviceName || '—',
-      description: ad.description || '—',
-      startDate: ad.startDate?.slice(0, 10) || '—',
-      endDate: ad.endDate?.slice(0, 10) || '—',
-      fileUrl: ad.fileUrl || '',
-      title: ad.title || '—',
-      expire: ad.isExpired ? 'Expired' : 'Active',
-      status: ad.isDeleted ? 'Inactive' : 'Active',
-    }));
+  const formatted: AdTableData[] = providerAds.map((ad: AdType) => {
+  const isDeleted = ad.isDeleted;
+  const isExpired = ad.isExpired;
+
+  return {
+    id: ad._id || '',
+    addType: ad.addType || 'image',
+    categoryName: ad.category?.name || '—',
+    serviceName: ad.service?.serviceName || '—',
+    description: ad.description || '—',
+    startDate: ad.startDate?.slice(0, 10) || '—',
+    endDate: ad.endDate?.slice(0, 10) || '—',
+    fileUrl: ad.fileUrl || '',
+    title: ad.title || '—',
+
+    // ✅ Expire status logic
+    expire: isExpired ? 'Expired' : 'Live',
+
+    // ✅ Delete status logic
+    status: isDeleted ? 'Deleted' : 'Active',
+  };
+});
+
 
     setTableData(formatted);
   }, [ads, providerDetails]);
@@ -149,33 +159,37 @@ const AdvertiseList = () => {
         ),
     },
     {
-      header: 'Expire Status',
-      accessor: 'expire',
-      render: (row: AdTableData) => (
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${row.status === 'Inactive'
-            ? 'text-red-600 bg-red-100 border border-red-300'
-            : 'text-green-600 bg-green-100 border border-green-300'
-            }`}
-        >
-          {row.status}
-        </span>
-      ),
-    },
-    {
-      header: 'Delete Status',
-      accessor: 'status',
-      render: (row: AdTableData) => (
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${row.status === 'Inactive'
-            ? 'text-red-600 bg-red-100 border border-red-300'
-            : 'text-green-600 bg-green-100 border border-green-300'
-            }`}
-        >
-          {row.status}
-        </span>
-      ),
-    },
+  header: 'Expire Status',
+  accessor: 'expire',
+  render: (row: AdTableData) => (
+    <span
+      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+        row.expire === 'Expired'
+          ? 'text-red-600 bg-red-100 border border-red-300'
+          : 'text-green-600 bg-green-100 border border-green-300'
+      }`}
+    >
+      {row.expire}
+    </span>
+  ),
+},
+
+   {
+  header: 'Delete Status',
+  accessor: 'status',
+  render: (row: AdTableData) => (
+    <span
+      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+        row.status === 'Deleted'
+          ? 'text-red-600 bg-red-100 border border-red-300'
+          : 'text-green-600 bg-green-100 border border-green-300'
+      }`}
+    >
+      {row.status}
+    </span>
+  ),
+},
+
     {
       header: 'Actions',
       accessor: 'actions',
