@@ -179,7 +179,7 @@ export default function AddServiceManPage() {
       console.log("response of add serviceman : ", response)
 
       // ✅ Handle API response properly
-      if (response?.success) {
+      if (response?.status === 200||201) {
         window.alert("Serviceman added successfully!");
         setFormState({
           name: "",
@@ -197,7 +197,6 @@ export default function AddServiceManPage() {
       } else {
         // If backend sends an error or non-success response
         const msg =
-          response?.error ||
           response?.message ||
           "Failed to add serviceman. Please try again.";
         setFormError(msg);
