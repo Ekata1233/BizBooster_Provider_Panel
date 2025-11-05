@@ -31,6 +31,13 @@ const WalletStats: React.FC<WalletStatsProps> = ({ wallet }) => {
     //   textColor: 'text-red-800',
     // },
     {
+      title: "Total Balance",
+      value: wallet.totalEarning.toFixed(2),
+      icon: <FaChartLine size={48} />,
+      gradient: 'from-teal-100 to-teal-200',
+      textColor: 'text-teal-800',
+    },
+    {
       title: "Cash in Hand",
       value: wallet.cashInHand.toFixed(2),
       icon: <FaClipboardList size={48} />,
@@ -58,13 +65,7 @@ const WalletStats: React.FC<WalletStatsProps> = ({ wallet }) => {
       gradient: 'from-purple-100 to-purple-200',
       textColor: 'text-purple-800',
     },
-    {
-      title: "Total Earning",
-      value: wallet.totalEarning.toFixed(2),
-      icon: <FaChartLine size={48} />,
-      gradient: 'from-teal-100 to-teal-200',
-      textColor: 'text-teal-800',
-    },
+    
   ];
 
   return (
