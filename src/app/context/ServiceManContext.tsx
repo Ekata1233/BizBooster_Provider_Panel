@@ -34,7 +34,7 @@ interface ServiceManContextType {
   fetchServiceMenByProvider: (providerId: string) => Promise<void>;
   addServiceMan: (formData: FormData) => Promise<ApiResponse<ServiceMan> | undefined>;
   updateServiceMan: (id: string, formData: FormData) => Promise<ApiResponse<ServiceMan> | undefined>;
-  deleteServiceMan: (id: string) => Promise<void>;
+  deleteServiceMan: (id: string, providerId?: string) => Promise<void>; 
   loading: boolean;
   error: string | null;
 }
@@ -168,23 +168,30 @@ finally {
     }
   };
 
-  const deleteServiceMan = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+const deleteServiceMan = async (id: string, providerId?: string) => {
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
 
-      if (!res.ok) throw new Error("Delete failed");
+    if (!res.ok) throw new Error("Delete failed");
 
-      fetchServiceMen();
-    } catch (err: unknown) {
-      const error = err as Error;
-      setError(error.message || "Delete failed");
+    // ✅ If called from provider panel, refresh provider servicemen
+    if (providerId) {
+      await fetchServiceMenByProvider(providerId);
+    } 
+    // ✅ Otherwise refresh global list
+    else {
+      await fetchServiceMen();
     }
-    finally {
-      setLoading(false);
-    }
-  };
+
+  } catch (err: unknown) {
+    const error = err as Error;
+    setError(error.message || "Delete failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchServiceMen();

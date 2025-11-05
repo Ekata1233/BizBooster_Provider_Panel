@@ -50,8 +50,8 @@ const ServicemanListPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // ✅
   const [isOpen, setIsOpen] = useState(false); // ✅
   const router = useRouter();
-  console.log("serviceman",serviceMenByProvider);
-  
+  console.log("serviceman", serviceMenByProvider);
+
   useEffect(() => {
     if (provider?._id) {
       fetchServiceMenByProvider(provider._id);
@@ -59,7 +59,7 @@ const ServicemanListPage = () => {
   }, [provider]);
 
   useEffect(() => {
-    if (serviceMenByProvider && serviceMenByProvider.length > 0) {
+    if (serviceMenByProvider) {
       const formatted = serviceMenByProvider.map((man: ServiceMan, index: number) => ({
         srNo: index + 1,
         id: man._id || '',
@@ -95,12 +95,21 @@ const ServicemanListPage = () => {
   };
 
   const handleEdit = (id: string) => router.push(`/user-management/serviceman-list/${id}`);
+
+
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this serviceman?')) {
-      await deleteServiceMan(id);
-       alert('Serviceman deleted successfully!');
+  if (confirm('Are you sure you want to delete this serviceman?')) {
+    await deleteServiceMan(id, provider?._id);
+
+    // ✅ Re-fetch servicemen to refresh UI
+    if (provider?._id) {
+      await fetchServiceMenByProvider(provider._id);
     }
-  };
+
+    alert("Serviceman deleted successfully!");
+  }
+};
+
 
   const openModal = (image: string) => {
     setSelectedImage(image);
@@ -160,12 +169,12 @@ const ServicemanListPage = () => {
       accessor: 'actions',
       render: (row: ServiceManTableData) => (
         <div className="flex gap-2">
-           <Link
-                            href={`/user-management/serviceman-list/details/${row.id}`}
-                            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
-                          >
-                            <EyeIcon size={16} />
-                          </Link>
+          <Link
+            href={`/user-management/serviceman-list/details/${row.id}`}
+            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
+          >
+            <EyeIcon size={16} />
+          </Link>
           <button
             onClick={() => handleEdit(row.id)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"
