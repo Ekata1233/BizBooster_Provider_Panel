@@ -176,12 +176,10 @@ export default function AddServiceManPage() {
     try {
       const response = await addServiceMan(formData);
 
-      console.log("response of add serviceman : ", response)
-
-      // ✅ Handle API response properly
+      // success
       if (response?.status === 200 || response?.status === 201) {
-
         window.alert("Serviceman added successfully!");
+
         setFormState({
           name: "",
           lastName: "",
@@ -194,31 +192,37 @@ export default function AddServiceManPage() {
         });
         setGeneralImageFile(null);
         setIdentityImageFile(null);
-        setFormError(null);
-      } else {
-        // If backend sends an error or non-success response
-        const msg =
-          response?.message ||
-          "Failed to add serviceman. Please try again.";
-        setFormError(msg);
-        window.alert(msg);
+        return;
       }
-    } catch (err: unknown) {
-  console.error("Error adding serviceman:", err);
 
-  let msg = "Something went wrong.";
+      // backend duplicate error handling
+      const msg = response?.message?.toLowerCase() || "";
 
-  if (err instanceof Error && err.message) {
-    msg = err.message;
-  }
+      if (msg.includes("email")) {
+        window.alert("email already exists");
+      } else if (msg.includes("phone")) {
+        window.alert("phoneNo already exists");
+      } else if (msg.includes("identity")) {
+        window.alert("identityNumber already exists");
+      } else {
+        window.alert(response?.message || "Failed to add serviceman");
+      }
 
-  setFormError(msg);
-  window.alert(msg);
-}
+    } catch (e) {
+      // in case backend threw real exception
+      const errorText = (e instanceof Error && e.message) ? e.message.toLowerCase() : "";
 
-
+      if (errorText.includes("email")) {
+        window.alert("email already exists");
+      } else if (errorText.includes("phone")) {
+        window.alert("phoneNo already exists");
+      } else if (errorText.includes("identity")) {
+        window.alert("identityNumber already exists");
+      } else {
+        window.alert("Something went wrong. Try again.");
+      }
+    }
   };
-
 
   const validateForm = () => {
     const {
