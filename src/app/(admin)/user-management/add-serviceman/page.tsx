@@ -110,45 +110,6 @@ export default function AddServiceManPage() {
     return true;
   };
 
-  // const handleSubmit = async (e: FormEvent) => {
-  //   e.preventDefault();
-
-  //   const validationError = validateForm();
-  //   if (validationError) {
-  //     setFormError(validationError);
-  //     return;
-  //   }
-  //   setFormError(null);
-
-  //   const formData = new FormData();
-  //   const completeFormState = {
-  //     ...formState,
-  //     provider: provider?._id || "",
-  //   };
-
-  //   Object.entries(completeFormState).forEach(([key, value]) => {
-  //     formData.append(key, value);
-  //   });
-
-  //   if (generalImageFile) formData.append("generalImage", generalImageFile);
-  //   if (identityImageFile) formData.append("identityImage", identityImageFile);
-
-  //   await addServiceMan(formData);
-  //   window.alert("Serviceman added successfully!");
-
-  //   setFormState({
-  //     name: "",
-  //     lastName: "",
-  //     phoneNo: "",
-  //     email: "",
-  //     password: "",
-  //     confirmPassword: "",
-  //     identityType: "",
-  //     identityNumber: "",
-  //   });
-  //   setGeneralImageFile(null);
-  //   setIdentityImageFile(null);
-  // };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -195,35 +156,32 @@ export default function AddServiceManPage() {
         return;
       }
 
-      // backend duplicate error handling
-      const msg = response?.message?.toLowerCase() || "";
+     const msg = response?.message?.toLowerCase() || "";
 
-      if (msg.includes("email")) {
-        window.alert("email already exists");
-      } else if (msg.includes("phone")) {
-        window.alert("phoneNo already exists");
-      } else if (msg.includes("identity")) {
-        window.alert("identityNumber already exists");
-      } else {
-        window.alert(response?.message || "Failed to add serviceman");
-      }
+  if (msg.includes("email")) {
+    window.alert("email already exists");
+  } else if (msg.includes("phone")) {
+    window.alert("phoneNo already exists");
+  } else if (msg.includes("identity")) {
+    window.alert("identityNumber already exists");
+  } else {
+    window.alert(response?.message || "Failed to add serviceman");
+  }
 
-    } catch (e) {
-      // in case backend threw real exception
-      const errorText = (e instanceof Error && e.message) ? e.message.toLowerCase() : "";
+} catch (e) {
+  const errorText = (e instanceof Error && e.message) ? e.message.toLowerCase() : "";
 
-      if (errorText.includes("email")) {
-        window.alert("email already exists");
-      } else if (errorText.includes("phone")) {
-        window.alert("phoneNo already exists");
-      } else if (errorText.includes("identity")) {
-        window.alert("identityNumber already exists");
-      } else {
-        window.alert("Something went wrong. Try again.");
-      }
-    }
-  };
-
+  if (errorText.includes("email")) {
+    window.alert("email already exists");
+  } else if (errorText.includes("phone")) {
+    window.alert("phoneNo already exists");
+  } else if (errorText.includes("identity")) {
+    window.alert("identityNumber already exists");
+  } else {
+    window.alert("Something went wrong. Try again.");
+  }
+}
+  }
   const validateForm = () => {
     const {
       name,

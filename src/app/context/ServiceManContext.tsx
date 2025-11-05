@@ -86,33 +86,51 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   const addServiceMan = async (
-    formData: FormData
-  ): Promise<ApiResponse<ServiceMan> | undefined> => {
+  formData: FormData
+): Promise<ApiResponse<ServiceMan> | undefined> => {
 
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(API_BASE, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to create serviceman");
+  setLoading(true);
+  setError(null);
 
-      fetchServiceMen();
+  try {
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    // ✅ If backend sent error response with message
+    if (!res.ok) {
       return {
         status: res.status,
-        message: data?.message || "Serviceman created successfully",
-        data,
+        message: data?.message || "Failed to create serviceman",
+        data: null,
       };
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error.message || "Add failed");
     }
-    finally {
-      setLoading(false);
-    }
-  };
+
+    // ✅ Success case
+    fetchServiceMen();
+    return {
+      status: res.status,
+      message: data?.message || "Serviceman created successfully",
+      data,
+    };
+
+  } catch (err: unknown) {
+    const error = err as { message?: string };
+
+    // ✅ return error instead of throwing (so UI can handle)
+    return {
+      status: 500,
+      message: error.message || "Add failed",
+      data: null,
+    };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const updateServiceMan = async (id: string, formData: FormData) => {
     setLoading(true);
