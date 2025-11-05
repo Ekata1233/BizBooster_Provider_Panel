@@ -23,7 +23,8 @@ interface AdTableData {
   endDate: string;
   fileUrl: string;
   title: string;
-  status: 'Active' | 'Inactive';
+  expire:string;
+  status: 'Active' | 'Inactive'| 'Deleted';
 }
 
 const AdvertiseList = () => {
