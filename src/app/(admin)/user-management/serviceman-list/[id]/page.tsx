@@ -113,6 +113,7 @@ export default function UpdateServiceManPage() {
     return isValid;
   };
 
+
   const handleSubmit = async () => {
     if (!id) return;
     if (!validate()) return;
@@ -127,10 +128,25 @@ export default function UpdateServiceManPage() {
     if (form.generalImage) formData.append('generalImage', form.generalImage);
     if (form.identityImage) formData.append('identityImage', form.identityImage);
 
-    await updateServiceMan(id as string, formData);
-    alert('ServiceMan updated successfully!');
+    // updateServiceMan now returns ApiResponse
+    const resp = await updateServiceMan(id as string, formData);
+
+    if (!resp) {
+      alert('Update failed: No response from server');
+      return;
+    }
+
+    if (!resp.status || resp.status >= 400) {
+      // show server-provided error message (specific duplicate or validation)
+      alert(`Update failed: ${resp.message || 'Unknown error'}`);
+      return;
+    }
+
+    // success
+    alert(resp.message || 'ServiceMan updated successfully!');
     router.push('/user-management/serviceman-list');
   };
+
 
   if (!existingData) {
     return <div className="p-6 text-gray-600">Loading ServiceMan data…</div>;
