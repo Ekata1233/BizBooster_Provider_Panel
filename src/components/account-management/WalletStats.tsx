@@ -38,20 +38,6 @@ const WalletStats: React.FC<WalletStatsProps> = ({ wallet }) => {
       textColor: 'text-teal-800',
     },
     {
-      title: "Cash in Hand",
-      value: wallet.cashInHand.toFixed(2),
-      icon: <FaClipboardList size={48} />,
-      gradient: 'from-blue-100 to-blue-200',
-      textColor: 'text-blue-800',
-    },
-    {
-      title: "Pay to Fetch True",
-      value: wallet.adjustmentCash.toFixed(2),
-      icon: <FaMoneyBill size={48} />,
-      gradient: 'from-green-100 to-green-200',
-      textColor: 'text-green-800',
-    },
-    {
       title: "Pending Withdraw",
       value: wallet.pendingWithdraw.toFixed(2),
       icon: <FaTools size={48} />,
@@ -65,7 +51,20 @@ const WalletStats: React.FC<WalletStatsProps> = ({ wallet }) => {
       gradient: 'from-purple-100 to-purple-200',
       textColor: 'text-purple-800',
     },
-    
+    {
+      title: "Cash in Hand",
+      value: wallet.cashInHand.toFixed(2),
+      icon: <FaClipboardList size={48} />,
+      gradient: 'from-blue-100 to-blue-200',
+      textColor: 'text-blue-800',
+    },
+    {
+      title: "Pay to Fetch True",
+      value: wallet.adjustmentCash.toFixed(2),
+      icon: <FaMoneyBill size={48} />,
+      gradient: 'from-green-100 to-green-200',
+      textColor: 'text-green-800',
+    },
   ];
 
   return (
