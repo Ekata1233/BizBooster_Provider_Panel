@@ -56,11 +56,14 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       const res = await fetch(API_BASE);
       const data = await res.json();
       setServiceMen(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch servicemen");
-    } finally {
+    }  catch (err: unknown) {
+  const error = err as Error;
+  setError(error.message || "Failed to fetch servicemen");
+}
+finally {
       setLoading(false);
     }
+
   };
 
   const fetchServiceMenByProvider = async (providerId: string) => {
@@ -71,9 +74,11 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch by provider");
       setServiceMenByProvider(data.data || []);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Something went wrong");
-    } finally {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error?.response?.data?.message || "Something went wrong");
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -107,13 +112,15 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
         data,
       };
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       return {
         status: 500,
-        message: err.message || "Add failed",
+        message: error.message || "Add failed",
         data: null,
       };
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -148,13 +155,15 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
         data: data?.data ?? null,
       };
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       return {
         status: 500,
-        message: err.message || "Update failed",
+        message: error.message || "Update failed",
         data: null,
       };
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -168,9 +177,11 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       if (!res.ok) throw new Error("Delete failed");
 
       fetchServiceMen();
-    } catch (err: any) {
-      setError(err.message || "Delete failed");
-    } finally {
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || "Delete failed");
+    }
+    finally {
       setLoading(false);
     }
   };
