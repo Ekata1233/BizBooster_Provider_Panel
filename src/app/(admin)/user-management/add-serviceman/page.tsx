@@ -179,7 +179,8 @@ export default function AddServiceManPage() {
       console.log("response of add serviceman : ", response)
 
       // ✅ Handle API response properly
-      if (response?.status === 200 || 201) {
+      if (response?.status === 200 || response?.status === 201) {
+
         window.alert("Serviceman added successfully!");
         setFormState({
           name: "",
@@ -203,17 +204,18 @@ export default function AddServiceManPage() {
         window.alert(msg);
       }
     } catch (err: unknown) {
-      console.error("Error adding serviceman:", err);
+  console.error("Error adding serviceman:", err);
 
-      if (err instanceof Error) {
-        const msg = err.message || "Something went wrong.";
-        setFormError(msg);
-        window.alert(msg);
-      } else {
-        setFormError("Something went wrong.");
-        window.alert("Something went wrong.");
-      }
-    }
+  let msg = "Something went wrong.";
+
+  if (err instanceof Error && err.message) {
+    msg = err.message;
+  }
+
+  setFormError(msg);
+  window.alert(msg);
+}
+
 
   };
 
