@@ -1,7 +1,7 @@
 "use client";
 
 import { useCheckout } from "@/app/context/CheckoutContext";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 type ServiceMan = {
   _id: string;
@@ -33,49 +33,63 @@ const ServiceMenListCard = ({
   const [selectedManId, setSelectedManId] = useState<string | null>(null);
   const [assignedManId, setAssignedManId] = useState<string | null>(null);
 
-  // ✅ Use Checkout Context
   const { checkoutDetails, fetchCheckoutsDetailsById, updateCheckoutById } =
     useCheckout();
 
-// ✅ Fetch checkout details by ID (only once)
-useEffect(() => {
-  if (!checkoutId) return;
+  // Prevent duplicate API calls across mounts/renders for a given checkoutId
+  const isCalledRef = useRef<Record<string, boolean>>({});
 
-  let isCalled = false;
+  useEffect(() => {
+    if (!checkoutId) return;
 
-  const fetchData = async () => {
-    if (isCalled) return; // Prevent duplicate call
-    isCalled = true;
-
-    try {
-      await fetchCheckoutsDetailsById(checkoutId);
-      console.log("✅ Checkout Details Fetched Successfully");
-    } catch (error) {
-      console.error("❌ Error fetching checkout details:", error);
+    // If we already have checkoutDetails for this checkoutId, don't fetch again
+    if (
+      checkoutDetails &&
+      // adjust depending on how checkoutDetails shape is; commonly _id or id
+      (checkoutDetails._id === checkoutId || checkoutDetails.id === checkoutId)
+    ) {
+      // mark called so other mounts won't refetch
+      isCalledRef.current[checkoutId] = true;
+      console.log("➡️ Checkout details already present in context, skipping fetch.");
+      return;
     }
-  };
 
-  fetchData();
+    // If we've already called for this checkoutId, skip
+    if (isCalledRef.current[checkoutId]) {
+      console.log("➡️ Fetch already called for this checkoutId previously, skipping.");
+      return;
+    }
 
-  // Cleanup (prevents React StrictMode double call)
-  return () => {
-    isCalled = true;
-  };
-}, [checkoutId]);
+    const fetchData = async () => {
+      try {
+        // mark as called immediately to avoid race conditions or double requests
+        isCalledRef.current[checkoutId] = true;
+        await fetchCheckoutsDetailsById(checkoutId);
+        console.log("✅ Checkout Details Fetched Successfully for", checkoutId);
+      } catch (error) {
+        // on error, clear the flag so a retry can happen later if desired
+        isCalledRef.current[checkoutId] = false;
+        console.error("❌ Error fetching checkout details:", error);
+      }
+    };
 
+    fetchData();
 
-  // ✅ Log checkout details and set assigned serviceman if present
+    // No cleanup necessary here. We purposely do not reset the flag on unmount,
+    // so StrictMode remount won't refetch repeatedly in dev.
+  }, [checkoutId, checkoutDetails /* intentionally not including fetchCheckoutsDetailsById to avoid instability */]);
+
+  // Log checkout details and set assigned service man if present
   useEffect(() => {
     if (checkoutDetails) {
       console.log("✅ Checkout Details Data:", checkoutDetails);
       if (checkoutDetails?.serviceMan) {
-        // If a serviceman is already assigned, store their ID
         setAssignedManId(checkoutDetails.serviceMan);
       }
     }
   }, [checkoutDetails]);
 
-  // ✅ Assign serviceman handler
+  // Assign serviceman handler
   const handleAssign = async () => {
     if (!checkoutId) {
       console.error("No checkout ID found");
@@ -105,8 +119,7 @@ useEffect(() => {
     }
   };
 
-
-  // ✅ Display assigned serviceman if already set
+  // Display assigned serviceman if already set
   const serviceMenToDisplay = assignedManId
     ? visibleServiceMen.filter((man) => man._id === assignedManId)
     : visibleServiceMen;
@@ -121,7 +134,7 @@ useEffect(() => {
       {serviceMenToDisplay.map((man: ServiceMan, index: number) => (
         <div key={index} className="flex items-center gap-5 mb-6">
           <div className="flex items-center gap-2">
-            {/* ✅ Only show checkbox if no serviceman is assigned */}
+            {/* Only show checkbox if no serviceman is assigned */}
             {!assignedManId && (
               <input
                 type="checkbox"
@@ -137,8 +150,6 @@ useEffect(() => {
                 className="w-full h-full object-cover"
               />
             </div>
-
-
           </div>
           <div className="space-y-1 ms-2">
             <p className="text-sm text-gray-700 dark:text-gray-200">
@@ -156,7 +167,7 @@ useEffect(() => {
         </div>
       ))}
 
-      {/* ✅ Show "Show More" only if serviceman is not yet assigned */}
+      {/* Show "Show More" only if serviceman is not yet assigned */}
       {!showAll && totalServiceMen > 2 && !assignedManId && (
         <button
           onClick={() => setShowAll(true)}
@@ -166,7 +177,7 @@ useEffect(() => {
         </button>
       )}
 
-      {/* ✅ Assign button only when no serviceman is assigned */}
+      {/* Assign button only when no serviceman is assigned */}
       {!assignedManId && (
         <div className="text-center">
           <button
