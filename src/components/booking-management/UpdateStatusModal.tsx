@@ -61,9 +61,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     if (serviceCustomerId) {
       fetchServiceCustomer(serviceCustomerId);
     }
-  }, [serviceCustomerId]);
-
-  console.log("service cusotmer : ", serviceCustomer);
+  }, [serviceCustomerId])
 
 
   useEffect(() => {
@@ -416,8 +414,6 @@ if (statusType === "Lead completed" && !fromOtp) {
           Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
       )
       : Number(Number(amount).toFixed(2));
-
-  console.log("1st service :", amount);
 
 
 

@@ -105,8 +105,6 @@ useEffect(() => {
     }
   };
 
-  console.log("serviceman id:", selectedManId);
-  console.log("checkoutId:", checkoutId);
 
   // ✅ Display assigned serviceman if already set
   const serviceMenToDisplay = assignedManId
