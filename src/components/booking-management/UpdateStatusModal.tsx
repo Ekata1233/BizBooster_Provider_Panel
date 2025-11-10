@@ -70,7 +70,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     if (checkoutId && !checkoutDetails?._id) {
       fetchCheckoutsDetailsById(checkoutId);
     }
-  }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
+  }, [checkoutId, checkoutDetails?._id]);
 
   useEffect(() => {
     const fetchCommission = async () => {
