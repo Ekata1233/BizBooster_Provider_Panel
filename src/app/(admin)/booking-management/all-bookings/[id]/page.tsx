@@ -29,7 +29,6 @@ const AllBookingsDetails = () => {
   const [lead, setLead] = useState<LeadType | null>(null);
 
 
-
   const params = useParams();
   const id = params?.id as string;
 

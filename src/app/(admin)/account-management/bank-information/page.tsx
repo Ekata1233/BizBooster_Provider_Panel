@@ -1,44 +1,56 @@
 "use client";
+
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { usePayout } from "@/app/context/PayoutContext";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import React, { useEffect, useState } from "react";
 
-const Page = () => {
+const BankInfoPage = () => {
   const { providerDetails } = useAuth();
   const providerId = providerDetails?._id;
 
-  const { addBeneficiary, payoutData, loadingPayout, errorPayout } = usePayout();
+  const {
+    addBeneficiary,
+    fetchBankDetails,
+    payoutData,
+    bankDetailsList,
+    loadingPayout,
+    errorPayout,
+  } = usePayout();
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
-    userId: providerId || "",
+    providerId: providerId || "",
     accountNumber: "",
     ifsc: "",
     bankName: "",
     branchName: "",
   });
 
+  // ✅ Fetch bank details when providerId is available
   useEffect(() => {
-  if (providerId) {
-    setForm((prev) => ({ ...prev, userId: providerId }));
-  }
-}, [providerId]);
+    if (providerId) {
+      setForm((prev) => ({ ...prev, providerId }));
+      fetchBankDetails(providerId); // <-- FIXED: pass providerId
+    }
+  }, [providerId]);
 
-    console.log("providerId : ", providerId)
-
-  console.log("form : ", form)
-
+  // ✅ Handle add/update submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.userId) {
-      alert("User ID (provider) missing!");
+
+    if (!form.providerId) {
+      alert("Provider ID missing!");
       return;
     }
+
     await addBeneficiary(form);
     setShowForm(false);
   };
+
+  const bankDetails =
+    payoutData?.savedBankDetails || (bankDetailsList.length > 0 ? bankDetailsList[0] : null);
 
   return (
     <div>
@@ -46,76 +58,77 @@ const Page = () => {
 
       <div className="my-5">
         <ComponentCard title="Account Details">
-          <div className="mb-4 space-y-6">
-            {/* If we already have bank details from payoutData */}
-            {payoutData ? (
+          <div className="space-y-6">
+            {/* ✅ Display existing bank details */}
+            {loadingPayout && (
+              <p className="text-gray-500 italic">Loading bank details...</p>
+            )}
+
+            {!loadingPayout && bankDetails ? (
               <>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
-                    Holder Name
+                    Bank Name
                   </p>
                   <p className="text-base text-gray-600">
-                    {payoutData.cashfreeResponse.beneficiary_name}
+                    {bankDetails.bankName}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      Bank Name
-                    </p>
-                    <p className="text-base text-gray-600">
-                      {payoutData.savedBankDetails.bankName}
-                    </p>
-                  </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
                       Branch Name
                     </p>
                     <p className="text-base text-gray-600">
-                      {payoutData.savedBankDetails.branchName}
+                      {bankDetails.branchName || "N/A"}
                     </p>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
                       Account Number
                     </p>
                     <p className="text-base text-gray-600">
-                      {payoutData.savedBankDetails.accountNumber}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      IFSC Number
-                    </p>
-                    <p className="text-base text-gray-600">
-                      {payoutData.savedBankDetails.ifsc}
+                      {bankDetails.accountNumber}
                     </p>
                   </div>
                 </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    IFSC Code
+                  </p>
+                  <p className="text-base text-gray-600">{bankDetails.ifsc}</p>
+                </div>
+
+                <button
+                  onClick={() => setShowForm(!showForm)}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+                >
+                  {showForm ? "Cancel" : "Update Bank Details"}
+                </button>
               </>
-            ) : (
-              <p className="text-gray-500">
-                No bank details added yet. Please add your bank details.
-              </p>
+            ) : !loadingPayout && (
+              <>
+                <p className="text-gray-500">
+                  No bank details added yet. Please add your bank details.
+                </p>
+                <button
+                  onClick={() => setShowForm(!showForm)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+                >
+                  {showForm ? "Cancel" : "Add Bank Details"}
+                </button>
+              </>
             )}
 
-            {/* Toggle button */}
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
-            >
-              {showForm ? "Cancel" : "Add Bank Details"}
-            </button>
-
-            {/* Form Section */}
+            {/* ✅ Add / Update Form */}
             {showForm && (
               <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                 <div>
-                  <label className="block text-sm font-medium">Account Number</label>
+                  <label className="block text-sm font-medium">
+                    Account Number
+                  </label>
                   <input
                     type="text"
                     className="w-full border rounded-lg p-2"
@@ -126,6 +139,7 @@ const Page = () => {
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium">IFSC Code</label>
                   <input
@@ -136,6 +150,7 @@ const Page = () => {
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium">Bank Name</label>
                   <input
@@ -148,6 +163,7 @@ const Page = () => {
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium">Branch Name</label>
                   <input
@@ -157,7 +173,6 @@ const Page = () => {
                     onChange={(e) =>
                       setForm({ ...form, branchName: e.target.value })
                     }
-                    required
                   />
                 </div>
 
@@ -181,4 +196,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default BankInfoPage;
