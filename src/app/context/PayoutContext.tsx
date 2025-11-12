@@ -80,10 +80,9 @@ export const PayoutProvider: React.FC<PayoutProviderProps> = ({ children }) => {
       } else {
         setErrorPayout(res.data.message || "Failed to fetch bank details.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to fetch bank details:", err);
       setErrorPayout(
-        err.response?.data?.message ||
           "Something went wrong while fetching bank details."
       );
     } finally {
@@ -112,10 +111,9 @@ export const PayoutProvider: React.FC<PayoutProviderProps> = ({ children }) => {
 
       // Refresh list after adding
       await fetchBankDetails(payload.providerId);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to add beneficiary:", err);
       setErrorPayout(
-        err.response?.data?.message ||
           "Something went wrong while adding beneficiary."
       );
     } finally {
