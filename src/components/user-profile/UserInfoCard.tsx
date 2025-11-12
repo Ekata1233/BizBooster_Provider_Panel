@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 export default function UserInfoCard() {
   // const {  closeModal } = useModal();
   const { providerDetails } = useAuth();
-  console.log("provider detials in to the user info : ", providerDetails)
   const [moduleName, setModuleName] = useState<string>('Loading...');
   const [zoneName, setZoneName] = useState<string>('Loading...');
 
