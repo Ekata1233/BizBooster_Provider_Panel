@@ -289,6 +289,8 @@ export default function UserAddressCard() {
 
       if (res.data.success) {
         setMessage("✅ About Us updated successfully!");
+        alert("✅ About Us updated successfully!");
+
         closeModal();
         window.location.reload(); // reload to refresh updated data (optional)
       } else {
