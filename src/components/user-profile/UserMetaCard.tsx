@@ -5,15 +5,15 @@ import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
 
 export default function UserMetaCard() {
-  const { providerDetails ,refreshProviderDetails } = useAuth();
+  const { providerDetails, refreshProviderDetails } = useAuth();
   const [isActive, setIsActive] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
 
   const userId = providerDetails?._id;
 
-      useEffect(() => {
-          refreshProviderDetails();
-      }, [refreshProviderDetails]);
+  useEffect(() => {
+    refreshProviderDetails();
+  }, [refreshProviderDetails]);
 
   // ✅ Initialize state from providerDetails directly
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function UserMetaCard() {
           </div>
 
           <div className="flex flex-col items-end gap-1">
-            <label className="text-sm font-semibold text-blue-600 dark:text-blue-600 tracking-wide uppercase">
+            <label className="text-sm font-semibold text-blue-600 dark:text-blue-600 tracking-wide uppercase whitespace-nowrap">
               STORE STATUS
             </label>
             <div className="relative flex items-center gap-2">
