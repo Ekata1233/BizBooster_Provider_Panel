@@ -296,10 +296,16 @@ export default function UserAddressCard() {
       } else {
         setMessage(`❌ ${res.data.message}`);
       }
-    } catch (err: unknown) {
-      setMessage(
-        "Something went wrong while updating."
-      );
+    } catch (err) {
+  if (axios.isAxiosError(err)) {
+    setMessage(
+      err.response?.data?.message || "Something went wrong while updating."
+    );
+  } else if (err instanceof Error) {
+    setMessage(err.message);
+  } else {
+    setMessage("Something went wrong while updating.");
+  }
     } finally {
       setLoading(false);
     }
