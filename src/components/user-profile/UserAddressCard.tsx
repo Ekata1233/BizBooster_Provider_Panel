@@ -296,9 +296,9 @@ export default function UserAddressCard() {
       } else {
         setMessage(`❌ ${res.data.message}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setMessage(
-        err.response?.data?.message || "Something went wrong while updating."
+        "Something went wrong while updating."
       );
     } finally {
       setLoading(false);
