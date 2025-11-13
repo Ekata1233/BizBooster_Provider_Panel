@@ -131,7 +131,13 @@ const ServiceMenListCard = ({
       </h4>
       <hr className="my-4 border-gray-300 dark:border-gray-700" />
 
-      {checkoutDetails?.isCompleted && !checkoutDetails?.serviceMan ? (
+      {checkoutDetails && checkoutDetails.isAccepted === false ? (
+        <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg mb-4">
+          <p className="text-sm font-medium">
+            ⚠️ Please accept the lead first before assigning a serviceman.
+          </p>
+        </div>
+      ) : checkoutDetails?.isCompleted && !checkoutDetails?.serviceMan ? (
         // ✅ Show message only if completed and no serviceman assigned
         <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg mb-4">
           <p className="text-sm font-medium">

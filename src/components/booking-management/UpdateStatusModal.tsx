@@ -664,7 +664,7 @@ if (statusType === "Lead completed" && !fromOtp) {
         </div>
 
         <div className="mb-4">
-          <Label className="block mb-1 font-medium">Upload Document 123</Label>
+          <Label className="block mb-1 font-medium">Upload Document</Label>
           <FileInput onChange={handleDocument} />
         </div>
 
