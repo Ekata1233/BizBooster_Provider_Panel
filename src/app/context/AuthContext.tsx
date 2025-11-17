@@ -62,6 +62,7 @@ type ProviderDetails = {
   storeInfo?: StoreInfo;
   kyc?: KYC;
   providerId?: string;
+  isStoreOpen?: boolean|null;
 };
 
 // ✅ If needed, use same structure for Provider
@@ -191,7 +192,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await res.json();
 
-      console.log("data : ", data)
+      console.log("data of provider : ", data)
 
       if (res.ok && data) {
         setProviderDetails(data);
