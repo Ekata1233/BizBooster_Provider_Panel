@@ -20,6 +20,7 @@ type ServiceMenListCardProps = {
   visibleServiceMen: ServiceMan[];
   totalServiceMen: number;
   showAll: boolean;
+  disableAssign?: boolean;
   setShowAll: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -29,6 +30,7 @@ const ServiceMenListCard = ({
   totalServiceMen,
   showAll,
   setShowAll,
+  disableAssign = false,
 }: ServiceMenListCardProps) => {
   const [selectedManId, setSelectedManId] = useState<string | null>(null);
   const [assignedManId, setAssignedManId] = useState<string | null>(null);
