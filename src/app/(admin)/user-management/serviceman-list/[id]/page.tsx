@@ -90,22 +90,54 @@ export default function UpdateServiceManPage() {
     if (!form.name.trim()) {
       newErrors.name = 'First Name is required';
       isValid = false;
-    }
-    if (!form.lastName.trim()) {
-      newErrors.lastName = 'Last Name is required';
+    } else if (form.name.trim().length < 2) {
+      newErrors.name = 'First Name should be at least 2 characters';
       isValid = false;
     }
+     if (!form.lastName.trim()) {
+      newErrors.lastName = 'Last Name is required';
+      isValid = false;
+    } else if (form.lastName.trim().length < 2) {
+      newErrors.lastName = 'Last Name should be at least 2 characters';
+      isValid = false;
+    }
+
+    //phone
+    const phoneRegex = /^[0-9]{10}$/;
     if (!form.phoneNo.trim()) {
       newErrors.phoneNo = 'Phone Number is required';
       isValid = false;
+    } else if (!phoneRegex.test(form.phoneNo)) {
+      newErrors.phoneNo = 'Phone Number must be 10 digits and numeric';
+      isValid = false;
     }
+    
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) {
       newErrors.email = 'Email is required';
       isValid = false;
+    } else if (!emailRegex.test(form.email)) {
+      newErrors.email = 'Invalid email format';
+      isValid = false;
     }
+    
+     // Identity fields rules
     if ((form.identityType && !form.identityNumber) || (!form.identityType && form.identityNumber)) {
       if (!form.identityType) newErrors.identityType = 'Identity Type is required when Identity Number is filled';
       if (!form.identityNumber) newErrors.identityNumber = 'Identity Number is required when Identity Type is filled';
+      isValid = false;
+    }
+
+    // Identity Type (if filled - alphabets only)
+    if (form.identityType && !/^[a-zA-Z\s]+$/.test(form.identityType)) {
+      newErrors.identityType = 'Identity Type must contain only letters';
+      isValid = false;
+    }
+
+    // Identity Number (if filled)
+    if (form.identityNumber && form.identityNumber.length < 4) {
+      newErrors.identityNumber = 'Identity Number must be at least 4 characters';
       isValid = false;
     }
 
