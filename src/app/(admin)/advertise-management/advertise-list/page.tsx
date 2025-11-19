@@ -374,10 +374,6 @@ const AdvertiseList = () => {
       const isExpired = ad.isExpired;
       const isDeleted = ad.isDeleted;
 
-      // ⭐ NEW LOGIC FOR TABS ⭐
-      const tabStatus =
-        !isExpired && !isDeleted ? 'Active' : 'Inactive';
-
       return {
         id: ad._id || '',
         addType: ad.addType || 'image',
