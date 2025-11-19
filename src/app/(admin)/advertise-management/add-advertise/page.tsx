@@ -16,7 +16,7 @@ const AddAd = () => {
   const { createAd } = useAdContext();
   const { categories, loadingCategories } = useCategory();
   const { services, loadingServices } = useService();
-  const { provider } = useAuth();
+  const { provider, providerDetails } = useAuth();
 
   const [addType] = useState<'image'>('image');
   const [category, setCategory] = useState('');
@@ -30,13 +30,24 @@ const AddAd = () => {
   const [loading, setLoading] = useState(false);
 
   // Get subscribed services for the provider
+  // const subscribedServices = services.filter((service) =>
+  //   providerDetails?.subscribedServices?.some(
+  //     (id) => id.toString() === service._id.toString()
+  //   )
+  // );
   const subscribedServices = services.filter((service) =>
-    provider?.subscribedServices?.some(
-      (id) => id.toString() === service._id.toString()
+    providerDetails?.subscribedServices?.some(
+      (sub) => sub._id.toString() === service._id.toString()
     )
   );
 
-  console.log("subscribedServices s : ", provider)
+
+  // console.log("subscribedServices s : ", subscribedServices)
+  // console.log("subscribe services category wise : ", filteredServices)
+
+  console.log("provider : ", provider)
+  console.log("provider details  : ", providerDetails)
+
 
 
   // Get unique categories from subscribed services
@@ -199,31 +210,31 @@ const AddAd = () => {
             </select>
           </div>
 
-      {/* Start Date & Time */}
-      <div>
-        <Label htmlFor="startDate">Start Date</Label>
-        <Input
-          id="startDate"
-          type="datetime-local"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="w-full border rounded-md p-2"
-        />
-      </div>
+          {/* Start Date & Time */}
+          <div>
+            <Label htmlFor="startDate">Start Date</Label>
+            <Input
+              id="startDate"
+              type="datetime-local"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full border rounded-md p-2"
+            />
+          </div>
 
-      {/* End Date & Time */}
-      <div>
-        <Label htmlFor="endDate">End Date</Label>
-        <Input
-          id="endDate"
-          type="datetime-local"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="w-full border rounded-md p-2"
-          min={startDate || undefined} // optional: prevent end before start
-        />
-      </div>
-    
+          {/* End Date & Time */}
+          <div>
+            <Label htmlFor="endDate">End Date</Label>
+            <Input
+              id="endDate"
+              type="datetime-local"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full border rounded-md p-2"
+              min={startDate || undefined} // optional: prevent end before start
+            />
+          </div>
+
 
           {/* Title */}
           <div>
