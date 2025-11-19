@@ -334,8 +334,8 @@ interface AdTableData {
   title: string;
   expire: string;
   status: 'Active' | 'Inactive' | 'Deleted'; // UI badge
-  isExpired: boolean; // added for filtering
-  isDeleted: boolean; // added for filtering
+  isExpired?: boolean; // added for filtering
+  isDeleted?: boolean; // added for filtering
 }
 
 const AdvertiseList = () => {
