@@ -323,14 +323,40 @@ const onStoreSave = async (data: Record<string, FormDataEntryValue | FileList>) 
     }
 
     const fd = new FormData();
-    Object.entries(data).forEach(([k, v]) => {
-      if (v instanceof FileList) {
-        Array.from(v).forEach((file) => fd.append(k, file));
-      } else {
-        fd.append(k, v);
-      }
-    });
+
     
+     Object.entries(data).forEach(([key, value]) => {
+      // Handle files
+      if (value instanceof FileList) {
+        Array.from(value).forEach((file) => fd.append(key, file));
+        return;
+      }
+
+      // ✅ TAGS → convert comma-separated string → string[]
+      // ✅ TAGS → send as JSON string
+if (key === "tags" && typeof value === "string") {
+  const tagsArray = value
+    .split(",")
+    .map(t => t.trim())
+    .filter(Boolean);
+
+  fd.append("tags", JSON.stringify(tagsArray));
+  return;
+}
+
+
+      // ✅ Numbers → always send as string (FormData requirement)
+      if (
+        key === "totalProjects" ||
+        key === "totalExperience"
+      ) {
+        fd.append(key, String(value));
+        return;
+      }
+
+      // Default
+      fd.append(key, value);
+    });
     // This will throw an error if store info update fails
     await updateStoreInfo(fd);
     
@@ -740,6 +766,65 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
                         </p>
                       )}
                     </div>
+
+                    {/* Tags */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Tags <span className="text-gray-400">(comma separated)</span>
+  </label>
+  <input
+    {...storeForm.register("tags")}
+    placeholder="On Time , Trusted etc."
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+</div>
+
+{/* Total Projects */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Total Projects <span className="text-red-500">*</span>
+  </label>
+  <input
+    type="number"
+    min={0}
+    {...storeForm.register("totalProjects", {
+      required: "Total Projects is required",
+      valueAsNumber: true,
+      min: { value: 0, message: "Value cannot be negative" },
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.totalProjects && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.totalProjects.message as string}
+    </p>
+  )}
+</div>
+
+{/* Total Experience */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Total Experience (Years) <span className="text-red-500">*</span>
+  </label>
+  <input
+    type="number"
+    min={0}
+    step={0.5}
+    {...storeForm.register("totalExperience", {
+      required: "Total Experience is required",
+      valueAsNumber: true,
+      min: { value: 0, message: "Value cannot be negative" },
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.totalExperience && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.totalExperience.message as string}
+    </p>
+  )}
+</div>
+
+
 
                     {/* Logo */}
                     <div>
