@@ -26,6 +26,9 @@ type StoreInfo = {
   city?: string;
   state?: string;
   country?: string;
+   tags?: string[];
+  totalProjects? : number;
+  totalExperience? : number;
 };
 
 // ✅ KYC Type

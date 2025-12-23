@@ -229,6 +229,9 @@ interface StoreInfo {
   logo?: string;
   cover?: string;
   aboutUs?: string;
+ tags?: string[];
+  totalProjects? : number;
+  totalExperience? : number;
 }
 
 interface ProviderDetails {
@@ -251,6 +254,26 @@ function renderImageArray(data?: string[]) {
     />
   ));
 }
+
+function TagsView({ tags }: { tags?: string[] }) {
+  if (!tags || tags.length === 0) {
+    return <span className="text-gray-400">-</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tags.map((tag, index) => (
+        <span
+          key={index}
+          className="rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 
 export default function UserAddressCard() {
   const { providerDetails: provider } = useAuth() as {
@@ -327,6 +350,9 @@ export default function UserAddressCard() {
             { label: "Country", value: provider?.storeInfo?.country },
             { label: "Store Email", value: provider?.storeInfo?.storeEmail },
             { label: "Store Phone", value: provider?.storeInfo?.storePhone },
+            // { label: "Tags", value: provider?.storeInfo?.tags },
+            { label: "Total Projects", value: provider?.storeInfo?.totalProjects },
+            { label: "Total Year of Experience", value: provider?.storeInfo?.totalExperience },
           ].map((item, index) => (
             <div key={index} className="flex items-center gap-2">
               <p className="text-sm text-gray-500 whitespace-nowrap">
@@ -336,6 +362,12 @@ export default function UserAddressCard() {
             </div>
           ))}
         </div>
+
+        <div className="flex flex-col gap-1 my-4">
+  <p className="text-sm text-gray-500">Tags:</p>
+  <TagsView tags={provider?.storeInfo?.tags} />
+</div>
+
 
         {provider?.storeInfo?.cover && (
           <div className="mt-4">

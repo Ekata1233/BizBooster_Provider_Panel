@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -12,6 +13,8 @@ export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
   const countries = [{ code: "IN", label: "+91" }];
 
+  console.log("proivder details : ", providerDetails)
+
   // Personal info
   const [fullName, setFullName] = useState(providerDetails?.fullName || "");
   const [phoneNo, setPhoneNo] = useState(providerDetails?.phoneNo || "");
@@ -25,6 +28,17 @@ export default function EditProfilePage() {
   const [city, setCity] = useState(providerDetails?.storeInfo?.city || "");
   const [state, setState] = useState(providerDetails?.storeInfo?.state || "");
   const [country, setCountry] = useState(providerDetails?.storeInfo?.country || "");
+const [tags, setTags] = useState<string[]>(
+  providerDetails?.storeInfo?.tags || []
+);
+const [tagInput, setTagInput] = useState("");
+const [totalProjects, setTotalProjects] = useState(
+  providerDetails?.storeInfo?.totalProjects?.toString() || ""
+);
+const [totalExperience, setTotalExperience] = useState(
+  providerDetails?.storeInfo?.totalExperience?.toString() || ""
+);
+
   
   const [logo, setLogo] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
@@ -76,6 +90,14 @@ export default function EditProfilePage() {
         GST: providerDetails.kyc?.GST || [],
         other: providerDetails.kyc?.other || [],
       });
+      setTags(providerDetails.storeInfo?.tags || []);
+setTotalProjects(
+  providerDetails.storeInfo?.totalProjects?.toString() || ""
+);
+setTotalExperience(
+  providerDetails.storeInfo?.totalExperience?.toString() || ""
+);
+
     }
   }, [providerDetails]);
 
@@ -128,6 +150,19 @@ export default function EditProfilePage() {
     return "";
   };
 
+  const addTag = () => {
+  if (!tagInput.trim()) return;
+  if (tags.includes(tagInput.trim())) return;
+
+  setTags((prev) => [...prev, tagInput.trim()]);
+  setTagInput("");
+};
+
+const removeTag = (tag: string) => {
+  setTags((prev) => prev.filter((t) => t !== tag));
+};
+
+
   // Update handler
   const handleUpdate = async () => {
     setError("");
@@ -149,6 +184,15 @@ export default function EditProfilePage() {
       formData.append("storeInfo.city", city);
       formData.append("storeInfo.state", state);
       formData.append("storeInfo.country", country);
+
+      formData.append("storeInfo.totalProjects", totalProjects);
+formData.append("storeInfo.totalExperience", totalExperience);
+
+// Send tags as multiple keys
+tags.forEach((tag) => {
+  formData.append("storeInfo.tags", tag);
+});
+
 
       if (logo) formData.append("logo", logo);
       if (cover) formData.append("cover", cover);
@@ -187,23 +231,89 @@ export default function EditProfilePage() {
       <div className="space-y-6 m-4">
 
         <ComponentCard title="Personal Information">
+            <Label>Full Name</Label>
           <Input placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <Label>Email</Label>
           <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} /> {/* ✅ Added email input */}
+          <Label>Phone Number</Label>
           <Input placeholder="Phone" value={phoneNo} onChange={(e) => setPhoneNo(e.target.value)} />
         </ComponentCard>
 
         <ComponentCard title="Store Information">
+           <Label>Store Name</Label>
           <Input placeholder="Store Name" value={storeName} onChange={(e) => setStoreName(e.target.value)} />
+            <Label>Store Email</Label>
           <Input placeholder="Store Email" value={storeEmail} onChange={(e) => setStoreEmail(e.target.value)} />
+           <Label>Store Phone</Label>
           <Input placeholder="Store Phone" value={storePhone} onChange={(e) => setStorePhone(e.target.value)} />
+          <Label>Address</Label>
           <Input placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} />
+           <Label>City</Label>
           <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} />
+            <Label>State</Label>
           <Input placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
+          <Label>Country</Label>
           <select value={country} onChange={(e) => setCountry(e.target.value)} className="border p-2 rounded w-full">
             {countries.map((c) => (
               <option key={c.code} value={c.code}>{c.code} ({c.label})</option>
             ))}
           </select>
+
+           <Label>Tags</Label>
+<div>
+  <Label>Tags</Label>
+  <div className="flex gap-2">
+    <Input
+      placeholder="Add a tag"
+      value={tagInput}
+      onChange={(e) => setTagInput(e.target.value)}
+    />
+    <button
+      type="button"
+      onClick={addTag}
+      className="px-4 bg-blue-600 text-white rounded"
+    >
+      Add
+    </button>
+  </div>
+
+  <div className="flex flex-wrap gap-2 mt-2">
+    {tags.map((tag, idx) => (
+      <span
+        key={idx}
+        className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+      >
+        {tag}
+        <button
+          type="button"
+          onClick={() => removeTag(tag)}
+          className="text-red-500"
+        >
+          ✕
+        </button>
+      </span>
+    ))}
+  </div>
+</div>
+
+ <Label>Total Projects</Label>
+          <Input
+  placeholder="Total Projects"
+  type="number"
+  value={totalProjects}
+  onChange={(e) => setTotalProjects(e.target.value)}
+/>
+
+ <Label>Total Experience (Years)</Label>
+<Input
+  placeholder="Total Experience (Years)"
+  type="number"
+  value={totalExperience}
+  onChange={(e) => setTotalExperience(e.target.value)}
+/>
+
+
+
 
           <div>
             <Label>Logo</Label>
