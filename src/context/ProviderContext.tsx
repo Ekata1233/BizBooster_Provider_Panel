@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState,  ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Provider {
   _id: string;
@@ -37,12 +37,13 @@ export const useProvider = () => {
   return context;
 };
 
-const BASE_URL = 'https://biz-booster.vercel.app/api/provider';
+const BASE_URL = 'https://api.fetchtrue.com/api/provider';
 
 export const ProviderContextProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   const registerProvider = async (formData: FormData) => {
     setLoading(true);
@@ -50,35 +51,41 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       const res = await fetch(`${BASE_URL}/register`, {
         method: 'POST',
         body: formData,
-         credentials: 'include',
+        credentials: 'include',
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Registration failed');
-       if (data.token) {
-      localStorage.setItem('token', data.providerToken);
-    }
+      console.log("data at the time of registration : ", data);
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
       setProvider(data.provider);
       setError(null);
     } catch (err: unknown) {
-  const error = err as Error;
-  setError(error.message);
-}
- finally {
+      const error = err as Error;
+      setError(error.message);
+      throw error; // Re-throw the error
+    } finally {
       setLoading(false);
     }
   };
 
+  // Apply the same pattern to updateStoreInfo and updateKycInfo
   const updateStoreInfo = async (formData: FormData) => {
     setLoading(true);
     try {
-        const token = localStorage.getItem('providerToken');
+      const token = localStorage.getItem('token');
       const res = await fetch(`${BASE_URL}/store-info`, {
         method: 'PUT',
         body: formData,
         headers: {
-        Authorization: `Bearer ${token}`,
-      },
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await res.json();
@@ -86,9 +93,9 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       setProvider(data.provider);
       setError(null);
     } catch (err: unknown) {
-        const error = err as Error;
-
+      const error = err as Error;
       setError(error.message);
+      throw error; // Re-throw the error
     } finally {
       setLoading(false);
     }
@@ -97,13 +104,13 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
   const updateKycInfo = async (formData: FormData) => {
     setLoading(true);
     try {
-        const token = localStorage.getItem('providerToken');
+      const token = localStorage.getItem('token');
       const res = await fetch(`${BASE_URL}/kyc`, {
         method: 'PUT',
         body: formData,
-         headers: {
-        Authorization: `Bearer ${token}`, // ✅ pass token here
-      },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await res.json();
@@ -111,9 +118,9 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       setProvider(data.provider);
       setError(null);
     } catch (err: unknown) {
-        const error = err as Error;
-
+      const error = err as Error;
       setError(error.message);
+      throw error; // Re-throw the error
     } finally {
       setLoading(false);
     }
@@ -129,7 +136,7 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       setProvider(data);
       setError(null);
     } catch (err: unknown) {
-        const error = err as Error;
+      const error = err as Error;
 
       setError(error.message);
     } finally {
@@ -137,8 +144,8 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
     }
   };
 
- const updateProvider = async (id: string, updates: string) => {
-  setLoading(true);
+  const updateProvider = async (id: string, updates: string) => {
+    setLoading(true);
     try {
       const res = await fetch(`${BASE_URL}/${id}`, {
         method: 'PUT',
@@ -151,7 +158,7 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       setProvider(data);
       setError(null);
     } catch (err: unknown) {
-              const error = err as Error;
+      const error = err as Error;
 
       setError(error.message);
     } finally {
@@ -171,7 +178,7 @@ export const ProviderContextProvider = ({ children }: { children: ReactNode }) =
       setProvider(null);
       setError(null);
     } catch (err: unknown) {
-              const error = err as Error;
+      const error = err as Error;
 
       setError(error.message);
     } finally {

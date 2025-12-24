@@ -1,20 +1,74 @@
 "use client";
-import React from "react";
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
+import React, { useEffect, useState } from "react";
+// import { useModal } from "../../hooks/useModal";
+
 import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function UserInfoCard() {
-  const { isOpen, openModal, closeModal } = useModal();
+  // const {  closeModal } = useModal();
   const { providerDetails } = useAuth();
-  console.log("provider detials in to the user info : ", providerDetails)
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+  const [moduleName, setModuleName] = useState<string>('Loading...');
+  const [zoneName, setZoneName] = useState<string>('Loading...');
+
+  useEffect(() => {
+    const fetchModule = async () => {
+      if (!providerDetails?.storeInfo?.module) {
+        setModuleName('No Module Registered');
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://api.fetchtrue.com/api/modules/${providerDetails.storeInfo.module}`);
+        const data = await res.json();
+        if (data.success && data.data?.name) {
+          setModuleName(data.data.name);
+        } else {
+          setModuleName('Module Not Found');
+        }
+      } catch (error) {
+        console.error('Error fetching module:', error);
+        setModuleName('Error fetching module');
+      }
+    };
+
+    const fetchZone = async () => {
+      if (!providerDetails?.storeInfo?.zone) {
+        setZoneName("No Zone Registered");
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://api.fetchtrue.com/api/zone/${providerDetails.storeInfo.zone}`
+        );
+
+        console.log("data of the res : ", res);
+
+        const data = await res.json();
+
+        console.log("data of the zone : ", data);
+
+        if (data.success && data.data?.name) {
+          setZoneName(data.data.name);
+        } else {
+          setZoneName("Zone Not Found");
+        }
+      } catch (error) {
+        console.error("Error fetching zone:", error);
+        setZoneName("Error fetching zone"); // ✅ fixed
+      }
+    };
+
+
+    fetchModule();
+    fetchZone();
+  }, [providerDetails?.storeInfo?.module, providerDetails?.storeInfo?.zone]);
+
+  const router = useRouter();
+
+  const handleEdit = () => {
+    router.push("/profile/edit-profile"); // Redirect to edit page
   };
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -30,8 +84,7 @@ export default function UserInfoCard() {
                 Full Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                          {providerDetails?.fullName || "User"}
-
+                {providerDetails?.fullName || "User"}
               </p>
             </div>
 
@@ -44,8 +97,6 @@ export default function UserInfoCard() {
               </p>
             </div>
 
-            
-
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Phone
@@ -54,11 +105,25 @@ export default function UserInfoCard() {
                 {providerDetails?.phoneNo || "User"}
               </p>
             </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Module Name
+              </p>
+              <p className="font-medium">{moduleName || 'No Any Moduel Registered'}</p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Zone Name
+              </p>
+              <p className="font-medium">{zoneName || 'No Any Zone Registered'}</p>
+            </div>
           </div>
         </div>
 
         <button
-          onClick={openModal}
+          onClick={handleEdit}
           className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
         >
           <svg
@@ -80,98 +145,6 @@ export default function UserInfoCard() {
         </button>
       </div>
 
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
-            </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
-          </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      defaultValue="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" defaultValue="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      defaultValue="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input
-                      type="text"
-                      defaultValue="https://instagram.com/PimjoHQ"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-7">
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" defaultValue="Musharof" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" defaultValue="Chowdhury" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" defaultValue="randomuser@pimjo.com" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" defaultValue="+09 363 398 46" />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" defaultValue="Team Manager" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Modal>
     </div>
   );
 }

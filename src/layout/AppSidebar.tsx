@@ -20,6 +20,9 @@ import {
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 import { Megaphone } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCheckout } from "@/app/context/CheckoutContext";
+import { useLead } from "@/app/context/LeadContext";
 
 type NavItem = {
   name: string;
@@ -45,14 +48,26 @@ const bookingItems: NavItem[] = [
       { name: "All Bookings", path: "/booking-management/all-bookings", pro: false },
       { name: "Customized Requests", path: "/booking-management/customized-requests", pro: false },
       { name: "Booking Requests", path: "/booking-management/booking-requests", pro: false },
-      { name: "Accepted Requests", path: "/booking-management/accepted-requests", pro: false },
-      { name: "Ongoing Requests", path: "/booking-management/ongoing-requests", pro: false },
-      { name: "Completed Requests", path: "/booking-management/completed-requests", pro: false },
-      { name: "Canceled Requests", path: "/booking-management/canceled-requests", pro: false },
+      { name: "Accepted Bookings", path: "/booking-management/accepted-requests", pro: false },
+      // { name: "Ongoing Requests", path: "/booking-management/ongoing-requests", pro: false },
+      { name: "Completed Bookings", path: "/booking-management/completed-requests", pro: false },
+      { name: "Canceled Bookings", path: "/booking-management/canceled-requests", pro: false },
+      { name: "Refunded Bookings", path: "/booking-management/refunded-requests", pro: false },
+
     ],
   },
 ];
+const galleryItems: NavItem[] = [
+  {
+    icon: <PlugInIcon />,
+    name: "Gallery",
+    subItems: [
+      { name: "Add Gallery", path: "/gallery-management/add-gallery", pro: false },
+      { name: "Gallery List", path: "/gallery-management/gallery-list", pro: false },
 
+    ],
+  },
+];
 const userItems: NavItem[] = [
   {
     icon: <PlugInIcon />,
@@ -77,13 +92,13 @@ const advertiseItems: NavItem[] = [
 ];
 
 const AccountItems: NavItem[] = [
-   {
+  {
     icon: <GridIcon />,
     name: "Account Information",
     path: "/account-management/account-information",
     // subItems: [{ name: "Dashboard", path: "/", pro: false }],
   },
-   {
+  {
     icon: <GridIcon />,
     name: "Bank Information",
     path: "/account-management/bank-information",
@@ -108,10 +123,31 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const { provider } = useAuth();
+  const { leads, refetchLeads } = useLead();
+
+  const {
+    checkouts,
+
+    fetchCheckoutsByProviderId,
+  } = useCheckout();
+  useEffect(() => {
+    refetchLeads();
+  }, []);
+
+
+
+  useEffect(() => {
+    if (provider?._id) {
+      fetchCheckoutsByProviderId(provider._id);
+    }
+  }, [provider]);
+
+
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others" | "booking" | "user" | "account" | "advertise"
+    menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -194,22 +230,81 @@ const AppSidebar: React.FC = () => {
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
+                        {/* ✅ Count badge for All Bookings */}
+                        {subItem.name === "All Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Booking Requests */}
+                        {subItem.name === "Booking Requests" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) => checkout.isAccepted === false
+                            )?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Accepted Bookings */}
+                        {subItem.name === "Accepted Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) =>
+                                checkout.isAccepted === true &&
+                                checkout.isCompleted === false &&
+                                checkout.isCanceled === false
+                            )?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Completed Bookings */}
+                        {subItem.name === "Completed Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) =>
+                                checkout.isCompleted === true &&
+                                checkout.isCanceled === false
+                            )?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Canceled Bookings */}
+                        {subItem.name === "Canceled Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {checkouts?.filter(
+                              (checkout) => checkout.isCanceled === true
+                            )?.length || 0}
+                          </span>
+                        )}
+
+                        {/* ✅ Count badge for Refunded Bookings */}
+                        {/* ✅ Count badge for Refunded Bookings */}
+                        {subItem.name === "Refunded Bookings" && (
+                          <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                            {leads?.filter((lead) =>
+                              lead.leads?.some((l) => l.statusType === "Refund")
+                            )?.length || 0}
+                          </span>
+                        )}
+
+
                         {subItem.new && (
                           <span
-                            className={`ml-auto ${isActive(subItem.path)
+                            className={`${isActive(subItem.path)
                               ? "menu-dropdown-badge-active"
                               : "menu-dropdown-badge-inactive"
-                              } menu-dropdown-badge `}
+                              } menu-dropdown-badge`}
                           >
                             new
                           </span>
                         )}
                         {subItem.pro && (
                           <span
-                            className={`ml-auto ${isActive(subItem.path)
+                            className={`${isActive(subItem.path)
                               ? "menu-dropdown-badge-active"
                               : "menu-dropdown-badge-inactive"
-                              } menu-dropdown-badge `}
+                              } menu-dropdown-badge`}
                           >
                             pro
                           </span>
@@ -219,6 +314,7 @@ const AppSidebar: React.FC = () => {
                   </li>
                 ))}
               </ul>
+
             </div>
           )}
         </li>
@@ -227,7 +323,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "booking" | "user" | "account" |"advertise";
+    type: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -241,7 +337,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others", "booking", "user", "account", "advertise"].forEach((menuType) => {
+    ["main", "others", "booking", "user", "account", "advertise", "gallery"].forEach((menuType) => {
       const items =
         menuType === "main"
           ? navItems
@@ -250,16 +346,18 @@ const AppSidebar: React.FC = () => {
             : menuType === "user"
               ? userItems
               : menuType === "advertise"
-              ? advertiseItems
-              : menuType === "account"
-                ? AccountItems
-                : bookingItems;
+                ? advertiseItems
+                : menuType === "gallery"
+                  ? galleryItems
+                  : menuType === "account"
+                    ? AccountItems
+                    : bookingItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others" | "booking" | "user" | "account"|"advertise",
+                type: menuType as "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery",
                 index,
               });
               submenuMatched = true;
@@ -288,7 +386,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" |"advertise") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -411,7 +509,20 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(userItems, "user")}
             </div>
-             <div className="">
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+                  }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Gallery Management"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(galleryItems, "gallery")}
+            </div>
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                   }`}
@@ -425,7 +536,7 @@ const AppSidebar: React.FC = () => {
               {renderMenuItems(advertiseItems, "advertise")}
             </div>
 
-             <div className="">
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                   }`}

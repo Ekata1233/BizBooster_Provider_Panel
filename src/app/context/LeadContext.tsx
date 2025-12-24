@@ -10,11 +10,13 @@ import React, {
 import axios from "axios";
 
 
-interface IExtraService {
+export interface IExtraService {
   serviceName: string;
   price: number;
   discount: number;
   total: number;
+  commission: string;
+  isLeadApproved: boolean | null;
 }
 
 export interface IStatus {
@@ -37,10 +39,10 @@ export interface LeadType {
   amount: number;
   newAmount?: number;
   newDiscountAmount?: number;
-afterDicountAmount?: number;
+  afterDicountAmount?: number;
   extraService?: IExtraService[];
   leads: IStatus[];
-  isAdminApproved? : boolean;
+  isAdminApproved?: boolean;
 }
 
 interface LeadContextType {
@@ -52,7 +54,7 @@ interface LeadContextType {
   getLeadByCheckoutId: (checkoutId: string) => Promise<LeadType | null>;
   updateLeadByCheckoutId: (
     checkoutId: string,
-    updates: { newAmount?: number;newDiscountAmount?: number;afterDicountAmount?:number; extraService?: IExtraService[] }
+    updates: { newAmount?: number; newDiscountAmount?: number; afterDicountAmount?: number; extraService?: IExtraService[] }
   ) => Promise<{ data: LeadType | null; errorMessage?: string }>;
 }
 
@@ -73,7 +75,7 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   const fetchLeads = async () => {
     setLoadingLeads(true);
     try {
-      const res = await axios.get("https://biz-booster.vercel.app/api/leads");
+      const res = await axios.get("https://api.fetchtrue.com/api/leads");
       setLeads(res.data || []);
       setErrorLeads(null);
     } catch (err) {
@@ -87,43 +89,43 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
   const getLeadByCheckoutId = async (checkoutId: string): Promise<LeadType | null> => {
     try {
       const res = await axios.get(
-        `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`
+        `https://api.fetchtrue.com/api/leads/FindByCheckout/${checkoutId}`
       );
       return res.data?.data || null;
     } catch (error: unknown) {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'response' in error &&
-    typeof (error as { response?: { status?: number } }).response?.status === 'number'
-  ) {
-    const typedError = error as {
-      response?: {
-        status?: number;
-      };
-      message?: string;
-    };
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { status?: number } }).response?.status === 'number'
+      ) {
+        const typedError = error as {
+          response?: {
+            status?: number;
+          };
+          message?: string;
+        };
 
-    if (typedError.response?.status === 404) {
-      console.warn("Lead not found for ID:");
+        if (typedError.response?.status === 404) {
+          console.warn("Lead not found for ID:");
+          return null;
+        }
+
+        console.error("Unexpected error in getLeadByCheckoutId:", typedError.message ?? error);
+        return null;
+      }
+
+      console.error("Unknown error in getLeadByCheckoutId:", error);
       return null;
     }
 
-    console.error("Unexpected error in getLeadByCheckoutId:", typedError.message ?? error);
-    return null;
-  }
-
-  console.error("Unknown error in getLeadByCheckoutId:", error);
-  return null;
-}
-
-};
+  };
 
   const createLead = async (formData: FormData) => {
     setLoadingLeads(true);
     try {
       const res = await axios.post(
-        "https://biz-booster.vercel.app/api/leads",
+        "https://api.fetchtrue.com/api/leads",
         formData,
         {
           headers: {
@@ -135,66 +137,66 @@ export const LeadProvider: React.FC<LeadProviderProps> = ({ children }) => {
       setLeads((prev) => [...prev, res.data]);
       setErrorLeads(null);
     } catch (err: unknown) {
-  let message = "Failed to create lead.";
+      let message = "Failed to create lead.";
 
-  if (
-    typeof err === "object" &&
-    err !== null &&
-    "response" in err &&
-    typeof (err as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
-  ) {
-    message = (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? message;
-  }
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err &&
+        typeof (err as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+      ) {
+        message = (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? message;
+      }
 
-  setErrorLeads(message);
+      setErrorLeads(message);
 
-  // ✅ Throw the message directly
-  throw message;
-}
- finally {
-    setLoadingLeads(false);
-  }
-};
+      // ✅ Throw the message directly
+      throw message;
+    }
+    finally {
+      setLoadingLeads(false);
+    }
+  };
 
-const updateLeadByCheckoutId = async (
-  checkoutId: string,
-  updates: { newAmount?: number;newDiscountAmount?: number;afterDicountAmount?:number; extraService?: IExtraService[] }
-): Promise<{ data: LeadType | null; errorMessage?: string }> => {
-  try {
-    const res = await axios.put(
-      `https://biz-booster.vercel.app/api/leads/FindByCheckout/${checkoutId}`,
-      updates
-    );
-    const updatedLead = res.data?.data;
+  const updateLeadByCheckoutId = async (
+    checkoutId: string,
+    updates: { newAmount?: number; newDiscountAmount?: number; afterDicountAmount?: number; extraService?: IExtraService[] }
+  ): Promise<{ data: LeadType | null; errorMessage?: string }> => {
+    try {
+      const res = await axios.put(
+        `https://api.fetchtrue.com/api/leads/FindByCheckout/${checkoutId}`,
+        updates
+      );
+      const updatedLead = res.data?.data;
 
-    setLeads((prevLeads) =>
-      prevLeads.map((lead) =>
-        lead.checkout === checkoutId ? { ...lead, ...updatedLead } : lead
-      )
-    );
+      setLeads((prevLeads) =>
+        prevLeads.map((lead) =>
+          lead.checkout === checkoutId ? { ...lead, ...updatedLead } : lead
+        )
+      );
 
-    return { data: updatedLead || null };
-  }catch (err: unknown) {
-  console.error("Failed to update lead by checkoutId:", err);
+      return { data: updatedLead || null };
+    } catch (err: unknown) {
+      console.error("Failed to update lead by checkoutId:", err);
 
-  let message = "Something went wrong on the server.";
+      let message = "Something went wrong on the server.";
 
-  if (err && typeof err === "object" && "response" in err) {
-    const errorWithResponse = err as {
-      response?: {
-        data?: {
-          message?: string;
+      if (err && typeof err === "object" && "response" in err) {
+        const errorWithResponse = err as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
         };
-      };
-    };
 
-    message = errorWithResponse.response?.data?.message || message;
-  }
+        message = errorWithResponse.response?.data?.message || message;
+      }
 
-  return { data: null, errorMessage: message };
-}
+      return { data: null, errorMessage: message };
+    }
 
-};
+  };
 
 
   useEffect(() => {

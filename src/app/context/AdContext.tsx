@@ -1,23 +1,45 @@
 'use client';
-import axios from 'axios';
-import React, { createContext, useContext, useEffect, useState } from 'react';
 
+import axios from 'axios';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
+// In AdContext.tsx
 export interface AdType {
   _id?: string;
-  addType: 'image' | 'video';
-  category: string;
-  service: string;
-  startDate: string;
-  endDate: string;
+  addType: 'image';
+  category?: {
+    _id?: string;
+    name: string;
+  };
+  service?: {
+    _id?: string;
+    serviceName: string;
+  };
+provider?: {
+  _id?: string;
+  fullName?: string;
+  email?: string;
+  phoneNo?: string;
+} | string;
+  startDate?: string;
+  endDate?: string;
   title: string;
   description: string;
   fileUrl: string;
   isExpired?: boolean;
+  isApproved?: boolean;
+  createdAt?: string;
+  isDeleted: boolean; // ✅ include isDeleted
+
+  updatedAt?: string;
 }
+
 
 interface AdContextType {
   ads: AdType[];
-  fetchAds: () => void;
+  loading: boolean;
+  error: string | null;
+  fetchAds: () => Promise<void>;
   createAd: (data: FormData) => Promise<void>;
   deleteAd: (id: string) => Promise<void>;
   updateAd: (id: string, data: Partial<AdType>) => Promise<void>;
@@ -25,43 +47,63 @@ interface AdContextType {
 
 const AdContext = createContext<AdContextType | null>(null);
 
-// ✅ Your actual deployed API base URL
-const API_BASE_URL = 'https://biz-booster.vercel.app/api/ads';
+// ✅ API base URL (use env variable for flexibility)
+const API_BASE_URL =  'https://api.fetchtrue.com/api/ads';
+const API_BASE_URL_ALL =  'https://api.fetchtrue.com/api/ads/all';
 
-export const AdProvider = ({ children }: { children: React.ReactNode }) => {
+export const AdProvider = ({ children }: { children: ReactNode }) => {
   const [ads, setAds] = useState<AdType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchAds = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const res = await axios.get(API_BASE_URL);
-      setAds(res.data.data);
-    } catch (error) {
-      console.error('Failed to fetch ads:', error);
+      const res = await axios.get(API_BASE_URL_ALL);
+      setAds(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch ads:', err);
+      setError('Failed to fetch ads');
+    } finally {
+      setLoading(false);
     }
   };
 
   const createAd = async (formData: FormData) => {
+    setLoading(true);
+    setError(null);
     try {
       await axios.post(API_BASE_URL, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      fetchAds();
-    } catch (error) {
-      console.error('Failed to create ad:', error);
-      throw error;
+      await fetchAds();
+    } catch (err) {
+      console.error('Failed to create ad:', err);
+      setError('Failed to create ad');
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteAd = async (id: string) => {
+    setLoading(true);
+    setError(null);
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
       setAds(prev => prev.filter(ad => ad._id !== id));
-    } catch (error) {
-      console.error('Failed to delete ad:', error);
+    } catch (err) {
+      console.error('Failed to delete ad:', err);
+      setError('Failed to delete ad');
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateAd = async (id: string, data: Partial<AdType>) => {
+    setLoading(true);
+    setError(null);
     try {
       const formData = new FormData();
       for (const key in data) {
@@ -70,15 +112,16 @@ export const AdProvider = ({ children }: { children: React.ReactNode }) => {
           formData.append(key, value as string | Blob);
         }
       }
-
       await axios.put(`${API_BASE_URL}/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
-      fetchAds();
-    } catch (error) {
-      console.error('Failed to update ad:', error);
-      throw error;
+      await fetchAds();
+    } catch (err) {
+      console.error('Failed to update ad:', err);
+      setError('Failed to update ad');
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,7 +130,17 @@ export const AdProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AdContext.Provider value={{ ads, fetchAds, createAd, deleteAd, updateAd }}>
+    <AdContext.Provider
+      value={{
+        ads,
+        loading,
+        error,
+        fetchAds,
+        createAd,
+        deleteAd,
+        updateAd,
+      }}
+    >
       {children}
     </AdContext.Provider>
   );
@@ -95,6 +148,8 @@ export const AdProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAdContext = () => {
   const context = useContext(AdContext);
-  if (!context) throw new Error('useAdContext must be used within AdProvider');
+  if (!context) {
+    throw new Error('useAdContext must be used within an AdProvider');
+  }
   return context;
 };

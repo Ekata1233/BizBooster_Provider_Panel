@@ -8,6 +8,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
+import { SubscribedService } from "../(admin)/service-management/my-subscription/page";
 
 // ✅ StoreInfo Type
 type StoreInfo = {
@@ -25,6 +26,9 @@ type StoreInfo = {
   city?: string;
   state?: string;
   country?: string;
+   tags?: string[];
+  totalProjects? : number;
+  totalExperience? : number;
 };
 
 // ✅ KYC Type
@@ -42,7 +46,7 @@ type ProviderDetails = {
   fullName: string;
   phoneNo: string;
   email: string;
-  subscribedServices?: string[];
+  subscribedServices?: SubscribedService[];
   referralCode?: string;
   referredBy?: string;
   companyLogo?: string;
@@ -54,11 +58,14 @@ type ProviderDetails = {
   step1Completed?: boolean;
   storeInfoCompleted?: boolean;
   kycCompleted?: boolean;
+  galleryImages?: string[];
   registrationStatus?: string;
   createdAt?: string;
   updatedAt?: string;
   storeInfo?: StoreInfo;
   kyc?: KYC;
+  providerId?: string;
+  isStoreOpen?: boolean|null;
 };
 
 // ✅ If needed, use same structure for Provider
@@ -71,6 +78,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshProviderDetails: () => Promise<void>;
+  loading: boolean;
 };
 
 // ✅ Create Context
@@ -81,6 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // ✅ Load from localStorage on mount
   useEffect(() => {
@@ -105,10 +114,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setProvider(null);
     setProviderDetails(null);
     setToken(null);
+    setLoading(true);
     localStorage.clear(); // or remove specific keys
 
     try {
-      const res = await fetch("https://biz-booster.vercel.app/api/provider/login", {
+      const res = await fetch("https://api.fetchtrue.com/api/provider/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -129,10 +139,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("providerData", JSON.stringify(provider));
       // localStorage.setItem("providerDetails", JSON.stringify(provider));
       localStorage.setItem("providerToken", token);
+            localStorage.setItem("token", token);
+
 
       // Fetch full provider details
       const providerDetailsRes = await fetch(
-        `https://biz-booster.vercel.app/api/provider/${provider._id}`,
+        `https://api.fetchtrue.com/api/provider/${provider._id}`,
         {
           method: "GET",
           headers: {
@@ -144,15 +156,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const detailsData = await providerDetailsRes.json();
 
-      if (providerDetailsRes.ok && detailsData.success) {
-        setProviderDetails(detailsData.data);
-        localStorage.setItem("providerDetails", JSON.stringify(detailsData.data));
-      } else {
+      console.log("details dat : ", detailsData)
+
+      // if (providerDetailsRes.ok && detailsData.success) {
+      //   setProviderDetails(detailsData.data);
+      //   localStorage.setItem("providerDetails", JSON.stringify(detailsData.data));
+      // } 
+      if (providerDetailsRes.ok && detailsData._id) {
+        setProviderDetails(detailsData);
+        localStorage.setItem("providerDetails", JSON.stringify(detailsData));
+      }
+
+      else {
         console.warn("⚠️ Provider details fetch failed");
       }
     } catch (error) {
       console.error("❌ Login error:", error);
       throw new Error("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,7 +184,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const res = await fetch(
-        `https://biz-booster.vercel.app/api/provider/${provider._id}`,
+        `https://api.fetchtrue.com/api/provider/${provider._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -171,30 +193,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       );
 
-      console.log("repsonse of provider details : ", res);
-
       const data = await res.json();
 
-      console.log("data of provider details : ", data);
-      if (res.ok) {
+      console.log("data of provider : ", data)
+
+      if (res.ok && data) {
         setProviderDetails(data);
         localStorage.setItem("providerDetails", JSON.stringify(data));
+      } else {
+        console.warn("⚠️ Failed to refresh provider details:", data.message);
       }
     } catch (error) {
       console.error("🔁 Error refreshing provider details:", error);
     }
   }, [provider?._id, token]);
 
+
   // ✅ Logout Function
   const logout = async () => {
-    try {
-    await fetch("https://biz-booster.vercel.app/api/provider/logout", {
-      method: "POST",
-      credentials: "include", // Clear the cookie
-    });
-  } catch (err) {
-    console.error("Logout failed:", err);
-  }
+    
     // Clear state
     setProvider(null);
     setProviderDetails(null);
@@ -207,13 +224,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("theme");
 
+    try {
+      await fetch("https://api.fetchtrue.com/api/provider/logout", {
+        method: "POST",
+        credentials: "include", 
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+
     console.log("🚪 Logged out and cleared all relevant localStorage items");
   };
 
 
   return (
     <AuthContext.Provider
-      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails }}
+      value={{ provider, providerDetails, token, login, logout, refreshProviderDetails, loading, }}
     >
       {children}
     </AuthContext.Provider>

@@ -48,7 +48,22 @@ interface FranchiseDetails {
     termsAndConditions: string;
     extraSections?: ExtraSection[];
 }
-
+export interface ProviderPriceEntry {
+    provider?: {
+        _id: string;
+        fullName?: string;
+        storeInfo?: {
+            storeName?: string;
+            logo?: string;
+        };
+    };
+    providerPrice?: number;
+    providerMRP?: string;
+    providerDiscount?: string;
+    providerCommission?: string;
+    status?: string;
+    _id?: string;
+}
 export interface Service {
     _id: string;
     serviceName: string;
@@ -58,6 +73,7 @@ export interface Service {
     subcategory: { _id: string, name: string };
     price: number;
     discountedPrice: number;
+    providerPrices?: ProviderPriceEntry[]; 
     tags?: string[];
     serviceDetails: ServiceDetails;
     franchiseDetails: FranchiseDetails;
@@ -96,7 +112,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
     const fetchServices = async () => {
         setLoadingServices(true);
         try {
-            const res = await axios.get("https://biz-booster.vercel.app/api/service");
+            const res = await axios.get("https://api.fetchtrue.com/api/service");
             setServices(res.data?.data || []);
             setErrorServices(null);
         } catch (err) {
@@ -110,7 +126,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
     const fetchSingleService = async (id: string) => {
         setLoadingSingleService(true);
         try {
-            const res = await axios.get(`https://biz-booster.vercel.app/api/service/${id}`);
+            const res = await axios.get(`https://api.fetchtrue.com/api/service/${id}`);
             setSingleService(res.data?.data || null);
             setErrorSingleService(null);
         } catch (err) {
@@ -123,7 +139,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
 
     const updateProviderPrice = async (id: string, data: unknown): Promise<boolean> => {
         try {
-            const res = await axios.put(`https://biz-booster.vercel.app/api/service/provider-price/${id}`, data, {
+            const res = await axios.put(`https://api.fetchtrue.com/api/service/provider-price/${id}`, data, {
                 headers: {
                     "Content-Type": "application/json"
                 }

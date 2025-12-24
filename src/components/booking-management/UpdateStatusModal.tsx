@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import FileInput from "../form/input/FileInput";
 import { useCheckout } from "@/app/context/CheckoutContext";
+import { IExtraService, IStatus, useLead } from "@/app/context/LeadContext";
+import axios from "axios";
+import { useServiceCustomer } from "@/app/context/ServiceCustomerContext";
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -17,6 +20,8 @@ interface UpdateStatusModalProps {
   amount: string;
   loading: boolean;
 }
+
+
 
 const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   isOpen,
@@ -42,31 +47,78 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   const [otpError, setOtpError] = useState("");
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
-
+  const [isCashInHand, setIsCashInHand] = useState(false);
+  const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const { getLeadByCheckoutId } = useLead();
+  const [leadStatusList, setLeadStatusList] = useState<IStatus[]>([]);
+  const [extraService, setExtraService] = useState<IExtraService[]>([]);
+  const [assurityFee, setAssurityFee] = useState<number>(0);
+  const { serviceCustomer, fetchServiceCustomer } = useServiceCustomer();
   const { fetchCheckoutsDetailsById, checkoutDetails } = useCheckout();
-console.log(linkType);
+
+  console.log(linkType) // dont remove
+  useEffect(() => {
+    if (serviceCustomerId) {
+      fetchServiceCustomer(serviceCustomerId);
+    }
+  }, [serviceCustomerId])
+
 
   useEffect(() => {
     if (checkoutId && !checkoutDetails?._id) {
       fetchCheckoutsDetailsById(checkoutId);
     }
-  }, [checkoutId, checkoutDetails?._id, fetchCheckoutsDetailsById]);
-useEffect(() => {
-    if (checkoutDetails) {
-      console.log("✅ Checkout details fetched:", checkoutDetails);
-    }
-  }, [checkoutDetails]);
+  }, [checkoutId, checkoutDetails?._id]);
+
+  useEffect(() => {
+    const fetchCommission = async () => {
+      try {
+        const res = await axios.get("https://api.fetchtrue.com/api/commission");
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setAssurityFee(res.data[0].assurityfee); // store in state variable
+        }
+      } catch (error) {
+        console.error("Error fetching commission data:", error);
+      }
+    };
+
+    fetchCommission();
+  }, []);
+
+  useEffect(() => {
+    const fetchLead = async () => {
+      if (!checkoutId) return;
+      const leadData = await getLeadByCheckoutId(checkoutId);
+
+      if (leadData && Array.isArray(leadData.leads)) {
+        setLeadStatusList(leadData.leads);
+      } else {
+        console.warn("⚠️ No leads available or not an array");
+      }
+
+      if (leadData && Array.isArray(leadData.extraService)) {
+        setExtraService(leadData.extraService);
+      } else {
+        console.warn("⚠️ No extra services available or not an array");
+      }
+    };
+
+    fetchLead();
+  }, [checkoutId]);
+
+
+
   const handleDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setDocument(e.target.files[0]);
     }
   };
 
-  const handleSubmit = () => {
-    if (!statusType) {
-      alert("Please select a status type.");
-      return;
-    }
+const handleSubmit = async (fromOtp = false) => {
+  if (!statusType) {
+    alert("Please select a status type.");
+    return;
+  }
 
     const formData = new FormData();
     formData.append("checkout", checkoutId);
@@ -91,7 +143,60 @@ useEffect(() => {
       formData.append("document", document);
     }
 
-    onSubmit(formData);
+    const oneTimeStatuses = [
+      "Lead accepted",
+      "Lead requested documents",
+      "Lead started",
+      "Lead ongoing",
+      "Lead completed",
+      "Lead cancel",
+      "Refund",
+    ];
+
+    if (
+      oneTimeStatuses.includes(statusType) &&
+      leadStatusList.some((lead: { statusType?: string }) =>
+        lead?.statusType?.trim().toLowerCase() === statusType.trim().toLowerCase()
+      )
+    ) {
+      alert(`The status "${statusType}" has already been added.`);
+      return;
+    }
+
+    // 🧩 Require OTP verification before lead completion
+if (statusType === "Lead completed" && !fromOtp) {
+  if (!otpSuccess) {
+    setIsOtpModalOpen(true);
+    alert("Please verify OTP before completing the lead.");
+    return; // stop submit — no commission, no lead complete
+  }
+}
+
+    onSubmit(formData); // ✅ Only runs when OTP is verified
+
+
+
+    if (isCashInHand) {
+      try {
+        const cashRes = await fetch(`https://api.fetchtrue.com/api/checkout/cash-in-hand/${checkoutId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            statusType, paymentKind: paymentType?.toLowerCase(), // "full" or "partial"
+            amount: Number(amount),
+          }),
+        });
+
+        const cashData = await cashRes.json();
+        if (!cashData.success) {
+          console.error("Cash-in-hand update failed:", cashData.message);
+          alert("Warning: Cash-in-hand status not saved.");
+        }
+      } catch (cashError) {
+        console.error("Cash-in-hand API error:", cashError);
+        alert("Warning: Could not mark cash-in-hand on server.");
+      }
+    }
     setStatusType("");
     setDescription("");
     setLinkType("");
@@ -101,33 +206,98 @@ useEffect(() => {
     setDocument(null);
   };
 
+
   const createPaymentLink = async (amountToPay: number) => {
     setGeneratingPaymentLink(true);
+
+    const now = new Date();
+    const orderId = `checkout_${now.getFullYear()}${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}${now
+        .getHours()
+        .toString()
+        .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
+          .getSeconds()
+          .toString()
+          .padStart(2, "0")}`;
+
+    // try {
+    //   const res = await fetch(
+    //     "https://api.fetchtrue.com/api/payment/generate-payment-link",
+    //     {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({
+    //         amount: amountToPay,
+    //         customerId: serviceCustomerId,
+    //         customerName: "Customer Name",
+    //         customerEmail: "customer@example.com",
+    //         customerPhone: "9999999999",
+    //         checkoutId,
+    //         orderId,
+    //       }),
+    //     }
+    //   );
+
+    //   const data = await res.json();
+    //   setPaymentLink(data.paymentLink || "");
+    // } catch (error) {
+    //   console.error("Payment link generation failed", error);
+    //   alert("Failed to generate payment link.");
+    // } finally {
+    //   setGeneratingPaymentLink(false);
+    // }
+
     try {
-      const res = await fetch(
-        "https://biz-booster.vercel.app/api/payment/generate-payment-link",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: amountToPay,
-            customerId: serviceCustomerId,
-            customerName: "Customer Name",
-            customerEmail: "customer@example.com",
-            customerPhone: "9999999999",
-          }),
-        }
-      );
+      const res = await fetch("https://api.fetchtrue.com/api/pay-u/create-payment-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subAmount: amountToPay, // dynamic value
+          isPartialPaymentAllowed: false,
+          description: "Fetch True Payment",
+          orderId: orderId,
+          customer: {
+            customer_id: serviceCustomerId,
+            customer_name: serviceCustomer?.fullName,
+            customer_email: serviceCustomer?.email,
+            customer_phone: serviceCustomer?.phone,
+          },
+          udf: {
+            udf1: orderId,
+            udf2: checkoutId,
+            udf3: serviceCustomerId,
+          },
+        }),
+      });
 
       const data = await res.json();
-      setPaymentLink(data.paymentLink || "");
+      console.log("payment data : ", data)
+
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to generate payment link");
+      }
+
+      const paymentLink = data?.result?.paymentLink;
+
+      console.log("payment link : ", paymentLink)
+
+      if (paymentLink) {
+        setPaymentLink(paymentLink);
+        console.log("Payment link generated:", paymentLink);
+      } else {
+        console.error("Payment link not found in response:", data);
+        alert("Something went wrong — payment link not generated.");
+      }
     } catch (error) {
-      console.error("Payment link generation failed", error);
-      alert("Failed to generate payment link.");
+      console.error("Error generating payment link:", error);
+      alert("Something went wrong — payment link not generated.");
     } finally {
       setGeneratingPaymentLink(false);
     }
   };
+
 
   const handleOtpVerify = async () => {
     const enteredOtp = otp.join("");
@@ -142,7 +312,7 @@ useEffect(() => {
 
     try {
       const res = await fetch(
-        "https://biz-booster.vercel.app/api/provider/lead/verify-otp",
+        "https://api.fetchtrue.com/api/provider/lead/verify-otp",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -154,18 +324,43 @@ useEffect(() => {
 
       if (data.success) {
         setOtpSuccess(true);
-        setTimeout(() => {
-          setIsOtpModalOpen(false);
-          handleSubmit();
-        }, 1000);
+
+        if (isCashInHand) {
+          try {
+            const cashRes = await fetch(
+              `https://api.fetchtrue.com/api/checkout/cash-in-hand/${checkoutId}`,
+              {
+                method: "PUT",
+              }
+            );
+            const cashData = await cashRes.json();
+            if (!cashData.success) {
+              console.error("Cash-in-hand update failed:", cashData.message);
+              alert("Warning: Cash-in-hand status not saved.");
+            }
+          } catch (cashError) {
+            console.error("Cash-in-hand API error:", cashError);
+            alert("Warning: Could not mark cash-in-hand on server.");
+          }
+        }
+
+       setTimeout(() => {
+  setIsOtpModalOpen(false);
+  handleSubmit(true); // ✅ Pass flag to skip OTP recheck
+}, 1000);
+
+
       } else {
         setOtpError(data.message || "Invalid OTP. Please try again.");
+        setOtpSuccess(false);
+        setIsOtpModalOpen(true);
+        return; // ⬅ prevents lead completion and commission distribution
       }
     } catch (error) {
-  console.error(error); // or log to external service
-  setOtpError("Something went wrong. Please try again.");
-}
- finally {
+      console.error(error); // or log to external service
+      setOtpError("Something went wrong. Please try again.");
+    }
+    finally {
       setVerifyingOtp(false);
     }
   };
@@ -175,7 +370,52 @@ useEffect(() => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
+    if (value && index < otp.length - 1) {
+      otpRefs.current[index + 1]?.focus();
+    }
   };
+  // useEffect(() => {
+  //   if (
+  //     statusType === "Payment request (partial/full)" &&
+  //     isCashInHand &&
+  //     paymentLink &&
+  //     !generatingPaymentLink
+  //   ) {
+  //     handleSubmit();
+  //   }
+  // }, [statusType, isCashInHand, paymentLink, generatingPaymentLink]);
+  // ✅ Extra Service Price Calculation
+  const extraServiceTotal = extraService.reduce(
+    (sum, item) => sum + (Number(item.total) || 0),
+    0
+  );
+
+  const finalRemainingAmount = (() => {
+    const defaultRemaining = Number(checkoutDetails?.grandTotal) > 0
+      ? Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)
+      : paymentType === "remaining"
+        ? Number(checkoutDetails?.remainingAmount ?? 0)
+        : Number(amount ?? 0);
+
+    return Number(defaultRemaining.toFixed(2)); // ensures number type
+  })();
+
+
+
+
+  const assurityFeePrice = (extraServiceTotal * assurityFee) / 100;
+  console.log(assurityFeePrice) //dont remove
+
+  const finalFullAmount =
+    Number(checkoutDetails?.grandTotal) > 0
+      ? Number(
+        (Number(checkoutDetails?.grandTotal ?? 0) -
+          Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
+      )
+      : Number(Number(amount).toFixed(2));
+
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] m-4">
@@ -189,54 +429,94 @@ useEffect(() => {
           <select
             className="w-full p-2 rounded-md border"
             value={statusType}
-            onChange={(e) => {
+            onChange={async (e) => {
               const selected = e.target.value;
 
               if (selected === "Lead completed") {
-                if (
-                  checkoutDetails?.paymentStatus === "paid" &&
-                  checkoutDetails?.remainingPaymentStatus === "paid"
-                ) {
+                if (checkoutDetails?.paymentStatus === "paid") {
                   setStatusType(selected);
                   setIsOtpModalOpen(true);
                 } else {
-                  alert(
-                    "Payment is not completed. Please complete payment before marking as completed."
-                  );
+                  alert("Payment is not completed. Please complete payment before marking as completed.");
                   setStatusType("Payment request (partial/full)");
 
-                  if (
-                    checkoutDetails?.remainingPaymentStatus !== "paid"
-                  ) {
+                  if ((checkoutDetails?.paymentStatus as string) === "paid") {
                     setPaymentType("remaining");
-                    createPaymentLink(
-                      Number(checkoutDetails?.partialPaymentLater || 0)
-                    );
+                    createPaymentLink(finalRemainingAmount);
+
                   } else {
                     setPaymentType("full");
-                    createPaymentLink(Number(amount));
+                    createPaymentLink(finalFullAmount);
+
                   }
                 }
-              } else {
+              }
+              else {
                 setStatusType(selected);
               }
             }}
           >
             <option value="">Select</option>
-            <option value="Lead request">Lead request</option>
-            <option value="Initial contact">Initial contact</option>
-            <option value="Need understand requirement">Need understand requirement</option>
-            <option value="Payment request (partial/full)">Payment request (partial/full)</option>
-            <option value="Payment verified">Payment verified</option>
-            <option value="Lead accepted">Lead accepted</option>
-            <option value="Lead requested documents">Lead requested documents</option>
-            <option value="Lead started">Lead started</option>
-            <option value="Lead ongoing">Lead ongoing</option>
-            <option value="Lead completed">Lead completed</option>
-            <option value="Lead cancel">Lead cancel</option>
-            <option value="Refund">Refund</option>
+
+            {/* Multi-select status types */}
+            {[
+              "Initial contact",
+              "Need understand requirement",
+              "Payment request (partial/full)",
+              "Payment verified",
+              "Lead requested documents",
+            ].map((status) => {
+              const isPaymentRequest = status === "Payment request (partial/full)";
+              const isPaymentVerified = status === "Payment verified";
+              const isPaid = checkoutDetails?.paymentStatus === "paid";
+              const isDisabled = (isPaymentRequest && isPaid) || isPaymentVerified;
+
+              return (
+                <option
+                  key={status}
+                  value={status}
+                  disabled={isDisabled}
+                  className={isDisabled ? "text-gray-400" : ""}
+                >
+                  {status}
+                </option>
+              );
+            })
+            }
+
+            {/* One-time status types */}
+            {[
+              "Lead accepted",
+
+              "Lead started",
+              "Lead ongoing",
+              "Lead completed",
+              "Lead cancel",
+              "Refund",
+            ].map((status) => {
+              const alreadyUsed = leadStatusList.some(
+                (lead: { statusType?: string }) =>
+                  typeof lead?.statusType === "string" &&
+                  lead.statusType.trim().toLowerCase() === status.trim().toLowerCase()
+              );
+
+              return (
+                <option
+                  key={status}
+                  value={status}
+                  disabled={alreadyUsed}
+                  className={alreadyUsed ? "text-gray-400" : ""}
+                >
+                  {status}
+                </option>
+              );
+            })}
           </select>
+
+
         </div>
+
+
 
         <div className="mb-4">
           <Label className="block mb-1 font-medium">Description</Label>
@@ -252,8 +532,8 @@ useEffect(() => {
         <div className="mb-4">
           {(statusType === "Payment request (partial/full)" ||
             statusType === "Need understand requirement") && (
-            <Label className="block mb-1 font-medium">Add Link</Label>
-          )}
+              <Label className="block mb-1 font-medium">Add Link</Label>
+            )}
 
           {statusType === "Need understand requirement" && (
             <input
@@ -267,7 +547,29 @@ useEffect(() => {
 
           {statusType === "Payment request (partial/full)" && (
             <>
-              {paymentType === "remaining" || paymentType === "full" ? (
+              {checkoutDetails?.isPartialPayment && (checkoutDetails?.remainingAmount ?? 0) > 0 ? (
+                <div className="my-3">
+                  <div className="flex gap-4 items-center mt-2">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      value="remaining"
+                      checked={paymentType === "remaining"}
+                      onChange={() => {
+                        setPaymentType("remaining");
+                        createPaymentLink(finalRemainingAmount);
+
+
+                      }}
+                    />
+                    <Label className="block mb-1 font-medium">Remaining Payment Amount</Label>
+                    <Label className="text-red-700 block">
+                      ₹ {finalRemainingAmount}
+                    </Label>
+
+                  </div>
+                </div>
+              ) : paymentType === "remaining" || paymentType === "full" ? (
                 <div className="my-3">
                   <Label className="block mb-1 font-medium">
                     {paymentType === "remaining"
@@ -276,9 +578,14 @@ useEffect(() => {
                   </Label>
                   <Label className="text-red-700 block">
                     ₹{" "}
-                    {paymentType === "remaining"
-                      ? checkoutDetails?.partialPaymentLater || 0
-                      : amount}
+                    {(
+                      Number(checkoutDetails?.grandTotal) > 0
+                        ? (Number(checkoutDetails?.grandTotal ?? 0) - Number(checkoutDetails?.paidAmount ?? 0)).toFixed(2)
+                        : paymentType === "remaining"
+                          ? Number(checkoutDetails?.remainingAmount ?? 0).toFixed(2)
+                          : Number(amount ?? 0).toFixed(2)
+                    ).toString()
+                    }
                   </Label>
                 </div>
               ) : (
@@ -291,12 +598,14 @@ useEffect(() => {
                       checked={paymentType === "full"}
                       onChange={() => {
                         setPaymentType("full");
-                        createPaymentLink(Number(amount));
+                        createPaymentLink(finalFullAmount);
+
                       }}
                     />
                     Full Payment
                   </Label>
-                  <Label className="text-red-700">RS {amount}</Label>
+                  <Label className="text-red-700">RS {finalFullAmount}
+                  </Label>
                   <Label className="flex items-center gap-2">
                     <input
                       type="radio"
@@ -305,16 +614,17 @@ useEffect(() => {
                       checked={paymentType === "partial"}
                       onChange={() => {
                         setPaymentType("partial");
-                        createPaymentLink(Number(amount) / 2);
+                        createPaymentLink(finalFullAmount / 2);
+
                       }}
                     />
                     Partial Payment
                   </Label>
-                  <Label className="text-red-700">
-                    RS {Number(amount) / 2}
+                  <Label className="text-red-700">RS {finalFullAmount / 2}
                   </Label>
                 </div>
               )}
+
 
               <input
                 type="text"
@@ -323,6 +633,32 @@ useEffect(() => {
                 value={paymentLink}
                 disabled
               />
+
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="confirmPaymentLink"
+                  className="w-4 h-4"
+                  checked={isCashInHand}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      const confirm = window.confirm("Are you sure you have received cash from the customer?");
+                      if (confirm) {
+                        setIsCashInHand(true);
+                      } else {
+                        setIsCashInHand(false);
+                      }
+                    } else {
+                      setIsCashInHand(false);
+                    }
+                  }}
+                />
+
+                <Label htmlFor="confirmPaymentLink" className="text-sm text-gray-700">
+                  Payment received from customer
+                </Label>
+              </div>
+
             </>
           )}
         </div>
@@ -335,31 +671,38 @@ useEffect(() => {
         <div className="text-right">
           <button
             className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
             disabled={
               loading ||
               (statusType === "Payment request (partial/full)" &&
+                !isCashInHand &&
                 (generatingPaymentLink || !paymentLink))
             }
           >
             {loading ||
-            (statusType === "Payment request (partial/full)" &&
-              generatingPaymentLink)
+              (statusType === "Payment request (partial/full)" && generatingPaymentLink)
               ? "Processing..."
               : "Submit"}
           </button>
+
         </div>
 
         <Modal
           isOpen={isOtpModalOpen}
-          onClose={() => setIsOtpModalOpen(false)}
+          onClose={() => {
+            setIsOtpModalOpen(false);
+            setOtp(["", "", "", "", "", ""]); // clear entered OTP
+            setOtpError(""); // clear error
+            setOtpSuccess(false); // clear success
+            // ❌ remove onClose(); – this was closing parent modal incorrectly
+          }}
           className="max-w-sm"
         >
+
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-2 mt-5 ml-9 text-gray-800 dark:text-white">
               Enter OTP
             </h2>
-
             <div className="flex justify-center space-x-2 mb-4 mt-4">
               {otp.map((digit, index) => (
                 <input
@@ -368,10 +711,19 @@ useEffect(() => {
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace" && !otp[index] && index > 0) {
+                      otpRefs.current[index - 1]?.focus();
+                    }
+                  }}
+                  ref={(el) => {
+                    otpRefs.current[index] = el;
+                  }}
                   className="w-10 h-10 text-center border rounded-md"
                 />
               ))}
             </div>
+
 
             {otpError && (
               <p className="text-red-500 text-sm text-center mb-2">

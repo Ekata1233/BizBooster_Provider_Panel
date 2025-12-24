@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
+
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -25,7 +26,6 @@ export default function SignInForm() {
     try {
       setLoading(true);
       await login(email, password);
-      // ⛔️ Removed router.push here – will redirect inside useEffect when providerDetails is ready
     } catch (err: unknown) {
       console.error("Login failed:", err);
       if (err instanceof Error) {
@@ -40,10 +40,47 @@ export default function SignInForm() {
 
   // ✅ Redirect to dashboard after successful login (when providerDetails is ready)
   useEffect(() => {
+    console.log("DEBUG: providerDetails:", providerDetails);
+    console.log("DEBUG: loading:", loading);
     if (providerDetails && !loading) {
       router.push("/");
     }
   }, [providerDetails, loading, router]);
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Please enter your registered email first.");
+      return;
+    }
+    console.log("origin : ",window.location.origin);
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        "https://api.fetchtrue.com/api/provider/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Reset password link has been sent to your registered email!");
+      } else {
+        alert(data.message || "Failed to send reset link.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -111,12 +148,19 @@ export default function SignInForm() {
                     Keep me logged in
                   </span>
                 </div>
-                <Link
+                {/* <Link
                   href="/reset-password"
                   className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Forgot password?
-                </Link>
+                </Link> */}
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                >
+                  Forgot password?
+                </button>
               </div>
               <div>
                 <Button className="w-full" size="sm" disabled={loading}>

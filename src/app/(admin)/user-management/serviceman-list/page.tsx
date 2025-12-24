@@ -7,9 +7,10 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { useRouter } from 'next/navigation';
 import Input from '@/components/form/input/InputField';
-import { PencilIcon, TrashBinIcon } from '@/icons';
+import { EyeIcon, PencilIcon, TrashBinIcon } from '@/icons';
 import { useAuth } from '@/app/context/AuthContext';
 import { Modal } from '@/components/ui/modal';
+import Link from 'next/link';
 
 interface ServiceManTableData {
   id: string;
@@ -49,6 +50,7 @@ const ServicemanListPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // ✅
   const [isOpen, setIsOpen] = useState(false); // ✅
   const router = useRouter();
+  console.log("serviceman", serviceMenByProvider);
 
   useEffect(() => {
     if (provider?._id) {
@@ -57,8 +59,9 @@ const ServicemanListPage = () => {
   }, [provider]);
 
   useEffect(() => {
-    if (serviceMenByProvider && serviceMenByProvider.length > 0) {
-      const formatted = serviceMenByProvider.map((man: ServiceMan) => ({
+    if (serviceMenByProvider) {
+      const formatted = serviceMenByProvider.map((man: ServiceMan, index: number) => ({
+        srNo: index + 1,
         id: man._id || '',
         name: man.name || '—',
         lastName: man.lastName || '—',
@@ -92,11 +95,21 @@ const ServicemanListPage = () => {
   };
 
   const handleEdit = (id: string) => router.push(`/user-management/serviceman-list/${id}`);
+
+
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this serviceman?')) {
-      await deleteServiceMan(id);
+  if (confirm('Are you sure you want to delete this serviceman?')) {
+    await deleteServiceMan(id, provider?._id);
+
+    // ✅ Re-fetch servicemen to refresh UI
+    if (provider?._id) {
+      await fetchServiceMenByProvider(provider._id);
     }
-  };
+
+    alert("Serviceman deleted successfully!");
+  }
+};
+
 
   const openModal = (image: string) => {
     setSelectedImage(image);
@@ -109,6 +122,7 @@ const ServicemanListPage = () => {
   };
 
   const columns = [
+    { header: 'Sr. No', accessor: 'srNo' },
     { header: 'Name', accessor: 'name' },
     { header: 'Last Name', accessor: 'lastName' },
     { header: 'Phone Number', accessor: 'phoneNo' },
@@ -155,6 +169,12 @@ const ServicemanListPage = () => {
       accessor: 'actions',
       render: (row: ServiceManTableData) => (
         <div className="flex gap-2">
+          <Link
+            href={`/user-management/serviceman-list/details/${row.id}`}
+            className="text-blue-500 border border-blue-500 rounded-md p-2 hover:bg-blue-500 hover:text-white"
+          >
+            <EyeIcon size={16} />
+          </Link>
           <button
             onClick={() => handleEdit(row.id)}
             className="text-yellow-500 border border-yellow-500 rounded-md p-2 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"
@@ -177,14 +197,14 @@ const ServicemanListPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="All ServiceMen" />
+      <PageBreadcrumb pageTitle="All ServiceMan" />
 
       <div className="my-5">
         <ComponentCard title="ServiceMan List">
           <div className="mb-4">
             <Input
               type="text"
-              placeholder="Search servicemen…"
+              placeholder="Search Serviceman"
               value={searchQuery}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             />
@@ -198,7 +218,7 @@ const ServicemanListPage = () => {
               >
                 All
               </li>
-              <li
+              {/* <li
                 className={`cursor-pointer px-4 py-2 ${activeTab === 'active' ? 'border-b-2 border-blue-600 text-blue-600' : ''}`}
                 onClick={() => setActiveTab('active')}
               >
@@ -209,7 +229,7 @@ const ServicemanListPage = () => {
                 onClick={() => setActiveTab('inactive')}
               >
                 Inactive
-              </li>
+              </li> */}
             </ul>
           </div>
 

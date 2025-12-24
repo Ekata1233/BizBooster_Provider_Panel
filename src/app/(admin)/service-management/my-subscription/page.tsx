@@ -2,11 +2,17 @@
 
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
-import { useService } from '@/app/context/ServiceContext';
-import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import ComponentCard from '@/components/common/ComponentCard';
 import BasicTableOne from '@/components/tables/BasicTableOne';
-
+import { usePathname } from 'next/navigation';
+import { useService } from '@/app/context/ServiceContext';
+interface TableRow {
+  original: {
+    providerDiscount: number | null;
+    providerPrice: number | null;
+  };
+}
 interface TableData {
   id: string;
   serviceName: string;
@@ -14,158 +20,249 @@ interface TableData {
   subCategoryName: string;
   discountedPrice: number | null;
   providerPrice: number | null;
+  providerMRP: number | null;       // ✅ new
+  providerDiscount: number | null;
+  providerCommission: string | null;
   status: string;
 }
 
 interface ProviderPrice {
   provider?: { _id: string };
-  providerPrice: number;
-  // …other fields you actually use can stay optional
+  providerPrice?: number | null;
+  providerMRP?: number | null;
+  providerDiscount?: number | null;
+  providerCommission?: string | null;
 }
-// interface ProviderDetails {
-//   subscribedServices: { _id: string }[];
-// }
+
+interface ServiceType {
+  _id: string;
+  serviceName: string;
+  categoryName?: string;
+  subCategoryName?: string;
+  discountedPrice?: number | null;
+  providerPrices?: ProviderPrice[];
+}
+
+export interface SubscribedService {
+  _id: string;
+  serviceName?: string;
+  categoryName?: string;
+  subCategoryName?: string;
+  discountedPrice?: number | null;
+  providerPrice?: number | null;
+  providerMRP?: number | null;
+  providerCommission?: string | null;
+  providerDiscount?: number | null;
+}
 
 const MySubscriptionPage = () => {
-  const { services, loadingServices, errorServices } = useService();
-  const { providerDetails } = useAuth();
-  console.log("proivder details: ", providerDetails)
-
+  const { providerDetails, refreshProviderDetails } = useAuth();
+  const pathname = usePathname();
+  const { services } = useService();
   const [tableData, setTableData] = useState<TableData[]>([]);
   const [search, setSearch] = useState('');
   const [filteredData, setFilteredData] = useState<TableData[]>([]);
+  const [unsubscribing, setUnsubscribing] = useState<string | null>(null);
 
-  /* Flatten services to tableData when services or providerDetails change */
+  console.log('provider details f:', providerDetails);
+  console.log('updates price', services);
+
+  // ✅ Refresh provider details when page loads or path changes
   useEffect(() => {
-    if (!services || !providerDetails?.subscribedServices?.length) {
-      setTableData([]);
-      return;
-    }
+    refreshProviderDetails();
+  }, [pathname]);
 
-const idSet = new Set<string>(
-  (providerDetails.subscribedServices as unknown as { _id: string }[]).map((s) => s._id)
-);
+  useEffect(() => {
+    refreshProviderDetails();
+  }, []);
 
+  // ✅ Map subscribedServices to table format
+  useEffect(() => {
+    if (providerDetails?.subscribedServices?.length) {
+      const mapped = (providerDetails.subscribedServices as SubscribedService[]).map((srv,index) => {
+        const matchingService = (services as ServiceType[]).find((svc) => {
+          if (!Array.isArray(svc.providerPrices)) return false;
+          return svc.providerPrices.some(
+            (pp: ProviderPrice) =>
+              pp.provider?._id === providerDetails._id && svc._id === srv._id
+          );
+        });
 
+        let updatedProviderPrice: number | null = srv.providerPrice ?? null;
+        let updatedProviderMRP: number | null = srv.providerMRP ?? null;
+        let updatedProviderDiscount: number | null = srv.providerDiscount ?? null;
+        let updatedProviderCommission: string | null = srv.providerCommission ?? null;
 
-    const flattened = services
-      .filter((srv) => idSet.has(srv._id))
-      .map((srv) => {
-        const providerPrices = (srv as { providerPrices?: ProviderPrice[] }).providerPrices;
+        if (matchingService) {
+          const providerPriceEntry = matchingService.providerPrices?.find(
+            (pp: ProviderPrice) => pp.provider?._id === providerDetails._id
+          );
 
-        const providerEntry = providerPrices?.find(
-          (pp) => pp.provider?._id === providerDetails?._id
-        );
+          if (providerPriceEntry) {
+            if (providerPriceEntry.providerPrice != null) {
+              updatedProviderPrice = Number(providerPriceEntry.providerPrice);
+            }
+            if (providerPriceEntry.providerMRP != null) {
+              updatedProviderMRP = Number(providerPriceEntry.providerMRP);
+            }
+            if (providerPriceEntry.providerDiscount != null) {
+              updatedProviderDiscount = Number(providerPriceEntry.providerDiscount);
+            }
+            if (providerPriceEntry.providerCommission != null) {
+              updatedProviderCommission = (providerPriceEntry.providerCommission);
+            }
+          }
+        }
 
         return {
+           srNo: index + 1, 
           id: srv._id,
-          serviceName: srv.serviceName,
-          categoryName: srv.category?.name || '—',
-          subCategoryName: srv.subcategory?.name || '—',
+          serviceName: srv.serviceName || '—',
+          categoryName: srv.categoryName || '—',
+          subCategoryName: srv.subCategoryName || '—',
           discountedPrice: srv.discountedPrice ?? null,
-          providerPrice: providerEntry?.providerPrice ?? null,
+          providerPrice: updatedProviderPrice,
+          providerMRP: updatedProviderMRP,
+          providerDiscount: updatedProviderDiscount,
+          providerCommission: updatedProviderCommission,
           status: 'Subscribed',
         };
       });
+      setTableData(mapped);
+      setFilteredData(mapped);
+    }
+  }, [providerDetails, services]);
 
-    setTableData(flattened);
-  }, [services, providerDetails]);
 
-  /* Filter tableData on search term */
+  // ✅ Search filter
   useEffect(() => {
-    if (!search) {
+    if (!search.trim()) {
       setFilteredData(tableData);
+    } else {
+      const lowerSearch = search.toLowerCase();
+      setFilteredData(
+        tableData.filter((item) =>
+          item.serviceName.toLowerCase().includes(lowerSearch)
+        )
+      );
+    }
+  }, [search, tableData]);
+
+  const handleUnsubscribe = async (serviceId: string) => {
+    if (!providerDetails?._id) {
+      console.error('No providerId found');
       return;
     }
 
-    const lowerSearch = search.toLowerCase();
-    const filtered = tableData.filter((item) => {
-      const haystack = [
-        item.serviceName,
-        item.categoryName,
-        item.subCategoryName,
-        item.discountedPrice?.toString() ?? '',
-        item.providerPrice?.toString() ?? '',
-        item.status,
-      ]
-        .join(' ')
-        .toLowerCase();
+    try {
+      setUnsubscribing(serviceId);
 
-      return haystack.includes(lowerSearch);
-    });
+      const response = await fetch('https://api.fetchtrue.com/api/provider/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          providerId: providerDetails._id,
+          serviceId,
+        }),
+      });
 
-    setFilteredData(filtered);
-  }, [search, tableData]);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Unsubscribe failed');
+      }
 
-  const onSearch = (e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
+      alert('Service unsubscribed successfully!');
 
-  /* Table columns */
+      await refreshProviderDetails(); // ✅ Update table without full reload
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
+    } finally {
+      setUnsubscribing(null);
+    }
+  };
+
+
   const columns = [
+      {
+    header: 'Sr. No',
+    accessor: 'srNo',
+    cell: (_: unknown, rowIndex: number) => rowIndex + 1, // ✅ use unknown instead of any
+  },
     { header: 'Service Name', accessor: 'serviceName' },
-    { header: 'Category', accessor: 'categoryName' },
-    { header: 'Subcategory', accessor: 'subCategoryName' },
     {
       header: 'Price',
       accessor: 'discountedPrice',
       cell: (row: { discountedPrice: number | null }) =>
         row.discountedPrice != null ? `₹${row.discountedPrice}` : '—',
     },
-
+    {
+      header: 'Provider MRP',
+      accessor: 'providerMRP',
+      cell: (row: { providerMRP: number | null }) =>
+        row.providerMRP != null ? `₹${row.providerMRP}` : '—',
+    },
+    {
+      header: 'Provider Discount',
+      accessor: 'providerDiscount',
+      cell: (row: TableRow) =>
+        row.original.providerDiscount != null
+          ? `${row.original.providerDiscount}%`
+          : '—',
+    },
+    {
+      header: 'Commission',
+      accessor: 'providerCommission',
+      cell: (row: { providerCommission: string | null }) =>
+        row.providerCommission != null ? `${row.providerCommission}` : '—',
+    },
     {
       header: 'Provider Price',
       accessor: 'providerPrice',
-      cell: (row: { providerPrice: number | null }) =>
-        row.providerPrice != null ? `₹${row.providerPrice}` : '—',
+      cell: (row: TableRow) =>
+        row.original.providerPrice != null
+          ? `₹${row.original.providerPrice}`
+          : '—',
     },
-
     {
-      header: 'Status',
-      accessor: 'status',
-      render: () => (
+      header: 'Action',
+      accessor: 'action',
+      render: (row: TableData) => (
         <button
-          disabled
-          className="bg-green-500 text-white px-3 py-1 text-xs rounded shadow cursor-not-allowed"
+          onClick={() => handleUnsubscribe(row.id)}
+          disabled={unsubscribing === row.id}
+          className={`${unsubscribing === row.id
+            ? 'bg-gray-400'
+            : 'bg-red-500 hover:bg-red-600'
+            } text-white px-4 py-2 rounded-md transition duration-200`}
         >
-          Subscribed
+          {unsubscribing === row.id ? 'Unsubscribing…' : 'Unsubscribe'}
         </button>
       ),
     },
   ];
 
-  if (loadingServices) {
-    return (
-      <p className="py-10 text-center text-sm text-gray-500">Loading…</p>
-    );
-  }
-  if (errorServices) {
-    return (
-      <p className="py-10 text-center text-red-500">{errorServices}</p>
-    );
-  }
-
   return (
-    <div>
+    <>
       <PageBreadcrumb pageTitle="My Subscription" />
       <div className="space-y-6">
         <ComponentCard title="Subscribed Services">
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search services…"
+              placeholder="Search services..."
               value={search}
-              onChange={onSearch}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setSearch(e.target.value)
+              }
+              className="border px-3 py-2 rounded-md w-full"
             />
           </div>
-
-          {filteredData.length === 0 ? (
-            <p className="text-sm text-gray-500">No matching subscriptions.</p>
-          ) : (
-            <BasicTableOne columns={columns} data={filteredData} />
-          )}
+          <BasicTableOne columns={columns} data={filteredData} />
         </ComponentCard>
       </div>
-    </div>
+    </>
   );
 };
 

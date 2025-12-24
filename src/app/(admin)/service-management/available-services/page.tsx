@@ -8,6 +8,7 @@ import { useSubcategory } from "@/app/context/SubCategoryContext";
 import { useSubscribe } from "@/app/context/SubscribeContext";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import AllServices from "@/components/service/AllServices";
@@ -19,22 +20,26 @@ interface OptionType {
     value: string;
     label: string;
 }
-
+interface CategoryWithModule {
+  _id: string;
+  module: string;
+  name?: string;
+}
 const Page = () => {
     const router = useRouter();
     const [selectedModule, setSelectedModule] = useState<string>('');
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const { subscribeToService, subscribeStates } = useSubscribe();
 
     const { modules, loadingModules, errorModules } = useModule();
     const { categories, loadingCategories, errorCategories } = useCategory();
     const { subcategories, loadingSubcategories, errorSubcategories } = useSubcategory();
-    const { services, loadingServices, errorServices, fetchSingleService } = useService();
-  
-    const { providerDetails,refreshProviderDetails  } = useAuth();
+    const { services, loadingServices, errorServices, fetchSingleService, refetchServices } = useService();
 
-    // console.log("Provider details : ", providerDetails)
+    const { providerDetails, refreshProviderDetails } = useAuth();
+
     // 🔹 Module Options
     const modulesOptions: OptionType[] = modules.map((mod: ModuleType) => ({
         value: mod._id,
@@ -55,7 +60,7 @@ const Page = () => {
     const subcategoryOptions: OptionType[] = useMemo(() => {
         if (!selectedCategory) return [];
         return subcategories
-            .filter((sub) => sub.category._id === selectedCategory)
+            .filter((sub) => sub.category?._id === selectedCategory) // 👈 fixed
             .map((sub) => ({
                 value: sub._id,
                 label: sub.name,
@@ -79,15 +84,41 @@ const Page = () => {
         setSelectedSubcategory(value);
     };
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+    };
 
-    const filteredServices = services.filter(service => {
+    
 
-        if (selectedCategory && service.category?._id !== selectedCategory) return false;
+const filteredServices = useMemo(() => {
+  if (!services) return [];
 
-        if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
+  const providerModuleId = providerDetails?.storeInfo?.module;
 
-        return true;
-    });
+  return services.filter(service => {
+    const category = service.category as CategoryWithModule | undefined;
+
+    if (providerModuleId && category?.module !== providerModuleId) return false;
+
+    // Category filter
+    if (selectedCategory && category?._id !== selectedCategory) return false;
+
+    // Subcategory filter
+    if (selectedSubcategory && service.subcategory?._id !== selectedSubcategory) return false;
+
+    // Search filter
+    if (
+      searchQuery &&
+      !service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+
+    return true;
+  });
+}, [services, providerDetails, selectedCategory, selectedSubcategory, searchQuery]);
+
+
+
 
     const handleClick = async (id: string) => {
         await fetchSingleService(id);
@@ -98,20 +129,22 @@ const Page = () => {
         try {
             await subscribeToService(serviceId);
             alert("Subscribed successfully!");
+            await refreshProviderDetails();
+            await refetchServices();
         } catch (error: unknown) {
-    if (error instanceof Error) {
-        alert(`Subscription failed: ${error.message}`);
-    } else {
-        alert(`Subscription failed: ${String(error)}`);
-    }
-}
+            if (error instanceof Error) {
+                alert(`Subscription failed: ${error.message}`);
+            } else {
+                alert(`Subscription failed: ${String(error)}`);
+            }
+        }
     };
 
-      useEffect(() => {
-    refreshProviderDetails();
-  }, [refreshProviderDetails]);
+    useEffect(() => {
+        refreshProviderDetails();
+    }, [refreshProviderDetails]);
 
-  if (!providerDetails) return <div>Loading...</div>;
+    if (!providerDetails) return <div>Loading...</div>;
 
     if (loadingModules || loadingCategories || loadingSubcategories || loadingServices) return <p>Loading...</p>;
     if (errorModules) return <p>{errorModules}</p>;
@@ -174,15 +207,30 @@ const Page = () => {
                                 </span>
                             </div>
                         </div>
+
+                        {/* Search Input */}
+                        <div>
+                            <Label>Search Services</Label>
+                            <div className="relative">
+                                <Input
+                                    type="text"
+                                    placeholder="Search by service name"
+                                    className="w-full px-4 py-2 border rounded-md dark:bg-dark-900 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                />
+                                <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                    {/* <SearchIcon /> */}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </ComponentCard>
             </div>
 
-
             <AllServices
-                services={filteredServices}
+                services={filteredServices}  // ✅ Correct
                 subscribeStates={subscribeStates}
-                providerSubscribedIds={providerDetails?.subscribedServices || []}
                 onSubscribe={handleSubscribeClick}
                 onView={handleClick}
             />

@@ -21,28 +21,33 @@ export interface ServiceMan {
   updatedAt?: string;
 }
 
+interface ApiResponse<T = unknown> {
+  status: number;
+  message: string;
+  data: T | null;
+}
+
 interface ServiceManContextType {
   serviceMen: ServiceMan[];
   serviceMenByProvider: ServiceMan[];
-  fetchServiceMen: () => void;
-  fetchServiceMenByProvider: (providerId: string) => void;
-  addServiceMan: (formData: FormData) => Promise<void>;
-  updateServiceMan: (id: string, formData: FormData) => Promise<void>;
-  deleteServiceMan: (id: string) => Promise<void>;
+  fetchServiceMen: () => Promise<void>;
+  fetchServiceMenByProvider: (providerId: string) => Promise<void>;
+  addServiceMan: (formData: FormData) => Promise<ApiResponse<ServiceMan> | undefined>;
+  updateServiceMan: (id: string, formData: FormData) => Promise<ApiResponse<ServiceMan> | undefined>;
+  deleteServiceMan: (id: string, providerId?: string) => Promise<void>; 
   loading: boolean;
   error: string | null;
 }
 
 const ServiceManContext = createContext<ServiceManContextType | undefined>(undefined);
 
-const API_BASE = "https://biz-booster.vercel.app/api/serviceman";
+const API_BASE = "https://api.fetchtrue.com/api/serviceman";
 
 export const ServiceManProvider = ({ children }: { children: React.ReactNode }) => {
   const [serviceMen, setServiceMen] = useState<ServiceMan[]>([]);
   const [serviceMenByProvider, setServiceMenByProvider] = useState<ServiceMan[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
 
   const fetchServiceMen = async () => {
     setLoading(true);
@@ -51,12 +56,14 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       const res = await fetch(API_BASE);
       const data = await res.json();
       setServiceMen(data);
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error.message || "Failed to fetch servicemen");
-    } finally {
+    }  catch (err: unknown) {
+  const error = err as Error;
+  setError(error.message || "Failed to fetch servicemen");
+}
+finally {
       setLoading(false);
     }
+
   };
 
   const fetchServiceMenByProvider = async (providerId: string) => {
@@ -76,28 +83,52 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const addServiceMan = async (formData: FormData) => {
+  const addServiceMan = async (
+    formData: FormData
+  ): Promise<ApiResponse<ServiceMan> | undefined> => {
     setLoading(true);
     setError(null);
+
     try {
       const res = await fetch(API_BASE, {
         method: "POST",
         body: formData,
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to create serviceman");
+
+      if (!res.ok) {
+        return {
+          status: res.status,
+          message: data?.message || "Failed to create serviceman",
+          data: null,
+        };
+      }
 
       fetchServiceMen();
+      return {
+        status: res.status,
+        message: data?.message || "Serviceman created successfully",
+        data,
+      };
+
     } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error.message || "Add failed");
+      const error = err as Error;
+      return {
+        status: 500,
+        message: error.message || "Add failed",
+        data: null,
+      };
     }
     finally {
       setLoading(false);
     }
   };
 
-  const updateServiceMan = async (id: string, formData: FormData) => {
+  const updateServiceMan = async (
+    id: string,
+    formData: FormData
+  ): Promise<ApiResponse<ServiceMan> | undefined> => {
     setLoading(true);
     setError(null);
     try {
@@ -107,37 +138,60 @@ export const ServiceManProvider = ({ children }: { children: React.ReactNode }) 
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Update failed");
+
+      if (!res.ok) {
+        return {
+          status: res.status,
+          message: data?.message || "Update failed",
+          data: null,
+        };
+      }
 
       fetchServiceMen();
+
+      return {
+        status: res.status,
+        message: data?.message || "ServiceMan updated successfully",
+        data: data?.data ?? null,
+      };
+
     } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error.message || "Update failed");
+      const error = err as Error;
+      return {
+        status: 500,
+        message: error.message || "Update failed",
+        data: null,
+      };
     }
     finally {
       setLoading(false);
     }
   };
 
-  const deleteServiceMan = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/${id}`, {
-        method: "DELETE",
-      });
+const deleteServiceMan = async (id: string, providerId?: string) => {
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
 
-      if (!res.ok) throw new Error("Delete failed");
+    if (!res.ok) throw new Error("Delete failed");
 
-      fetchServiceMen();
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error.message || "Delete failed");
+    // ✅ If called from provider panel, refresh provider servicemen
+    if (providerId) {
+      await fetchServiceMenByProvider(providerId);
+    } 
+    // ✅ Otherwise refresh global list
+    else {
+      await fetchServiceMen();
     }
-    finally {
-      setLoading(false);
-    }
-  };
+
+  } catch (err: unknown) {
+    const error = err as Error;
+    setError(error.message || "Delete failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchServiceMen();

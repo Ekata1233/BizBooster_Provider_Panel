@@ -30,19 +30,25 @@ export interface CheckoutType {
   couponDiscount: number;
   champaignDiscount: number;
   vat: number;
+   gst: number;
   platformFee: number;
-  garrentyFee: number;
+  assurityfee: number;
   tax: number;
   totalAmount: number;
+  extraServicePrice: number;
+  paidAmount: number;
+  grandTotal: number;
   termsCondition: boolean;
   paymentMethod: ('credit_card' | 'upi' | 'pac' | 'net_banking' | 'wallet')[];
   walletAmount: number;
   paidByOtherMethodAmount: number;
   partialPaymentNow: number;
   partialPaymentLater: number;
+  remainingAmount?: number;
   remainingPaymentStatus: 'pending' | 'paid' | 'failed';
   paymentStatus: 'pending' | 'paid' | 'failed';
   orderStatus: 'processing' | 'in_progress' | 'completed' | 'cancelled';
+  cashInHandAmount?: number;
   notes?: string;
   isVerified: boolean;
   isAccepted: boolean;
@@ -99,7 +105,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setLoadingCheckouts(true);
     try {
       const res = await axios.get(
-        `https://biz-booster.vercel.app/api/checkout/${providerId}`
+        `https://api.fetchtrue.com/api/checkout/${providerId}`
       );
       setCheckouts(res.data?.data || []);
       setErrorCheckouts(null);
@@ -115,7 +121,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setLoadingCheckoutDetails(true);
     try {
       const res = await axios.get(
-        `https://biz-booster.vercel.app/api/checkout/details/${id}`
+        `https://api.fetchtrue.com/api/checkout/details/${id}`
       );
       setCheckoutDetails(res.data?.data || null);
       setErrorCheckoutDetails(null);
@@ -132,7 +138,7 @@ export const CheckoutProvider: React.FC<CheckoutProviderProps> = ({
     setLoadingUpdate(true);
     setErrorUpdate(null);
     try {
-      const res = await axios.put(`https://biz-booster.vercel.app/api/checkout/${id}`, data);
+      const res = await axios.put(`https://api.fetchtrue.com/api/checkout/${id}`, data);
       setCheckoutDetails(res.data?.data || null); // Update local detail if relevant
       
     }catch (err: unknown) {

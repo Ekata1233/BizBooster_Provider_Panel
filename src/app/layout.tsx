@@ -16,6 +16,9 @@ import { ServiceCustomerProvider } from './context/ServiceCustomerContext';
 import { LeadProvider } from './context/LeadContext';
 import { WalletProvider } from './context/WalletContext';
 import { AdProvider } from './context/AdContext';
+import { ProviderGalleryProvider } from './context/ProviderGalleryContext';
+import { ZoneProvider } from './context/ZoneContext';
+import { PayoutProvider } from './context/PayoutContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -44,7 +47,13 @@ export default function RootLayout({
                                 <LeadProvider>
                                   <WalletProvider>
                                     <AdProvider>
-                                    {children}
+                                      <ProviderGalleryProvider>
+                                        <ZoneProvider>
+                                          <PayoutProvider>
+                                            {children}
+                                          </PayoutProvider>
+                                        </ZoneProvider>
+                                      </ProviderGalleryProvider>
                                     </AdProvider>
                                   </WalletProvider>
                                 </LeadProvider>

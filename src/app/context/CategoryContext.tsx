@@ -50,7 +50,7 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({
     setLoadingCategories(true);
     try {
       const res = await axios.get(
-        "https://biz-booster.vercel.app/api/category"
+        "https://api.fetchtrue.com/api/category"
       );
       setCategories(res.data?.data || []);
       setErrorCategories(null);

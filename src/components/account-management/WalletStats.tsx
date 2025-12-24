@@ -1,10 +1,9 @@
 "use client";
 import React from "react";
 import {
-  FaUsers,
   FaChartLine,
-  FaMoneyBill,
   FaClipboardList,
+  FaMoneyBill,
   FaStore,
   FaTools,
 } from 'react-icons/fa';
@@ -18,52 +17,53 @@ interface WalletStatsProps {
     pendingWithdraw: number;
     alreadyWithdrawn: number;
     totalEarning: number;
+    adjustmentCash: number;
   };
 }
 
 const WalletStats: React.FC<WalletStatsProps> = ({ wallet }) => {
   const stats = [
+    // {
+    //   title: "Receivable Balance",
+    //   value: wallet.receivableBalance.toFixed(2),
+    //   icon: <FaUsers size={48} />,
+    //   gradient: 'from-red-100 to-red-200',
+    //   textColor: 'text-red-800',
+    // },
     {
-      title: "Receivable Balance",
-      value: wallet.receivableBalance.toFixed(2),
-      icon: <FaUsers size={48} />,
-      gradient: 'from-pink-50 to-pink-100',
-      textColor: 'text-pink-600',
-    },
-    {
-      title: "Cash in Hand",
-      value: wallet.cashInHand.toFixed(2),
-      icon: <FaClipboardList size={48} />,
-      gradient: 'from-blue-50 to-blue-100',
-      textColor: 'text-blue-600',
-    },
-    {
-      title: "Withdrawable Balance",
-      value: wallet.withdrawableBalance.toFixed(2),
-      icon: <FaMoneyBill size={48} />,
-      gradient: 'from-green-50 to-green-100',
-      textColor: 'text-green-600',
+      title: "Total Balance",
+      value: wallet.totalEarning.toFixed(2),
+      icon: <FaChartLine size={48} />,
+      gradient: 'from-teal-100 to-teal-200',
+      textColor: 'text-teal-800',
     },
     {
       title: "Pending Withdraw",
       value: wallet.pendingWithdraw.toFixed(2),
       icon: <FaTools size={48} />,
-      gradient: 'from-yellow-50 to-yellow-100',
-      textColor: 'text-yellow-600',
+      gradient: 'from-yellow-100 to-yellow-200',
+      textColor: 'text-yellow-800',
     },
     {
       title: "Already Withdrawn",
       value: wallet.alreadyWithdrawn.toFixed(2),
       icon: <FaStore size={48} />,
-      gradient: 'from-purple-50 to-purple-100',
-      textColor: 'text-purple-600',
+      gradient: 'from-purple-100 to-purple-200',
+      textColor: 'text-purple-800',
     },
     {
-      title: "Total Earning",
-      value: wallet.totalEarning.toFixed(2),
-      icon: <FaChartLine size={48} />,
-      gradient: 'from-teal-50 to-teal-100',
-      textColor: 'text-teal-600',
+      title: "Cash in Hand",
+      value: wallet.cashInHand.toFixed(2),
+      icon: <FaClipboardList size={48} />,
+      gradient: 'from-blue-100 to-blue-200',
+      textColor: 'text-blue-800',
+    },
+    {
+      title: "Pay to Fetch True",
+      value: wallet.adjustmentCash.toFixed(2),
+      icon: <FaMoneyBill size={48} />,
+      gradient: 'from-green-100 to-green-200',
+      textColor: 'text-green-800',
     },
   ];
 
