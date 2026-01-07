@@ -11,10 +11,10 @@ import ComponentCard from "@/components/common/ComponentCard";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const identityOptions = [
-   { value: "addharcard", label: "Aadhaar Card" },
-  { value: "pancard", label: "PAN Card" },
-  { value: "passport", label: "Passport" },
-  { value: "driving_license", label: "Driving License" },
+   { value: "Aadharcard", label: "Aadhaar Card" },
+  { value: "Pancard", label: "PAN Card" },
+  { value: "Passport", label: "Passport" },
+  { value: "Driving_license", label: "Driving License" },
 ];
 
 export default function AddServiceManPage() {
