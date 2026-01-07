@@ -8,6 +8,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import { useRouter } from "next/navigation";
+import FileInput from "@/components/form/input/FileInput";
 
 export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
@@ -317,19 +318,19 @@ tags.forEach((tag) => {
 
           <div>
             <Label>Logo</Label>
-            <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, setLogo, setLogoPreview)} />
+            <FileInput  onChange={(e) => handleFileChange(e, setLogo, setLogoPreview)} />
             {logoPreview && <img src={logoPreview} alt="Logo" className="h-16 mt-2 border rounded" />}
           </div>
 
           <div>
             <Label>Cover</Label>
-            <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, setCover, setCoverPreview)} />
+            <FileInput  onChange={(e) => handleFileChange(e, setCover, setCoverPreview)} />
             {coverPreview && <img src={coverPreview} alt="Cover" className="h-24 mt-2 border rounded" />}
           </div>
 
           <div>
             <Label>Gallery Images</Label>
-            <input type="file" accept="image/*" multiple onChange={handleGalleryChange} />
+            <FileInput  multiple onChange={handleGalleryChange} />
             <div className="flex flex-wrap gap-2 mt-2">
               {galleryPreviews.map((img, idx) => (
                 <img key={idx} src={img} alt={`Gallery ${idx}`} className="h-16 border rounded" />
@@ -342,7 +343,7 @@ tags.forEach((tag) => {
           {["aadhaarCard", "panCard", "storeDocument", "GST", "other"].map((key) => (
             <div key={key} className="mb-4">
               <Label>{key}</Label>
-              <input type="file" multiple onChange={(e) => handleKycChange(e, key)} />
+              <FileInput multiple onChange={(e) => handleKycChange(e, key)} />
               <div className="flex flex-wrap gap-2 mt-2">
                 {kycPreviews[key].map((file, idx) => (
                   <img key={idx} src={file} alt={`${key} ${idx}`} className="h-16 border rounded" />
