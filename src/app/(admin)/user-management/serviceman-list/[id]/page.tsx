@@ -18,6 +18,13 @@ type ServiceMan = {
   };
 };
 
+const identityOptions = [
+   { value: "addharcard", label: "Aadhaar Card" },
+  { value: "pancard", label: "PAN Card" },
+  { value: "passport", label: "Passport" },
+  { value: "driving_license", label: "Driving License" },
+];
+
 export default function UpdateServiceManPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -63,11 +70,22 @@ export default function UpdateServiceManPage() {
     }
   }, [serviceMenByProvider, id]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' })); // clear error on change
-  };
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+
+  setForm((prev) => ({
+    ...prev,
+    [name]: value,
+    ...(name === 'identityType' && value === ''
+      ? { identityNumber: '' }
+      : {}),
+  }));
+
+  setErrors((prev) => ({ ...prev, [name]: '' }));
+};
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target;
@@ -130,10 +148,26 @@ export default function UpdateServiceManPage() {
     }
 
     // Identity Type (if filled - alphabets only)
-    if (form.identityType && !/^[a-zA-Z\s]+$/.test(form.identityType)) {
-      newErrors.identityType = 'Identity Type must contain only letters';
-      isValid = false;
-    }
+// Identity Type + Identity Number dependency
+if (
+  (form.identityType && !form.identityNumber) ||
+  (!form.identityType && form.identityNumber)
+) {
+  if (!form.identityType)
+    newErrors.identityType = 'Identity Type is required when Identity Number is filled';
+
+  if (!form.identityNumber)
+    newErrors.identityNumber = 'Identity Number is required when Identity Type is filled';
+
+  isValid = false;
+}
+
+// Identity Number length
+if (form.identityNumber && form.identityNumber.length < 4) {
+  newErrors.identityNumber = 'Identity Number must be at least 4 characters';
+  isValid = false;
+}
+
 
     // Identity Number (if filled)
     if (form.identityNumber && form.identityNumber.length < 4) {
@@ -242,17 +276,28 @@ export default function UpdateServiceManPage() {
         </div>
 
         {/* Identity Type */}
-        <div>
-          <label className="block mb-1 font-medium">Identity Type</label>
-          <input
-            type="text"
-            name="identityType"
-            value={form.identityType}
-            onChange={handleInputChange}
-            className="w-full border p-2 rounded"
-          />
-          {errors.identityType && <p className="text-red-600 text-sm mt-1">{errors.identityType}</p>}
-        </div>
+        {/* Identity Type */}
+<div>
+  <label className="block mb-1 font-medium">Identity Type</label>
+  <select
+    name="identityType"
+    value={form.identityType}
+    onChange={handleInputChange}
+    className="border px-3 py-2 rounded w-full"
+  >
+    <option value="">Select Identity Type</option>
+    {identityOptions.map((opt) => (
+      <option key={opt.value} value={opt.value}>
+        {opt.label}
+      </option>
+    ))}
+  </select>
+
+  {errors.identityType && (
+    <p className="text-red-600 text-sm mt-1">{errors.identityType}</p>
+  )}
+</div>
+
 
         {/* Identity Number */}
         <div>

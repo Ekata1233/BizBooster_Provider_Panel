@@ -29,33 +29,14 @@ const AddAd = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Get subscribed services for the provider
-  // const subscribedServices = services.filter((service) =>
-  //   providerDetails?.subscribedServices?.some(
-  //     (id) => id.toString() === service._id.toString()
-  //   )
-  // );
   const subscribedServices = services.filter((service) =>
     providerDetails?.subscribedServices?.some(
       (sub) => sub._id.toString() === service._id.toString()
     )
   );
 
-
-  // console.log("subscribedServices s : ", subscribedServices)
-  // console.log("subscribe services category wise : ", filteredServices)
-
   console.log("provider : ", provider)
   console.log("provider details  : ", providerDetails)
-
-
-
-  // Get unique categories from subscribed services
-  // const subscribedCategories = categories.filter((category) =>
-  //   subscribedServices.some(
-  //     (service) => service.category?._id.toString() === category._id.toString()
-  //   )
-  // );
 
   const fetchCategories = useMemo(() => {
     if (!provider?.storeInfo?.module) return [];
@@ -149,6 +130,18 @@ const AddAd = () => {
     }
   };
 
+  // Get today's date-time in YYYY-MM-DDTHH:mm format
+const todayDateTime = useMemo(() => {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const min = String(now.getMinutes()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}, []);
+
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Add Advertise" />
@@ -231,7 +224,8 @@ const AddAd = () => {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="w-full border rounded-md p-2"
-              min={startDate || undefined} // optional: prevent end before start
+              //min={startDate || undefined} optional: prevent end before start
+              min={todayDateTime || undefined}
             />
           </div>
 
