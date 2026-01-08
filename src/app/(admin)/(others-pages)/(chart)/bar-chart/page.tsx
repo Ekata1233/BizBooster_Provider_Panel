@@ -1,7 +1,7 @@
+import BarChartClient from "@/components/charts/bar/BarChartClient";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
   title: "Next.js Bar Chart | TailAdmin - Next.js Dashboard Template",
@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 };
 
 // 👇 client-only chart
-const BarChartOne = dynamic(
-  () => import("@/components/charts/bar/BarChartOne"),
-  { ssr: false }
-);
+// const BarChartOne = dynamic(
+//   () => import("@/components/charts/bar/BarChartOne"),
+//   { ssr: false }
+// );
 
 export default function Page() {
   return (
@@ -21,7 +21,7 @@ export default function Page() {
       <PageBreadcrumb pageTitle="Bar Chart" />
       <div className="space-y-6">
         <ComponentCard title="Bar Chart 1">
-          <BarChartOne />
+          <BarChartClient />
         </ComponentCard>
       </div>
     </div>
