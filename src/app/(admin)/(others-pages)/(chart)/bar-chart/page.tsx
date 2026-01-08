@@ -1,39 +1,29 @@
-// import BarChartClient from "@/components/charts/bar/BarChartClient";
-// import ComponentCard from "@/components/common/ComponentCard";
-// import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-// import { Metadata } from "next";
+import BarChartClient from "@/components/charts/bar/BarChartClient";
+import ComponentCard from "@/components/common/ComponentCard";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { Metadata } from "next";
 
-// export const metadata: Metadata = {
-//   title: "Next.js Bar Chart | TailAdmin - Next.js Dashboard Template",
-//   description:
-//     "This is Next.js Bar Chart page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
-// };
+export const metadata: Metadata = {
+  title: "Next.js Bar Chart | TailAdmin - Next.js Dashboard Template",
+  description:
+    "This is Next.js Bar Chart page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+};
 
-// // 👇 client-only chart
-// // const BarChartOne = dynamic(
-// //   () => import("@/components/charts/bar/BarChartOne"),
-// //   { ssr: false }
-// // );
+// 👇 client-only chart
+// const BarChartOne = dynamic(
+//   () => import("@/components/charts/bar/BarChartOne"),
+//   { ssr: false }
+// );
 
-// export default function Page() {
-//   return (
-//     <div>
-//       <PageBreadcrumb pageTitle="Bar Chart" />
-//       <div className="space-y-6">
-//         <ComponentCard title="Bar Chart 1">
-//           <BarChartClient />
-//         </ComponentCard>
-//       </div>
-//     </div>
-//   );
-// }
-
-import React from 'react'
-
-const page = () => {
+export default function Page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <PageBreadcrumb pageTitle="Bar Chart" />
+      <div className="space-y-6">
+        <ComponentCard title="Bar Chart 1">
+          <BarChartClient />
+        </ComponentCard>
+      </div>
+    </div>
+  );
 }
-
-export default page
