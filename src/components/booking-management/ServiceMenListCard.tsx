@@ -30,7 +30,6 @@ const ServiceMenListCard = ({
   totalServiceMen,
   showAll,
   setShowAll,
-  disableAssign = false,
 }: ServiceMenListCardProps) => {
   const [selectedManId, setSelectedManId] = useState<string | null>(null);
   const [assignedManId, setAssignedManId] = useState<string | null>(null);

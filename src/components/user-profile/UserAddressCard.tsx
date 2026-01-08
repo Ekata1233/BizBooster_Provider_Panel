@@ -243,16 +243,39 @@ interface ProviderDetails {
 function renderImageArray(data?: string[]) {
   if (!data || data.length === 0)
     return <p className="text-sm text-gray-400">No files</p>;
-  return data.map((url, index) => (
-    <Image
-      key={index}
-      src={url}
-      alt={`Document ${index + 1}`}
-      width={100}
-      height={100}
-      className="rounded border border-gray-200 object-contain max-h-24"
-    />
-  ));
+
+  console.log("data : ", data);
+
+  return data.map((url, index) => {
+    const ext = url.split(".").pop()?.toLowerCase();
+
+    // If it's an image
+    if (ext && ["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
+      return (
+        <Image
+          key={index}
+          src={url}
+          alt={`Document ${index + 1}`}
+          width={100}
+          height={100}
+          className="rounded border border-gray-200 object-contain max-h-24"
+        />
+      );
+    }
+
+    // If it's a PDF (or other non-image files)
+    return (
+      <a
+        key={index}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-blue-600 underline"
+      >
+        PDF Document {index + 1}
+      </a>
+    );
+  });
 }
 
 function TagsView({ tags }: { tags?: string[] }) {
