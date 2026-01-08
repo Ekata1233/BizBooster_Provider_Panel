@@ -11,6 +11,7 @@ import { useCategory } from '@/app/context/CategoryContext';
 import { Service, useService } from '@/app/context/ServiceContext';
 import { useAuth } from '@/app/context/AuthContext';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import axios from 'axios';
 
 const AddAd = () => {
   const { createAd } = useAdContext();
@@ -122,10 +123,25 @@ const AddAd = () => {
       await createAd(formData);
       alert('Ad created successfully!');
       resetForm();
-    } catch (error) {
-      console.error('Error creating ad:', error);
-      alert('Failed to create ad.');
-    } finally {
+    } catch (error: unknown) {
+  console.error('Error creating ad:', error);
+
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+
+    if (status === 413) {
+      alert('Uploaded file size exceeds the allowed limit (Max 1MB). Please upload a smaller image.');
+    } else if (status === 400) {
+      alert(error.response?.data?.message || 'Invalid request.');
+    } else if (status === 401) {
+      alert('You are not authorized. Please login again.');
+    } else {
+      alert(error.response?.data?.message || 'Failed to create advertisement.');
+    }
+  } else {
+    alert('Network error. Please check your internet connection.');
+  }
+} finally {
       setLoading(false);
     }
   };
@@ -264,7 +280,7 @@ const todayDateTime = useMemo(() => {
           {/* Submit */}
           <div className="mt-6">
             <Button size="sm" variant="primary" onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Submitting...' : 'Add Ad'}
+              {loading ? 'Submitting...' : 'Add Advertise'}
             </Button>
           </div>
         </div>

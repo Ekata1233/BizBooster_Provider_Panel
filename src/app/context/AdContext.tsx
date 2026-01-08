@@ -40,7 +40,7 @@ interface AdContextType {
   loading: boolean;
   error: string | null;
   fetchAds: () => Promise<void>;
-  createAd: (data: FormData) => Promise<void>;
+  createAd: (data: FormData) => Promise<unknown>;
   deleteAd: (id: string) => Promise<void>;
   updateAd: (id: string, data: Partial<AdType>) => Promise<void>;
 }
@@ -70,22 +70,32 @@ export const AdProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const createAd = async (formData: FormData) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await axios.post(API_BASE_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      await fetchAds();
-    } catch (err) {
-      console.error('Failed to create ad:', err);
-      setError('Failed to create ad');
-      throw err;
-    } finally {
-      setLoading(false);
+const createAd = async (formData: FormData) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const response = await axios.post(API_BASE_URL, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    await fetchAds();
+    return response; // ✅ return response for flexibility
+  } catch (err: unknown) {
+    console.error('Failed to create ad:', err);
+
+    // ❌ DO NOT override backend error message
+    if (axios.isAxiosError(err)) {
+      setError(err.response?.data?.message || 'Failed to create ad');
+    } else {
+      setError('Unexpected error occurred');
     }
-  };
+
+    throw err; // ✅ rethrow so UI can read status codes
+  } finally {
+    setLoading(false);
+  }
+};
 
   const deleteAd = async (id: string) => {
     setLoading(true);
