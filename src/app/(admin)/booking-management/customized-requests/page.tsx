@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
@@ -183,7 +183,7 @@ const data: BookingRow[] = checkouts
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Customized Requests" />
+      <PageBreadCrumb pageTitle="Customized Requests" />
       <div className="space-y-6">
         <ComponentCard title="Customized Requests">
           <div className="mb-4">

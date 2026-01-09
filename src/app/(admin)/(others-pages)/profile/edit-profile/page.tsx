@@ -4,11 +4,20 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import ComponentCard from "@/components/common/ComponentCard";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import { useRouter } from "next/navigation";
 import FileInput from "@/components/form/input/FileInput";
+
+console.log({
+  ComponentCard,
+  PageBreadCrumb,
+  Label,
+  Input,
+  FileInput,
+});
+
 
 export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
@@ -226,7 +235,7 @@ tags.forEach((tag) => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Edit Profile" />
+      <PageBreadCrumb pageTitle="Edit Profile" />
       {error && <p className="text-red-500 m-4">{error}</p>}
       <div className="space-y-6 m-4">
 

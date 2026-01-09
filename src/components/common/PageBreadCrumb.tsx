@@ -5,7 +5,7 @@ interface BreadcrumbProps {
   pageTitle: string;
 }
 
-const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
+const PageBreadCrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
       <h2
@@ -49,4 +49,4 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
   );
 };
 
-export default PageBreadcrumb;
+export default PageBreadCrumb;

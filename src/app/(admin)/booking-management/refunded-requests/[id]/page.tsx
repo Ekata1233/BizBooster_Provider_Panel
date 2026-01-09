@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import { useCheckout } from '@/app/context/CheckoutContext';
 import { useParams } from 'next/navigation';
 import { format } from 'date-fns';
@@ -267,7 +267,7 @@ const AllBookingsDetails = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="All Bookings Details" />
+      <PageBreadCrumb pageTitle="All Bookings Details" />
 
       <div className="space-y-6">
         {/* Booking Summary Header */}

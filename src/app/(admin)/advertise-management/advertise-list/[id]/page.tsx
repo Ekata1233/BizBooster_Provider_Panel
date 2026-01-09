@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
 import { useAdContext } from '@/app/context/AdContext';
 
@@ -60,7 +60,7 @@ const AdDetailsPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Advertisement Details" />
+      <PageBreadCrumb pageTitle="Advertisement Details" />
 
       {/* Card 1: Image + Title */}
       <div className="my-5">

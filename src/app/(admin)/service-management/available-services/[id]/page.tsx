@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useService } from "@/app/context/ServiceContext";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import Image from "next/image";
 import ComponentCard from "@/components/common/ComponentCard";
 import { ChevronDownIcon } from "@/icons";
@@ -40,7 +40,7 @@ const ServiceDetailsPage = () => {
 
   return (
     <div className="p-4 space-y-6">
-      <PageBreadcrumb pageTitle={`${singleService.serviceName}`} />
+      <PageBreadCrumb pageTitle={`${singleService.serviceName}`} />
       <div className="flex items-center gap-6">
         <Image
           src={singleService.thumbnailImage}

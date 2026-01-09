@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { useCheckout } from '@/app/context/CheckoutContext';
@@ -201,7 +201,7 @@ const AcceptedRequests = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Accepted Requests" />
+      <PageBreadCrumb pageTitle="Accepted Requests" />
       <div className="space-y-6">
         <ComponentCard
           title={

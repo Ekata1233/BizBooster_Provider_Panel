@@ -7,7 +7,7 @@ import { useService } from "@/app/context/ServiceContext";
 import { useSubcategory } from "@/app/context/SubCategoryContext";
 import { useSubscribe } from "@/app/context/SubscribeContext";
 import ComponentCard from "@/components/common/ComponentCard";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -153,7 +153,7 @@ const filteredServices = useMemo(() => {
     if (errorServices) return <p>{errorServices}</p>;
     return (
         <div>
-            <PageBreadcrumb pageTitle="Available Services" />
+            <PageBreadCrumb pageTitle="Available Services" />
             <div className="space-y-6">
                 <ComponentCard title="Service Filter">
                     <div className="space-y-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">

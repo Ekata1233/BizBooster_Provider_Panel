@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { usePathname } from 'next/navigation';
@@ -245,7 +245,7 @@ const MySubscriptionPage = () => {
 
   return (
     <>
-      <PageBreadcrumb pageTitle="My Subscription" />
+      <PageBreadCrumb pageTitle="My Subscription" />
       <div className="space-y-6">
         <ComponentCard title="Subscribed Services">
           <div className="mb-4">

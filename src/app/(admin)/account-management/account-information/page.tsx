@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useProviderWallet } from "@/app/context/WalletContext";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
 import WalletStats from "@/components/account-management/WalletStats";
 import BasicTableOne from "@/components/tables/BasicTableOne";
@@ -170,7 +170,7 @@ const Page = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Account Information" />
+      <PageBreadCrumb pageTitle="Account Information" />
       <div className="space-y-6">
         {/* Wallet Stats */}
         <WalletStats

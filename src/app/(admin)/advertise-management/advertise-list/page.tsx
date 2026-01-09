@@ -2,7 +2,7 @@
 
 // import React, { useEffect, useState, ChangeEvent } from 'react';
 // import ComponentCard from '@/components/common/ComponentCard';
-// import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+// import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 // import BasicTableOne from '@/components/tables/BasicTableOne';
 // import Input from '@/components/form/input/InputField';
 // import { TrashBinIcon, EyeIcon } from '@/icons';
@@ -228,7 +228,7 @@
 
 //   return (
 //     <div>
-//       <PageBreadcrumb pageTitle="My Advertisements" />
+//       <PageBreadCrumb pageTitle="My Advertisements" />
 //       <div className="my-5">
 //         <ComponentCard title="My Advertisement List">
 //           {/* ✅ Search Input */}
@@ -312,7 +312,7 @@
 
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import ComponentCard from '@/components/common/ComponentCard';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import Input from '@/components/form/input/InputField';
 import { TrashBinIcon, EyeIcon } from '@/icons';
@@ -540,7 +540,7 @@ const AdvertiseList = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="My Advertisements" />
+      <PageBreadCrumb pageTitle="My Advertisements" />
 
       <div className="my-5">
         <ComponentCard title="My Advertisement List">
