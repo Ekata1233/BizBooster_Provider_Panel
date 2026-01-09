@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
 
 const Page = () => {
@@ -60,7 +60,7 @@ const Page = () => {
 
   return (
     <div className="p-6">
-      <PageBreadcrumb pageTitle="Gallery List" />
+      <PageBreadCrumb pageTitle="Gallery List" />
 
       <ComponentCard title="Gallery Images">
         <div className="grid grid-cols-3 gap-6">

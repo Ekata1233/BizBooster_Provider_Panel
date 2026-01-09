@@ -6,7 +6,7 @@ import Input from "@/components/form/input/InputField";
 import Button from "@/components/ui/button/Button";
 import FileInput from "@/components/form/input/FileInput";
 import { useAuth } from "@/app/context/AuthContext";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
@@ -218,7 +218,7 @@ export default function AddServiceManPage() {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Add Serviceman" />
+      <PageBreadCrumb pageTitle="Add Serviceman" />
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-7xl "

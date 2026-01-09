@@ -1,4 +1,4 @@
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import DefaultModal from "@/components/example/ModalExample/DefaultModal";
 import FormInModal from "@/components/example/ModalExample/FormInModal";
 import FullScreenModal from "@/components/example/ModalExample/FullScreenModal";
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function Modals() {
   return (
     <div>
-      <PageBreadcrumb pageTitle="Modals" />
+      <PageBreadCrumb pageTitle="Modals" />
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2 xl:gap-6">
         <DefaultModal />
         <VerticallyCenteredModal />

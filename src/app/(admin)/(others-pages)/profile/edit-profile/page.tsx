@@ -4,18 +4,34 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import ComponentCard from "@/components/common/ComponentCard";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import { useRouter } from "next/navigation";
 import FileInput from "@/components/form/input/FileInput";
 
+// console.log({
+//   ComponentCard,
+//   PageBreadCrumb,
+//   Label,
+//   Input,
+//   FileInput,
+// });
+
+
 export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
-  const countries = [{ code: "IN", label: "+91" }];
 
   console.log("proivder details : ", providerDetails)
-
+  useEffect(() => {
+    console.log({
+      ComponentCard,
+      PageBreadCrumb,
+      Label,
+      Input,
+      FileInput,
+    });
+  }, []);
   // Personal info
   const [fullName, setFullName] = useState(providerDetails?.fullName || "");
   const [phoneNo, setPhoneNo] = useState(providerDetails?.phoneNo || "");
@@ -68,6 +84,8 @@ const [totalExperience, setTotalExperience] = useState(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  console.log("kyc : ", kycDocs)
 
   useEffect(() => {
     if (providerDetails) {
@@ -215,7 +233,16 @@ tags.forEach((tag) => {
         await refreshProviderDetails();
         router.push("/profile");
       } else {
-        setError(data.message || "Failed to update profile.");
+        const regex = /Only alphabetic characters are allowed/g;
+  const matches = data.message.match(regex);
+
+  if (matches && matches.length > 0) {
+    alert(matches.join(", "));
+  } else {
+    alert(data.message || "Failed to update profile.");
+  }
+
+  setError(data.message || "Failed to update profile.");
       }
     } catch (err) {
       console.error(err);
@@ -227,7 +254,7 @@ tags.forEach((tag) => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Edit Profile" />
+      <PageBreadCrumb pageTitle="Edit Profile" />
       {error && <p className="text-red-500 m-4">{error}</p>}
       <div className="space-y-6 m-4">
 
@@ -254,12 +281,7 @@ tags.forEach((tag) => {
             <Label>State</Label>
           <Input placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
           <Label>Country</Label>
-          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border p-2 rounded w-full">
-            {countries.map((c) => (
-              <option key={c.code} value={c.code}>{c.code} ({c.label})</option>
-            ))}
-          </select>
-
+          <Input placeholder="State" value={country} onChange={(e) => setCountry(e.target.value)} />
            <Label>Tags</Label>
 <div>
   <Label>Tags</Label>

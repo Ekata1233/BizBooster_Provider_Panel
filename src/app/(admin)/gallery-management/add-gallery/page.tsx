@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
 
 const AddGalleryImage = () => {
@@ -41,7 +41,7 @@ const AddGalleryImage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Add Gallery" />
+      <PageBreadCrumb pageTitle="Add Gallery" />
 
       <ComponentCard title="Upload Gallery Images">
 

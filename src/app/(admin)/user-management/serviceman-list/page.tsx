@@ -3,7 +3,7 @@
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useServiceMan } from '@/app/context/ServiceManContext';
 import ComponentCard from '@/components/common/ComponentCard';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import BasicTableOne from '@/components/tables/BasicTableOne';
 import { useRouter } from 'next/navigation';
 import Input from '@/components/form/input/InputField';
@@ -197,7 +197,7 @@ const ServicemanListPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="All ServiceMan" />
+      <PageBreadCrumb pageTitle="All ServiceMan" />
 
       <div className="my-5">
         <ComponentCard title="ServiceMan List">

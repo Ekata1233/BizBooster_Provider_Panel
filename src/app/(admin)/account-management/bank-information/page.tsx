@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { usePayout } from "@/app/context/PayoutContext";
 import ComponentCard from "@/components/common/ComponentCard";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 const BankInfoPage = () => {
   const { providerDetails } = useAuth();
@@ -54,7 +54,7 @@ const BankInfoPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Bank Information" />
+      <PageBreadCrumb pageTitle="Bank Information" />
 
       <div className="my-5">
         <ComponentCard title="Account Details">

@@ -10,7 +10,7 @@ import { useAdContext } from '@/app/context/AdContext';
 import { useCategory } from '@/app/context/CategoryContext';
 import { Service, useService } from '@/app/context/ServiceContext';
 import { useAuth } from '@/app/context/AuthContext';
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import axios from 'axios';
 
 const AddAd = () => {
@@ -160,7 +160,7 @@ const todayDateTime = useMemo(() => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Add Advertise" />
+      <PageBreadCrumb pageTitle="Add Advertise" />
 
       <ComponentCard title="Add New Advertisement">
         <div className="space-y-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 md:gap-6">

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
-import PageBreadcrumb from '@/components/common/PageBreadCrumb';
+import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
 import { useServiceMan } from '@/app/context/ServiceManContext';
 
@@ -51,7 +51,7 @@ const ServiceManDetailsPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Serviceman Details" />
+      <PageBreadCrumb pageTitle="Serviceman Details" />
 
       {/* Card 1: Image left + Name/Last Name right */}
       <div className="my-5">
