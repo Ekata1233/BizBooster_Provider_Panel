@@ -254,12 +254,7 @@ tags.forEach((tag) => {
             <Label>State</Label>
           <Input placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
           <Label>Country</Label>
-          <select value={country} onChange={(e) => setCountry(e.target.value)} className="border p-2 rounded w-full">
-            {countries.map((c) => (
-              <option key={c.code} value={c.code}>{c.code} ({c.label})</option>
-            ))}
-          </select>
-
+          <Input placeholder="State" value={country} onChange={(e) => setCountry(e.target.value)} />
            <Label>Tags</Label>
 <div>
   <Label>Tags</Label>
