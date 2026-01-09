@@ -90,25 +90,69 @@ const uploadGalleryImages = async (providerId: string, files: File[]) => {
 };
 
 
-  const replaceGalleryImage = async (providerId: string, index: number, newImage: File) => {
-    const formData = new FormData();
-    formData.append("newImage", newImage);
+//   const replaceGalleryImage = async (providerId: string, index: number, newImage: File) => {
+//     const formData = new FormData();
+//     formData.append("newImage", newImage);
 
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axios.patch(`${BASE_URL}/${providerId}/gallery/${index}`, formData, {
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const res = await axios.patch(`${BASE_URL}/${providerId}/gallery/${index}`, formData, {
+//         headers: { "Content-Type": "multipart/form-data" },
+//       });
+//       setGalleryImages(res.data.updatedImages);
+//     } catch (err: unknown) {
+//   const error = err as { response?: { data?: { message?: string } } };
+//   setError(error?.response?.data?.message || "Replace failed");
+// }
+// finally {
+//       setLoading(false);
+//     }
+//   };
+
+const replaceGalleryImage = async (
+  providerId: string,
+  index: number,
+  newImage: File
+) => {
+  const formData = new FormData();
+  formData.append("newImage", newImage);
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await axios.patch(
+      `${BASE_URL}/${providerId}/gallery/${index}`,
+      formData,
+      {
         headers: { "Content-Type": "multipart/form-data" },
-      });
-      setGalleryImages(res.data.updatedImages);
-    } catch (err: unknown) {
-  const error = err as { response?: { data?: { message?: string } } };
-  setError(error?.response?.data?.message || "Replace failed");
-}
-finally {
-      setLoading(false);
+      }
+    );
+
+    setGalleryImages(res.data.updatedImages);
+    return res.data; // ✅ success
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      // ✅ Handle 413 properly
+      if (err.response?.status === 413) {
+        setError(
+          "Image too large. Please upload a smaller image."
+        );
+      } else {
+        setError(err.response?.data?.message || "Replace failed");
+      }
+
+      throw err; // ⛔ THIS LINE FIXES YOUR ISSUE
     }
-  };
+
+    setError("Replace failed");
+    throw err; // ⛔ ALSO REQUIRED
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const deleteGalleryImage = async (providerId: string, index: number) => {
     setLoading(true);
