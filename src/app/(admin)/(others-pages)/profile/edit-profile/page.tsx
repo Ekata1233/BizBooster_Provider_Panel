@@ -12,7 +12,6 @@ import FileInput from "@/components/form/input/FileInput";
 
 export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
-  const countries = [{ code: "IN", label: "+91" }];
 
   console.log("proivder details : ", providerDetails)
 
