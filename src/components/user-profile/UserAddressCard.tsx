@@ -296,6 +296,19 @@ function TagsView({ tags }: { tags?: string[] }) {
     </div>
   );
 }
+function isValidAboutUs(text: string) {
+  // Trim whitespace
+  const trimmed = text.trim();
+
+  // Return false if empty
+  if (!trimmed) return false;
+
+  // Regex: must contain at least one letter (a-z or A-Z)
+  const hasLetter = /[a-zA-Z]/.test(trimmed);
+
+  // Only valid if it contains at least one letter
+  return hasLetter;
+}
 
 
 export default function UserAddressCard() {
@@ -318,6 +331,11 @@ export default function UserAddressCard() {
       setMessage("Provider ID not found.");
       return;
     }
+
+     if (!isValidAboutUs(aboutUs)) {
+    setMessage("❌ Please enter some meaningful text (letters required).");
+    return;
+  }
 
     try {
       setLoading(true);
@@ -464,15 +482,16 @@ export default function UserAddressCard() {
       {/* Modal for Editing */}
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] m-4">
         <div className="flex flex-col  w-full max-w-[600px] gap-6 p-6 ">
-          <h4 className="font-semibold text-gray-800 text-lg">
+          <h4 className="font-semibold text-gray-00 text-lg">
             Update About Us
           </h4>
 
           <TextArea
             value={aboutUs}
-            onChange={(value: string) => setAboutUs(value)}  // ✅ Fix: matches expected type
+            onChange={(value: string) => setAboutUs(value)} 
             rows={6}
             placeholder="Write about your store..."
+            className="text-gray-900 dark:text-gray-100"
           />
 
 

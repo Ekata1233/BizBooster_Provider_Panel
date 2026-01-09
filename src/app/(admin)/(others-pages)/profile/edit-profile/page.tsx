@@ -144,15 +144,41 @@ setTotalExperience(
   };
 
   // KYC handler
+  // const handleKycChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+  //   if (!e.target.files) return;
+  //   const files = Array.from(e.target.files);
+  //   setKycDocs((prev) => ({ ...prev, [key]: [...prev[key], ...files] }));
+  //   setKycPreviews((prev) => ({
+  //     ...prev,
+  //     [key]: [...prev[key], ...files.map((file) => URL.createObjectURL(file))],
+  //   }));
+  // };
+
   const handleKycChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files);
-    setKycDocs((prev) => ({ ...prev, [key]: [...prev[key], ...files] }));
-    setKycPreviews((prev) => ({
-      ...prev,
-      [key]: [...prev[key], ...files.map((file) => URL.createObjectURL(file))],
-    }));
-  };
+  if (!e.target.files) return;
+  const files = Array.from(e.target.files);
+
+  // Limit files for specific keys
+  if (key === "panCard" && files.length > 1) {
+    alert("You can only upload 1 PAN card.");
+    return;
+  }
+
+  if (key === "aadhaarCard") {
+    const totalFiles = kycDocs[key].length + files.length;
+    if (totalFiles > 2) {
+      alert("You can only upload up to 2 Aadhaar cards.");
+      return;
+    }
+  }
+
+  setKycDocs((prev) => ({ ...prev, [key]: [...prev[key], ...files] }));
+  setKycPreviews((prev) => ({
+    ...prev,
+    [key]: [...prev[key], ...files.map((file) => URL.createObjectURL(file))],
+  }));
+};
+
 
   // Validation
   const validate = () => {
@@ -340,13 +366,13 @@ tags.forEach((tag) => {
 
           <div>
             <Label>Logo</Label>
-            <FileInput  onChange={(e) => handleFileChange(e, setLogo, setLogoPreview)} />
+            <FileInput accept="image/*" onChange={(e) => handleFileChange(e, setLogo, setLogoPreview)} />
             {logoPreview && <img src={logoPreview} alt="Logo" className="h-16 mt-2 border rounded" />}
           </div>
 
           <div>
             <Label>Cover</Label>
-            <FileInput  onChange={(e) => handleFileChange(e, setCover, setCoverPreview)} />
+            <FileInput accept="image/*" onChange={(e) => handleFileChange(e, setCover, setCoverPreview)} />
             {coverPreview && <img src={coverPreview} alt="Cover" className="h-24 mt-2 border rounded" />}
           </div>
 

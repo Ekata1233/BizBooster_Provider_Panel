@@ -5,6 +5,7 @@ import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
 import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
+import axios from 'axios';
 
 const AddGalleryImage = () => {
   const { uploadGalleryImages, fetchGallery, loading, error } = useProviderGallery();
@@ -33,10 +34,22 @@ const AddGalleryImage = () => {
         fileInputRef.current.value = '';
       }
     } catch (err) {
-      alert("Upload failed ❌");
-      console.log(err);
-
+    if (axios.isAxiosError(err)) {
+    if (err.code === "ERR_NETWORK") {
+      alert(
+        "Upload failed: Images exceed the allowed file size."
+      );
+      return;
     }
+    if (err.response?.status === 413) {
+      alert(
+        "Upload failed: Images exceed the allowed file size."
+      );
+      return;
+    }
+  }
+  alert("Upload failed: Images exceed the allowed file size.");
+}
   };
 
   return (

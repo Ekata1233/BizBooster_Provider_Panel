@@ -156,17 +156,23 @@ export default function AddServiceManPage() {
         return;
       }
 
-     const msg = response?.message?.toLowerCase() || "";
+const msg = response?.message?.toLowerCase() || "";
 
-  if (msg.includes("email")) {
-    window.alert("email already exists");
-  } else if (msg.includes("phone")) {
-    window.alert("phoneNo already exists");
-  } else if (msg.includes("identity")) {
-    window.alert("identityNumber already exists");
-  } else {
-    window.alert(response?.message || "Failed to add serviceman");
-  }
+if (msg.includes("email")) {
+  window.alert("Email already exists");
+} else if (msg.includes("phone")) {
+  window.alert("Phone number already exists");
+} else if (msg.includes("name must contain only alphabetic")) {
+  window.alert("Name must contain only alphabetic characters");
+} else if (msg.includes("last name must contain only alphabetic")) {
+  window.alert("Last name must contain only alphabetic characters");
+} else if (msg.includes("identitynumber already exists")) {
+  window.alert("Identity number already exists");
+} else if (msg.includes("identitytype")) {
+  window.alert("Invalid identity type selected");
+} else {
+  window.alert(response?.message || "Failed to add serviceman");
+}
 
 } catch (e) {
   const errorText = (e instanceof Error && e.message) ? e.message.toLowerCase() : "";
