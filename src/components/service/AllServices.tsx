@@ -63,7 +63,6 @@ const AllServices: React.FC<AllServicesProps> = ({
 
     const [localServices, setLocalServices] = useState<Service[]>(services);
     console.log("All providerSubscribedIds : ", providerSubscribedIds);
-    console.log("provider Details  : ", provider);
 
 
     // ✅ Automatically calculate Provider Service Price when MRP & Discount change

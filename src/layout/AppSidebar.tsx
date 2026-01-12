@@ -79,13 +79,22 @@ const userItems: NavItem[] = [
     ],
   },
 ];
-const advertiseItems: NavItem[] = [
+const promotionItems: NavItem[] = [
   {
     icon: <Megaphone />,
     name: "Advertise",
     subItems: [
       { name: "Add Advertise", path: "/advertise-management/add-advertise", pro: false },
       { name: "Advertise List", path: "/advertise-management/advertise-list", pro: false },
+
+    ],
+  },
+  {
+    icon: <Megaphone />,
+    name: "Coupon",
+    subItems: [
+      { name: "Add Coupon", path: "/coupon-management/add-coupon", pro: false },
+      { name: "Coupon List", path: "/coupon-management/coupon-list", pro: false },
 
     ],
   },
@@ -147,7 +156,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery"
+    menuType: "main" | "others" | "booking" | "user" | "account" | "promotion" | "gallery"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -323,7 +332,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery";
+    type: "main" | "others" | "booking" | "user" | "account" | "promotion" | "gallery";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -337,7 +346,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
-    ["main", "others", "booking", "user", "account", "advertise", "gallery"].forEach((menuType) => {
+    ["main", "others", "booking", "user", "account", "promotion", "gallery"].forEach((menuType) => {
       const items =
         menuType === "main"
           ? navItems
@@ -345,8 +354,8 @@ const AppSidebar: React.FC = () => {
             ? othersItems
             : menuType === "user"
               ? userItems
-              : menuType === "advertise"
-                ? advertiseItems
+              : menuType === "promotion"
+                ? promotionItems
                 : menuType === "gallery"
                   ? galleryItems
                   : menuType === "account"
@@ -357,7 +366,7 @@ const AppSidebar: React.FC = () => {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery",
+                type: menuType as "main" | "others" | "booking" | "user" | "account" | "promotion" | "gallery",
                 index,
               });
               submenuMatched = true;
@@ -386,7 +395,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" | "advertise" | "gallery") => {
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others" | "booking" | "user" | "account" | "promotion" | "gallery") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -528,12 +537,12 @@ const AppSidebar: React.FC = () => {
                   }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Advertise Management"
+                  "Promotion Management"
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(advertiseItems, "advertise")}
+              {renderMenuItems(promotionItems, "promotion")}
             </div>
 
             <div className="">
