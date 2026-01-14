@@ -13,6 +13,7 @@ import { useCategory } from "@/app/context/CategoryContext";
 import { useService } from "@/app/context/ServiceContext";
 import { useZone } from "@/app/context/ZoneContext";
 import { useCoupon } from "@/app/context/CouponContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 const couponTypeOptions = [
     { value: "default", label: "Default" },
@@ -33,14 +34,8 @@ const AddCouponPage = () => {
     const { categories } = useCategory();
     const { services } = useService();
     const { zones } = useZone();
-
-    // const usersOptions: Option[] = Array.isArray(users)
-    //     ? users.map(cus => ({
-    //         value: String(cus._id),
-    //         label: cus.fullName,
-    //     }))
-    //     : [];
-    // const categoryOptions = categories?.map(c => ({ value: c._id, label: c.name })) ?? [];
+      const { providerDetails } = useAuth();
+    const providerId = providerDetails?._id ?? "";
     const categoryOptions = categories?.map(c => ({
         value: c._id ?? "",  // ensure it's never undefined
         label: c.name
@@ -68,7 +63,9 @@ const AddCouponPage = () => {
         maxDiscount: "",
         limitPerUser: "",
         discountCostBearer: "Provider" as CostBearer,
+        provider : providerId,
         couponAppliesTo: "Growth Partner" as AppliesTo,
+        isApprove: false
     });
     const handleChange = <K extends keyof typeof form>(
         field: K,
@@ -91,14 +88,10 @@ const AddCouponPage = () => {
         const fd = new FormData();
         Object.entries(form).forEach(([k, v]) => {
             if (v !== "") fd.append(k, v as string);
-            // if (k === "customer" && form.couponType !== "customerWise") return;
-            // fd.append(k, typeof v === "object" ? v.value ?? "" : v as string);
         });
 
         try {
-            const res = await addCoupon(fd); // Make sure this returns a proper JSON response
-
-            // ✅ Check if response indicates success
+            const res = await addCoupon(fd); 
             if (res?.success) {
                 alert("Coupon added!");
                 setForm({
@@ -118,7 +111,9 @@ const AddCouponPage = () => {
                     maxDiscount: "",
                     limitPerUser: "",
                     discountCostBearer: "Admin",
+                    provider: providerId,
                     couponAppliesTo: "Growth Partner",
+                    isApprove: false,
                 });
             } else {
                 // ❌ Show backend error message

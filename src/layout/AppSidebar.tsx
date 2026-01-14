@@ -8,6 +8,7 @@ import {
   // BoxCubeIcon,
   // CalenderIcon,
   ChevronDownIcon,
+  DollarLineIcon,
   FolderIcon,
   GridIcon,
   HorizontaLDots,
@@ -90,7 +91,7 @@ const promotionItems: NavItem[] = [
     ],
   },
   {
-    icon: <Megaphone />,
+    icon: <DollarLineIcon />,
     name: "Coupon",
     subItems: [
       { name: "Add Coupon", path: "/coupon-management/add-coupon", pro: false },
