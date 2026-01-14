@@ -11,10 +11,10 @@ import ComponentCard from "@/components/common/ComponentCard";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const identityOptions = [
-   { value: "Aadharcard", label: "Aadhaar Card" },
-  { value: "Pancard", label: "PAN Card" },
-  { value: "Passport", label: "Passport" },
-  { value: "Driving_license", label: "Driving License" },
+   { value: "aadharcard", label: "Aadhaar Card" },
+  { value: "pancard", label: "PAN Card" },
+  { value: "passport", label: "Passport" },
+  { value: "driving_license", label: "Driving License" },
 ];
 
 export default function AddServiceManPage() {
@@ -89,7 +89,7 @@ export default function AddServiceManPage() {
           return false;
         }
         break;
-      case "addharcard":
+      case "aadharcard":
         if (!/^\d{12}$/.test(number)) {
           setIdentityError("Enter a valid 12-digit Aadhaar number");
           return false;
@@ -157,6 +157,8 @@ export default function AddServiceManPage() {
       }
 
 const msg = response?.message?.toLowerCase() || "";
+
+console.log("msg of service man : ", msg);
 
 if (msg.includes("email")) {
   window.alert("Email already exists");
