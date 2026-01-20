@@ -10,15 +10,6 @@ import Input from "@/components/form/input/InputField";
 import { useRouter } from "next/navigation";
 import FileInput from "@/components/form/input/FileInput";
 
-// console.log({
-//   ComponentCard,
-//   PageBreadCrumb,
-//   Label,
-//   Input,
-//   FileInput,
-// });
-
-
 export default function EditProfilePage() {
   const { providerDetails, refreshProviderDetails } = useAuth();
 
@@ -308,42 +299,51 @@ tags.forEach((tag) => {
           <Input placeholder="State" value={state} onChange={(e) => setState(e.target.value)} />
           <Label>Country</Label>
           <Input placeholder="State" value={country} onChange={(e) => setCountry(e.target.value)} />
-           <Label>Tags</Label>
-<div>
+          <div>
   <Label>Tags</Label>
+
   <div className="flex gap-2">
     <Input
       placeholder="Add a tag"
       value={tagInput}
       onChange={(e) => setTagInput(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault(); // 🚫 prevent enter-based add
+        }
+      }}
     />
+
     <button
       type="button"
       onClick={addTag}
-      className="px-4 bg-blue-600 text-white rounded"
+      className="px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
     >
-      Add
+      Add More
     </button>
   </div>
 
-  <div className="flex flex-wrap gap-2 mt-2">
-    {tags.map((tag, idx) => (
-      <span
-        key={idx}
-        className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-      >
-        {tag}
-        <button
-          type="button"
-          onClick={() => removeTag(tag)}
-          className="text-red-500"
+  {tags.length > 0 && (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {tags.map((tag, idx) => (
+        <span
+          key={idx}
+          className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center gap-2"
         >
-          ✕
-        </button>
-      </span>
-    ))}
-  </div>
+          {tag}
+          <button
+            type="button"
+            onClick={() => removeTag(tag)}
+            className="text-red-500 hover:text-red-700"
+          >
+            ✕
+          </button>
+        </span>
+      ))}
+    </div>
+  )}
 </div>
+
 
  <Label>Total Projects</Label>
           <Input
