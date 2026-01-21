@@ -7,6 +7,7 @@ import { useAuth } from "@/app/context/AuthContext";
 export default function UserMetaCard() {
   const { providerDetails, refreshProviderDetails } = useAuth();
   const [isActive, setIsActive] = useState<boolean | null>(null);
+  const [isPromotionActive, setIsPromotionActive] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
 
   const userId = providerDetails?._id;
@@ -28,7 +29,7 @@ export default function UserMetaCard() {
 
     setLoading(true);
     try {
-      const res = await fetch(`https://biz-booster.vercel.app/api/provider/store-status/${userId}`, {
+      const res = await fetch(`https://api.fetchtrue.com/api/provider/store-status/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
@@ -47,6 +48,32 @@ export default function UserMetaCard() {
     }
   };
 
+    const handlePromotionToggle = async () => {
+    if (loading || !userId) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`https://api.fetchtrue.com/api/provider/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isPromoted: false, 
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data?.success) {
+        setIsPromotionActive(data.isPromotion);
+      } else {
+        console.error("Toggle failed:", data?.message || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Error toggling store:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   console.log("Provider details : ", providerDetails);
 
@@ -100,6 +127,32 @@ export default function UserMetaCard() {
               >
                 <span
                   className={`absolute left-0 top-0 w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isActive ? "translate-x-8" : ""
+                    }`}
+                ></span>
+              </button>
+
+              {loading && (
+                <span className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
+                  Updating...
+                </span>
+              )}
+            </div>
+          </div>
+           <div className="flex flex-col items-end gap-1">
+            <label className="text-sm font-semibold text-blue-600 dark:text-blue-600 tracking-wide uppercase whitespace-nowrap">
+              PROMOTION STATUS
+            </label>
+            <div className="relative flex items-center gap-2">
+              <button
+                onClick={handlePromotionToggle}
+                disabled={loading}
+                className={`relative w-16 h-8 rounded-full p-1 transition-colors duration-300 border-2 ${isPromotionActive
+                  ? "bg-gradient-to-r from-green-400 to-green-600 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"
+                  : "bg-gray-300 border-gray-400"
+                  } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <span
+                  className={`absolute left-0 top-0 w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isPromotionActive ? "translate-x-8" : ""
                     }`}
                 ></span>
               </button>
