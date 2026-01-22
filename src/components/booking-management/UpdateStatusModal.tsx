@@ -272,7 +272,6 @@ if (statusType === "Lead completed" && !fromOtp) {
       });
 
       const data = await res.json();
-      console.log("payment data : ", data)
 
 
       if (!res.ok) {

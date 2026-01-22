@@ -244,8 +244,6 @@ function renderImageArray(data?: string[]) {
   if (!data || data.length === 0)
     return <p className="text-sm text-gray-400">No files</p>;
 
-  console.log("data : ", data);
-
   return data.map((url, index) => {
     const ext = url.split(".").pop()?.toLowerCase();
 
