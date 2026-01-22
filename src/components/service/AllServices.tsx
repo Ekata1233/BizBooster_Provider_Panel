@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PencilIcon } from "@/icons";
+// import { PencilIcon } from "@/icons";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -46,14 +46,16 @@ const AllServices: React.FC<AllServicesProps> = ({
 }) => {
     const { updateProviderPrice } = useService();
     const { provider, refreshProviderDetails } = useAuth();
-    const { isOpen, openModal, closeModal } = useModal();
+    // const { isOpen, openModal, closeModal } = useModal();
+    const { isOpen, closeModal } = useModal();
 
     const [price, setPrice] = useState("");
     const [mrp, setMrp] = useState("");
     const [discount, setDiscount] = useState("");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+    // const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+    const [selectedServiceId] = useState<string | null>(null);
 
     const { providerDetails } = useAuth();
     const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || []).map(
@@ -81,18 +83,18 @@ const AllServices: React.FC<AllServicesProps> = ({
         setLocalServices(services);
     }, [services]);
 
-    const handleEdit = (id: string) => {
-        const selectedPrice = localServices.find((item) => item._id === id);
-        setSelectedServiceId(id);
-        console.log("provider entry :", selectedPrice);
+    // const handleEdit = (id: string) => {
+    //     const selectedPrice = localServices.find((item) => item._id === id);
+    //     setSelectedServiceId(id);
+    //     console.log("provider entry :", selectedPrice);
 
-        if (selectedPrice) {
-            setPrice(String(selectedPrice?.discountedPrice ?? ""));
-            setMrp(String(selectedPrice?.price ?? ""));
-            setDiscount(String(selectedPrice?.discount ?? ""));
-            openModal();
-        }
-    };
+    //     if (selectedPrice) {
+    //         setPrice(String(selectedPrice?.discountedPrice ?? ""));
+    //         setMrp(String(selectedPrice?.price ?? ""));
+    //         setDiscount(String(selectedPrice?.discount ?? ""));
+    //         openModal();
+    //     }
+    // };
 
     const handleUpdateData = async (
         e: React.MouseEvent<HTMLButtonElement>,
@@ -273,7 +275,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                             )}
                                         </div>
 
-                                        <PencilIcon
+                                        {/* <PencilIcon
                                             onClick={(e: React.MouseEvent<SVGSVGElement>) => {
                                                 e.stopPropagation();
                                                 if (!providerSubscribedIds.includes(service._id)) {
@@ -284,7 +286,7 @@ const AllServices: React.FC<AllServicesProps> = ({
                                                 ? "text-gray-300 cursor-not-allowed"
                                                 : "text-gray-500"
                                                 }`}
-                                        />
+                                        /> */}
                                     </div>
                                 </div>
 
