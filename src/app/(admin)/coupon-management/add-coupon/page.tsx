@@ -35,6 +35,7 @@ const AddCouponPage = () => {
     const { services } = useService();
     const { zones } = useZone();
       const { providerDetails } = useAuth();
+      console.log("provider services : ", services);
     const providerId = providerDetails?._id ?? "";
     const categoryOptions = categories?.map(c => ({
         value: c._id ?? "",  // ensure it's never undefined

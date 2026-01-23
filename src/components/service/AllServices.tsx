@@ -55,7 +55,9 @@ const AllServices: React.FC<AllServicesProps> = ({
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     // const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-    const [selectedServiceId] = useState<string | null>(null);
+    const [selectedServiceId
+        
+    ] = useState<string | null>(null);
 
     const { providerDetails } = useAuth();
     const providerSubscribedIds: string[] = (providerDetails?.subscribedServices || []).map(
