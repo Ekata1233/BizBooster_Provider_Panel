@@ -769,7 +769,7 @@ export default function EditProfilePage() {
               <Label>Logo</Label>
               <FileInput 
                 onChange={handleLogoChange}
-                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,application/pdf"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
               />
               {fileErrors.logo && (
                 <ErrorMessage message={fileErrors.logo} />
