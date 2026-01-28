@@ -36,8 +36,6 @@ const AddAd = () => {
     )
   );
 
-  console.log("provider : ", provider)
-  console.log("provider details  : ", providerDetails)
 
   const fetchCategories = useMemo(() => {
     if (!provider?.storeInfo?.module) return [];
@@ -123,23 +121,32 @@ const AddAd = () => {
       await createAd(formData);
       alert('Ad created successfully!');
       resetForm();
-    } catch (error: unknown) {
-  console.error('Error creating ad:', error);
+} catch (error: unknown) {
+  console.log('Error creating ad:', error);
 
   if (axios.isAxiosError(error)) {
-    const status = error.response?.status;
+    // 👉 NETWORK ERROR (no response)
+    if (!error.response) {
+      alert('Server not responding. Please try again later.');
+      return;
+    }
+
+    const status = error.response.status;
+
+      console.log('status creating ad:', status);
+
 
     if (status === 413) {
-      alert('Uploaded file size exceeds the allowed limit (Max 1MB). Please upload a smaller image.');
+      alert('Image too large. Max size is 1MB.');
     } else if (status === 400) {
-      alert(error.response?.data?.message || 'Invalid request.');
+      alert(error.response.data?.message || 'Invalid request.');
     } else if (status === 401) {
-      alert('You are not authorized. Please login again.');
+      alert('Session expired. Please login again.');
     } else {
-      alert(error.response?.data?.message || 'Failed to create advertisement.');
+      alert(error.response.data?.message || 'Failed to create advertisement.');
     }
   } else {
-    alert('Network error. Please check your internet connection.');
+    alert('Unexpected error occurred.');
   }
 } finally {
       setLoading(false);

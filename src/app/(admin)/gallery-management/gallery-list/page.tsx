@@ -5,6 +5,7 @@ import { useProviderGallery } from '@/app/context/ProviderGalleryContext';
 import { useAuth } from '@/app/context/AuthContext';
 import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import ComponentCard from '@/components/common/ComponentCard';
+import axios from 'axios';
 
 const Page = () => {
   const {
@@ -29,16 +30,40 @@ const Page = () => {
     }
   }, [providerId]);
 
-  const handleFileChange = async (index: number) => {
-    const fileInput = fileInputRefs.current[index];
-    const file = fileInput?.files?.[0];
-    if (!file || !providerId) return;
+const handleFileChange = async (index: number) => {
+  const fileInput = fileInputRefs.current[index];
+  const file = fileInput?.files?.[0];
+  if (!file || !providerId) return;
 
+  try {
     await replaceGalleryImage(providerId, index, file);
-    alert('Image replaced successfully!');
-    if (fileInput) fileInput.value = '';
+
+    alert("Image replaced successfully ✅");
     fetchGallery(providerId);
-  };
+  } catch (error: unknown) {
+    console.log("error of gallery:", error);
+
+    if (axios.isAxiosError(error)) {
+      // 🔥 NETWORK / SIZE / CORS ERROR
+      if (
+        error.code === "ERR_NETWORK" ||
+        error.response?.status === 413
+      ) {
+        alert("Image too large ❌ Please upload a smaller image.");
+      } else {
+        alert(
+          error.response?.data?.message ||
+            "Failed to replace image ❌ Please try again."
+        );
+      }
+    } else {
+      alert("Unexpected error ❌ Please try again.");
+    }
+  } finally {
+    if (fileInput) fileInput.value = "";
+  }
+};
+
 
   const handleReplaceClick = (index: number) => {
     const fileInput = fileInputRefs.current[index];

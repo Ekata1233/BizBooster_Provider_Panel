@@ -5,9 +5,11 @@ import { ApexOptions } from "apexcharts";
 
 import dynamic from "next/dynamic";
 // Dynamically import the ReactApexChart component
-const ReactApexChart = dynamic(() => import("react-apexcharts"), {
-  ssr: false,
-});
+const ReactApexChart = dynamic(
+  () => import("react-apexcharts").then((mod) => mod.default),
+  { ssr: false }
+);
+
 
 export default function LineChartOne() {
   const options: ApexOptions = {
@@ -129,5 +131,6 @@ export default function LineChartOne() {
         />
       </div>
     </div>
+    
   );
 }

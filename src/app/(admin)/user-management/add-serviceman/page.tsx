@@ -11,10 +11,10 @@ import ComponentCard from "@/components/common/ComponentCard";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const identityOptions = [
-   { value: "Aadharcard", label: "Aadhaar Card" },
-  { value: "Pancard", label: "PAN Card" },
-  { value: "Passport", label: "Passport" },
-  { value: "Driving_license", label: "Driving License" },
+   { value: "aadharcard", label: "Aadhaar Card" },
+  { value: "pancard", label: "PAN Card" },
+  { value: "passport", label: "Passport" },
+  { value: "driving_license", label: "Driving License" },
 ];
 
 export default function AddServiceManPage() {
@@ -89,7 +89,7 @@ export default function AddServiceManPage() {
           return false;
         }
         break;
-      case "addharcard":
+      case "aadharcard":
         if (!/^\d{12}$/.test(number)) {
           setIdentityError("Enter a valid 12-digit Aadhaar number");
           return false;
@@ -156,17 +156,25 @@ export default function AddServiceManPage() {
         return;
       }
 
-     const msg = response?.message?.toLowerCase() || "";
+const msg = response?.message?.toLowerCase() || "";
 
-  if (msg.includes("email")) {
-    window.alert("email already exists");
-  } else if (msg.includes("phone")) {
-    window.alert("phoneNo already exists");
-  } else if (msg.includes("identity")) {
-    window.alert("identityNumber already exists");
-  } else {
-    window.alert(response?.message || "Failed to add serviceman");
-  }
+console.log("msg of service man : ", msg);
+
+if (msg.includes("email")) {
+  window.alert("Email already exists");
+} else if (msg.includes("phone")) {
+  window.alert("Phone number already exists");
+} else if (msg.includes("name must contain only alphabetic")) {
+  window.alert("Name must contain only alphabetic characters");
+} else if (msg.includes("last name must contain only alphabetic")) {
+  window.alert("Last name must contain only alphabetic characters");
+} else if (msg.includes("identitynumber already exists")) {
+  window.alert("Identity number already exists");
+} else if (msg.includes("identitytype")) {
+  window.alert("Invalid identity type selected");
+} else {
+  window.alert(response?.message || "Failed to add serviceman");
+}
 
 } catch (e) {
   const errorText = (e instanceof Error && e.message) ? e.message.toLowerCase() : "";

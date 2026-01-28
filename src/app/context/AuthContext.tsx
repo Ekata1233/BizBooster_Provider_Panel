@@ -66,6 +66,7 @@ type ProviderDetails = {
   kyc?: KYC;
   providerId?: string;
   isStoreOpen?: boolean|null;
+  isPromoted?: boolean|null;
 };
 
 // ✅ If needed, use same structure for Provider

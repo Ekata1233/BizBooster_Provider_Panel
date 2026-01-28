@@ -79,6 +79,8 @@ const createAd = async (formData: FormData) => {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
 
+    console.log("response of adervtise in context : ", response);
+
     await fetchAds();
     return response; // ✅ return response for flexibility
   } catch (err: unknown) {

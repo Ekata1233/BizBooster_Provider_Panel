@@ -19,6 +19,7 @@ import { AdProvider } from './context/AdContext';
 import { ProviderGalleryProvider } from './context/ProviderGalleryContext';
 import { ZoneProvider } from './context/ZoneContext';
 import { PayoutProvider } from './context/PayoutContext';
+import { CouponProvider } from './context/CouponContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -50,7 +51,9 @@ export default function RootLayout({
                                       <ProviderGalleryProvider>
                                         <ZoneProvider>
                                           <PayoutProvider>
+                                            <CouponProvider>
                                             {children}
+                                            </CouponProvider>
                                           </PayoutProvider>
                                         </ZoneProvider>
                                       </ProviderGalleryProvider>

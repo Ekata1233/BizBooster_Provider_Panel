@@ -7,6 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 
 // Define the type for a category item
 export interface CategoryType {
@@ -45,6 +46,21 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
   const [errorCategories, setErrorCategories] = useState<string | null>(null);
+   const { providerDetails } = useAuth();
+
+   useEffect(() => {
+    const moduleId = providerDetails?.storeInfo?.module;
+    if (!moduleId) return;
+
+    axios
+      .get(`https://api.fetchtrue.com/api/category?moduleId=${moduleId}`)
+      .then(res => {
+        if (res.data.success) {
+          setCategories(res.data.data);
+        }
+      })
+      .catch(console.error);
+  }, [providerDetails?.storeInfo?.module]);
 
   const fetchCategories = async () => {
     setLoadingCategories(true);

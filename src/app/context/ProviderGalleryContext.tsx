@@ -47,48 +47,112 @@ finally {
     }
   };
 
-  const uploadGalleryImages = async (providerId: string, files: File[]) => {
-    const formData = new FormData();
-    files.forEach(file => formData.append("galleryImages", file));
+const uploadGalleryImages = async (providerId: string, files: File[]) => {
+  const formData = new FormData();
+  files.forEach(file => formData.append("galleryImages", file));
 
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axios.patch(`${BASE_URL}/${providerId}/gallery`, formData, {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await axios.patch(
+      `${BASE_URL}/${providerId}/gallery`,
+      formData,
+      {
         headers: { "Content-Type": "multipart/form-data" },
-      });
-      setGalleryImages(res.data.data);
-    } catch (err: unknown) {
-  if (err instanceof Error && 'response' in err) {
-    const axiosError = err as { response?: { data?: { message?: string } } };
-    setError(axiosError.response?.data?.message || "Upload failed");
-  } else {
+      }
+    );
+
+    setGalleryImages(res.data.data);
+    return res.data; // ✅ success
+
+  } catch (err: unknown) {
+
+    if (axios.isAxiosError(err)) {
+      // ✅ Handle 413 specifically
+      if (err.response?.status === 413) {
+        setError(
+          "The selected image(s) exceed the maximum allowed file size. Please upload smaller images."
+        );
+      } else {
+        setError(err.response?.data?.message || "Upload failed");
+      }
+
+      throw err; // ⛔ VERY IMPORTANT
+    }
+
     setError("Upload failed");
+    throw err; // ⛔ VERY IMPORTANT
+
+  } finally {
+    setLoading(false);
   }
-} finally {
-      setLoading(false);
-    }
-  };
+};
 
-  const replaceGalleryImage = async (providerId: string, index: number, newImage: File) => {
-    const formData = new FormData();
-    formData.append("newImage", newImage);
 
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axios.patch(`${BASE_URL}/${providerId}/gallery/${index}`, formData, {
+//   const replaceGalleryImage = async (providerId: string, index: number, newImage: File) => {
+//     const formData = new FormData();
+//     formData.append("newImage", newImage);
+
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const res = await axios.patch(`${BASE_URL}/${providerId}/gallery/${index}`, formData, {
+//         headers: { "Content-Type": "multipart/form-data" },
+//       });
+//       setGalleryImages(res.data.updatedImages);
+//     } catch (err: unknown) {
+//   const error = err as { response?: { data?: { message?: string } } };
+//   setError(error?.response?.data?.message || "Replace failed");
+// }
+// finally {
+//       setLoading(false);
+//     }
+//   };
+
+const replaceGalleryImage = async (
+  providerId: string,
+  index: number,
+  newImage: File
+) => {
+  const formData = new FormData();
+  formData.append("newImage", newImage);
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await axios.patch(
+      `${BASE_URL}/${providerId}/gallery/${index}`,
+      formData,
+      {
         headers: { "Content-Type": "multipart/form-data" },
-      });
-      setGalleryImages(res.data.updatedImages);
-    } catch (err: unknown) {
-  const error = err as { response?: { data?: { message?: string } } };
-  setError(error?.response?.data?.message || "Replace failed");
-}
-finally {
-      setLoading(false);
+      }
+    );
+
+    setGalleryImages(res.data.updatedImages);
+    return res.data; // ✅ success
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      // ✅ Handle 413 properly
+      if (err.response?.status === 413) {
+        setError(
+          "Image too large. Please upload a smaller image."
+        );
+      } else {
+        setError(err.response?.data?.message || "Replace failed");
+      }
+
+      throw err; // ⛔ THIS LINE FIXES YOUR ISSUE
     }
-  };
+
+    setError("Replace failed");
+    throw err; // ⛔ ALSO REQUIRED
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const deleteGalleryImage = async (providerId: string, index: number) => {
     setLoading(true);

@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 
 // Define the Service type (you can expand this based on your API response structure)
 // export interface ServiceType {
@@ -104,10 +105,25 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
     const [services, setServices] = useState<Service[]>([]);
     const [loadingServices, setLoadingServices] = useState<boolean>(true);
     const [errorServices, setErrorServices] = useState<string | null>(null);
-
     const [singleService, setSingleService] = useState<Service | null>(null);
     const [loadingSingleService, setLoadingSingleService] = useState<boolean>(false);
     const [errorSingleService, setErrorSingleService] = useState<string | null>(null);
+       const { providerDetails } = useAuth();
+    
+          useEffect(() => {
+    const moduleId = providerDetails?.storeInfo?.module;
+    if (!moduleId) return;
+
+    axios
+      .get(`https://api.fetchtrue.com/api/service/module?moduleId=${moduleId}`)
+      .then(res => {
+        if (res.data.success) {
+          setServices(res.data.data);
+        }
+        
+      })
+      .catch(console.error);
+  }, [providerDetails?.storeInfo?.module]);
 
     const fetchServices = async () => {
         setLoadingServices(true);

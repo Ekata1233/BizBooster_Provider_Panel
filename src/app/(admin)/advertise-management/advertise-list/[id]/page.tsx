@@ -50,6 +50,35 @@ const AdDetailsPage = () => {
     }
   }, [id, ads]);
 
+  const formatDate = (date?: string) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const getAdRuntimeStatus = (startDate?: string, endDate?: string) => {
+  if (!startDate || !endDate) return 'N/A';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
+
+  if (today < start) return 'Upcoming';
+  if (today >= start && today <= end) return 'Active';
+  if (today > end) return 'Inactive';
+
+  return 'N/A';
+};
+
+
   if (!ad) return <div className="p-4">Loading...</div>;
 
   // ✅ Handle provider safely (string or object)
@@ -117,20 +146,32 @@ const AdDetailsPage = () => {
 
             <div>
               <h2 className="text-lg font-semibold">Start Date:</h2>
-              <p className="text-gray-700">
-                {ad.startDate ? new Date(ad.startDate).toLocaleDateString() : 'N/A'}
-              </p>
+              <p className="text-gray-700">{formatDate(ad.startDate)}</p>
             </div>
 
             <div>
               <h2 className="text-lg font-semibold">End Date:</h2>
-              <p className="text-gray-700">
-                {ad.endDate ? new Date(ad.endDate).toLocaleDateString() : 'N/A'}
-              </p>
+             <p className="text-gray-700">{formatDate(ad.endDate)}</p>
             </div>
 
             <div>
-              <h2 className="text-lg font-semibold">Status:</h2>
+  <h2 className="text-lg font-semibold">Ad Runtime Status:</h2>
+  <p
+    className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${
+      getAdRuntimeStatus(ad.startDate, ad.endDate) === 'Upcoming'
+        ? 'text-blue-600 bg-blue-100 border border-blue-300'
+        : getAdRuntimeStatus(ad.startDate, ad.endDate) === 'Active'
+        ? 'text-green-600 bg-green-100 border border-green-300'
+        : 'text-red-600 bg-red-100 border border-red-300'
+    }`}
+  >
+    {getAdRuntimeStatus(ad.startDate, ad.endDate)}
+  </p>
+</div>
+
+
+            <div>
+              <h2 className="text-lg font-semibold">Approval Status:</h2>
               <p
                 className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${ad.isApproved
                     ? 'text-green-600 bg-green-100 border border-green-300'
@@ -142,20 +183,25 @@ const AdDetailsPage = () => {
             </div>
 
             <div>
-              <h2 className="text-lg font-semibold">Expired:</h2>
-              <p className="text-gray-700">{ad.isExpired ? 'Yes' : 'No'}</p>
+              <h2 className="text-lg font-semibold">Expire Status:</h2>
+             <p
+                className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${ad.isExpired
+                    ? 'text-red-600 bg-red-100 border border-red-300'
+                    : 'text-green-600 bg-green-100 border border-green-300'
+                  }`}
+              >{ad.isExpired ? 'Expired' : 'Not expire'}</p>
             </div>
 
             {/* ✅ New Section for Active/Inactive */}
             <div>
-              <h2 className="text-lg font-semibold">Ad Status:</h2>
+              <h2 className="text-lg font-semibold">Delete or Not:</h2>
               <p
                 className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${ad.isDeleted
                     ? 'text-red-600 bg-red-100 border border-red-300'
                     : 'text-green-600 bg-green-100 border border-green-300'
                   }`}
               >
-                {ad.isDeleted ? 'Inactive' : 'Active'}
+                {ad.isDeleted ? 'Deleted' : 'Not deleted'}
               </p>
             </div>
 

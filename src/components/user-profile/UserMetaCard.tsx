@@ -7,7 +7,13 @@ import { useAuth } from "@/app/context/AuthContext";
 export default function UserMetaCard() {
   const { providerDetails, refreshProviderDetails } = useAuth();
   const [isActive, setIsActive] = useState<boolean | null>(null);
+const [isPromotionActive, setIsPromotionActive] = useState<boolean>(false);
+const [promotionDisabled, setPromotionDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
+
+
+
+  console.log("provider promotionDisabled : ", promotionDisabled);
 
   const userId = providerDetails?._id;
 
@@ -22,13 +28,31 @@ export default function UserMetaCard() {
     }
   }, [providerDetails?.isStoreOpen]);
 
+useEffect(() => {
+  const promoted = providerDetails?.isPromoted;
+
+  if (promoted === true) {
+    setIsPromotionActive(true);
+    setPromotionDisabled(true);
+  } 
+  else if (promoted === false) {
+    setIsPromotionActive(false);
+    setPromotionDisabled(true); 
+  } 
+  else {
+    setIsPromotionActive(false);
+    setPromotionDisabled(false);
+  }
+}, [providerDetails?.isPromoted]);
+
+
   // ✅ Toggle store open/close
   const handleToggle = async () => {
     if (loading || !userId) return;
 
     setLoading(true);
     try {
-      const res = await fetch(`https://biz-booster.vercel.app/api/provider/store-status/${userId}`, {
+      const res = await fetch(`https://api.fetchtrue.com/api/provider/store-status/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
@@ -47,6 +71,33 @@ export default function UserMetaCard() {
     }
   };
 
+    const handlePromotionToggle = async () => {
+    if (loading || !userId || promotionDisabled) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`https://api.fetchtrue.com/api/provider/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isPromoted: false, 
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data?.success) {
+        setIsPromotionActive(data.isPromoted);
+        alert("Your promotion request has been sent successfully. Please wait for admin approval.");
+      } else {
+        console.error("Toggle failed:", data?.message || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Error toggling store:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   console.log("Provider details : ", providerDetails);
 
@@ -111,6 +162,41 @@ export default function UserMetaCard() {
               )}
             </div>
           </div>
+          <div className="flex flex-col items-end gap-1">
+  <label className="text-sm font-semibold text-blue-600 tracking-wide uppercase whitespace-nowrap">
+    PROMOTION STATUS
+  </label>
+
+  <div className="relative group flex items-center gap-2">
+    <button
+      onClick={handlePromotionToggle}
+      disabled={promotionDisabled || loading}
+      className={`relative w-16 h-8 rounded-full p-1 border-2 transition-all duration-300
+        ${isPromotionActive
+          ? "bg-gradient-to-r from-green-400 to-green-600 border-green-500"
+          : "bg-gray-300 border-gray-400"}
+        ${(promotionDisabled || loading) ? "opacity-50 cursor-not-allowed" : ""}`}
+    >
+      <span
+        className={`absolute left-0 top-0 w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-300
+          ${isPromotionActive ? "translate-x-8" : ""}`}
+      />
+    </button>
+
+    {/* 🟡 Hover message for pending */}
+    {providerDetails?.isPromoted === false && (
+      <span className="absolute top-10 right-0 z-10 hidden group-hover:block whitespace-nowrap
+        rounded-md bg-black px-3 py-1 text-xs text-white shadow-lg">
+        Promotion request pending
+      </span>
+    )}
+
+    {loading && (
+      <span className="text-sm text-gray-600 animate-pulse">Updating...</span>
+    )}
+  </div>
+</div>
+
         </div>
       </div>
 

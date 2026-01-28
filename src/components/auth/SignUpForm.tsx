@@ -966,12 +966,12 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
                       Previous
                     </button> */}
                     <button
-                      type="submit"
-                      className="px-10 py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 shadow-md hover:shadow-lg disabled:opacity-60"
-                      disabled={loading || !!logoError || !!coverError}
-                    >
-                      {loading ? "Saving…" : "Save Store Info"}
-                    </button>
+  type="submit"
+  className="px-10 py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 shadow-md hover:shadow-lg disabled:opacity-60"
+  disabled={loading || !!logoError || !!coverError}
+>
+  {loading ? "Saving…" : "Save Store Info"}
+</button>
                   </div>
                 </form>
               </>
