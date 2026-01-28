@@ -119,7 +119,7 @@ const AddAd = () => {
       formData.append('providerId', provider?._id || '');
 
       await createAd(formData);
-      alert('Ad created successfully!');
+      alert('Advertise created successfully!');
       resetForm();
 } catch (error: unknown) {
   console.log('Error creating ad:', error);
