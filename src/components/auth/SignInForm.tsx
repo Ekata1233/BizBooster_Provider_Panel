@@ -20,10 +20,12 @@ export default function SignInForm() {
 
   const { login, providerDetails } = useAuth();
   const router = useRouter();
+const loginAttemptRef = React.useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      loginAttemptRef.current = true;
       setLoading(true);
       await login(email, password);
     } catch (err: unknown) {
@@ -37,15 +39,22 @@ export default function SignInForm() {
       setLoading(false);
     }
   };
+useEffect(() => {
+  if (!providerDetails || loading) return;
 
-  // ✅ Redirect to dashboard after successful login (when providerDetails is ready)
-  useEffect(() => {
-    console.log("DEBUG: providerDetails:", providerDetails);
-    console.log("DEBUG: loading:", loading);
-    if (providerDetails && !loading) {
-      router.push("/");
-    }
-  }, [providerDetails, loading, router]);
+  // 🚫 Block deleted provider ONLY after login attempt
+  if (providerDetails.isDeleted && loginAttemptRef.current) {
+    alert("Provider not found or account has been deleted.");
+    loginAttemptRef.current = false; // reset
+    return;
+  }
+
+  // ✅ Allow redirect only for valid provider
+  if (!providerDetails.isDeleted) {
+    router.push("/");
+  }
+}, [providerDetails, loading, router]);
+
 
   const handleForgotPassword = async () => {
     if (!email) {

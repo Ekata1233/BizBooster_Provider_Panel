@@ -29,7 +29,34 @@ const validateImage = (file: File, maxSizeMB: number = 1): string | null => {
 
   return null;
 };
+/* ------------------------------------------------------------------ */
+/*  VALIDATION FUNCTIONS                                              */
+/* ------------------------------------------------------------------ */
+// ... existing validateImage function ...
+const fullNamePattern = /^(?!^\d+$)[a-zA-Z0-9\s]+$/;
 
+const validationPatterns = {
+  storeName: /^(?!^\d+$)[a-zA-Z0-9\s\-&.,'()]+$/, // Allows alphanumeric but not only numbers
+  phone: /^[0-9]{10}$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  address: /^[a-zA-Z0-9\s\-#,./\\()&'"°]+$/, // Basic address pattern
+  city: /^[a-zA-Z\s\-']+$/, // City names typically don't have numbers
+  state: /^[a-zA-Z\s\-']+$/,
+  country: /^[a-zA-Z\s\-']+$/,
+  numbersOnly: /^\d+$/,
+};
+
+const validationMessages = {
+  storeName: "Store name must contain letters (cannot be only numbers)",
+  phone: "Phone number must be exactly 10 digits",
+  email: "Please enter a valid email address",
+  address: "Address contains invalid characters",
+  city: "City name can only contain letters, spaces, hyphens, and apostrophes",
+  state: "State name can only contain letters, spaces, hyphens, and apostrophes",
+  country: "Country name can only contain letters, spaces, hyphens, and apostrophes",
+  required: "This field is required",
+  minLength: (min: number) => `Minimum ${min} characters required`,
+};
 /* ------------------------------------------------------------------ */
 /*  VISUAL STEPPER                                                    */
 /* ------------------------------------------------------------------ */
@@ -453,13 +480,21 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
-                      {...regForm.register("fullName", {
-                        required: "Full Name is required",
-                        minLength: { value: 3, message: "Name must be at least 3 characters" },
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm 
-                                 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
+  {...regForm.register("fullName", {
+    required: "Full Name is required",
+    minLength: {
+      value: 3,
+      message: "Name must be at least 3 characters",
+    },
+    pattern: {
+      value: /^(?!^\d+$)[a-zA-Z0-9\s]+$/,
+      message: "Name must contain letters (cannot be only numbers)",
+    },
+  })}
+  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm 
+             focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+/>
+
                     {regForm.formState.errors.fullName && (
                       <p className="text-red-500 text-sm mt-1">
                         {regForm.formState.errors.fullName.message as string}
@@ -600,62 +635,80 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Store Name */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Store Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("storeName", { required: "Store Name is required" })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.storeName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.storeName.message as string}
-                        </p>
-                      )}
-                    </div>
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Store Name <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("storeName", { 
+      required: "Store Name is required",
+      minLength: { value: 2, message: "Store name must be at least 2 characters" },
+      validate: {
+        notOnlyNumbers: (value) => 
+          !validationPatterns.numbersOnly.test(value.trim()) || 
+          "Store name must contain letters (not only numbers)",
+        validCharacters: (value) => 
+          validationPatterns.storeName.test(value.trim()) || 
+          "Store name contains invalid characters"
+      }
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.storeName && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.storeName.message as string}
+    </p>
+  )}
+</div>
 
-                    {/* Store Phone */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Store Phone <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("storePhone", {
-                          required: "Store Phone is required",
-                          pattern: { value: /^[0-9]{10}$/, message: "Enter a valid 10-digit phone number" },
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.storePhone && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.storePhone.message as string}
-                        </p>
-                      )}
-                    </div>
+{/* Store Phone */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Store Phone <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("storePhone", {
+      required: "Store Phone is required",
+      pattern: { 
+        value: validationPatterns.phone, 
+        message: "Phone number must be exactly 10 digits" 
+      },
+      onChange: (e) => {
+        // Only allow numbers
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+      }
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.storePhone && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.storePhone.message as string}
+    </p>
+  )}
+</div>
 
-                    {/* Store Email */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Store Email <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("storeEmail", {
-                          required: "Store Email is required",
-                          pattern: {
-                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                            message: "Invalid email address",
-                          },
-                        })}
-                        type="email"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.storeEmail && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.storeEmail.message as string}
-                        </p>
-                      )}
-                    </div>
+{/* Store Email */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Store Email <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("storeEmail", {
+      required: "Store Email is required",
+      pattern: {
+        value: validationPatterns.email,
+        message: "Please enter a valid email address",
+      },
+    })}
+    type="email"
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.storeEmail && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.storeEmail.message as string}
+    </p>
+  )}
+</div>
 
                     {/* Module Dropdown */}
                     <div>
@@ -680,92 +733,136 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
                       )}
                     </div>
 
-                    {/* Zone Dropdown */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Select Zone <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        {...storeForm.register("zoneId", { required: "Please select a Zone" })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select Zone</option>
-                        {zones?.map((z) => (
-                          <option key={z._id} value={z._id}>
-                            {z.name}
-                          </option>
-                        ))}
-                      </select>
-                      {storeForm.formState.errors.zoneId && (
-                        <p className="textred-500 text-sm mt-1">
-                          {storeForm.formState.errors.zoneId.message as string}
-                        </p>
-                      )}
-                    </div>
+                   {/* Zone Dropdown */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Select Zone <span className="text-red-500">*</span>
+  </label>
+
+  <select
+    {...storeForm.register("zoneId", { required: "Please select a Zone" })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  >
+    <option value="">Select Zone</option>
+    {zones?.map((z) => (
+      <option key={z._id} value={z._id}>
+        {z.name}
+      </option>
+    ))}
+  </select>
+
+  {storeForm.formState.errors.zoneId && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.zoneId.message as string}
+    </p>
+  )}
+</div>
+
 
                     {/* Address */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Address <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("address", { required: "Address is required" })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.address && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.address.message as string}
-                        </p>
-                      )}
-                    </div>
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Address <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("address", { 
+      required: "Address is required",
+      minLength: { value: 5, message: "Address must be at least 5 characters" },
+      validate: {
+        validCharacters: (value) => 
+          validationPatterns.address.test(value.trim()) || 
+          "Address contains invalid characters"
+      }
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.address && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.address.message as string}
+    </p>
+  )}
+</div>
 
-                    {/* City */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        City <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("city", { required: "City is required" })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.city && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.city.message as string}
-                        </p>
-                      )}
-                    </div>
+{/* City */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    City <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("city", { 
+      required: "City is required",
+      minLength: { value: 2, message: "City must be at least 2 characters" },
+      validate: {
+        validCharacters: (value) => 
+          validationPatterns.city.test(value.trim()) || 
+          "City can only contain letters, spaces, hyphens, and apostrophes",
+        noNumbers: (value) => 
+          !/\d/.test(value.trim()) || 
+          "City name should not contain numbers"
+      }
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.city && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.city.message as string}
+    </p>
+  )}
+</div>
 
-                    {/* State */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        State <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("state", { required: "State is required" })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.state && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.state.message as string}
-                        </p>
-                      )}
-                    </div>
+{/* State */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    State <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("state", { 
+      required: "State is required",
+      minLength: { value: 2, message: "State must be at least 2 characters" },
+      validate: {
+        validCharacters: (value) => 
+          validationPatterns.state.test(value.trim()) || 
+          "State can only contain letters, spaces, hyphens, and apostrophes",
+        noNumbers: (value) => 
+          !/\d/.test(value.trim()) || 
+          "State name should not contain numbers"
+      }
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.state && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.state.message as string}
+    </p>
+  )}
+</div>
 
-                    {/* Country */}
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Country <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        {...storeForm.register("country", { required: "Country is required" })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {storeForm.formState.errors.country && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {storeForm.formState.errors.country.message as string}
-                        </p>
-                      )}
-                    </div>
+{/* Country */}
+<div>
+  <label className="block mb-1 font-medium text-gray-700">
+    Country <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...storeForm.register("country", { 
+      required: "Country is required",
+      minLength: { value: 2, message: "Country must be at least 2 characters" },
+      validate: {
+        validCharacters: (value) => 
+          validationPatterns.country.test(value.trim()) || 
+          "Country can only contain letters, spaces, hyphens, and apostrophes",
+        noNumbers: (value) => 
+          !/\d/.test(value.trim()) || 
+          "Country name should not contain numbers"
+      }
+    })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  />
+  {storeForm.formState.errors.country && (
+    <p className="text-red-500 text-sm mt-1">
+      {storeForm.formState.errors.country.message as string}
+    </p>
+  )}
+</div>
 
                     {/* Tags */}
 <div>
@@ -860,14 +957,14 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
                   </div>
 
                   <div className="flex justify-between mt-8">
-                    <button
+                    {/* <button
                       type="button"
                       onClick={goToPreviousStep}
                       className="px-6 py-3 rounded-lg text-gray-700 font-semibold bg-gray-200 hover:bg-gray-300 flex items-center"
                     >
                       <ArrowLeftIcon className="h-5 w-5 mr-2" />
                       Previous
-                    </button>
+                    </button> */}
                     <button
   type="submit"
   className="px-10 py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 shadow-md hover:shadow-lg disabled:opacity-60"
