@@ -97,7 +97,7 @@ const ServiceMenListCard = ({
       return;
     }
     if (!selectedManId) {
-      console.error("No service Man ID found");
+      alert("⚠️ Please select a serviceman before assigning.");
       return;
     }
 
