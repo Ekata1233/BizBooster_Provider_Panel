@@ -744,11 +744,14 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
     className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
   >
     <option value="">Select Zone</option>
-    {zones?.map((z) => (
-      <option key={z._id} value={z._id}>
-        {z.name}
-      </option>
-    ))}
+
+    {zones
+      ?.filter((z) => z.isDeleted === false)
+      .map((z) => (
+        <option key={z._id} value={z._id}>
+          {z.name}
+        </option>
+      ))}
   </select>
 
   {storeForm.formState.errors.zoneId && (
@@ -757,6 +760,7 @@ const onKycSave = async (data: Record<string, FormDataEntryValue | FileList>) =>
     </p>
   )}
 </div>
+
 
 
                     {/* Address */}
