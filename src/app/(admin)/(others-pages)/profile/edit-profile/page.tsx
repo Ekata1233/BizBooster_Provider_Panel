@@ -702,7 +702,7 @@ export default function EditProfilePage() {
             </div>
 
             <div>
-              <Label>Tags (comma separated)</Label>
+              <Label>Tags </Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="Add a tag (e.g., On Time, Trusted)"
