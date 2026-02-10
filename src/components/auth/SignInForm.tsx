@@ -17,7 +17,8 @@ export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+const alertShownRef = React.useRef(false);
+const logoutInProgressRef = React.useRef(false);
   const { login, providerDetails } = useAuth();
   const router = useRouter();
 const loginAttemptRef = React.useRef(false);
@@ -42,14 +43,39 @@ const loginAttemptRef = React.useRef(false);
 useEffect(() => {
   if (!providerDetails || loading) return;
 
-  // 🚫 Block deleted provider ONLY after login attempt
-  if (providerDetails.isDeleted && loginAttemptRef.current) {
-    alert("Provider not found or account has been deleted.");
-    loginAttemptRef.current = false; // reset
-    return;
-  }
+  
 
-  // ✅ Allow redirect only for valid provider
+   if (providerDetails.isDeleted && !alertShownRef.current && !logoutInProgressRef.current) {
+  alertShownRef.current = true;
+  logoutInProgressRef.current = true;
+
+  const logout = async () => {
+    try {
+      await fetch(`https://api.fetchtrue.com/api/provider/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      alert("Provider not found or account has been deleted.");
+
+      localStorage.clear();
+      localStorage.removeItem("providerDetails");
+
+      // ✅ force reload after effect fully finishes
+      setTimeout(() => {
+        window.location.reload();
+      }, 0);
+    }
+  };
+
+  logout();
+  return;
+}
+
+
+
   if (!providerDetails.isDeleted) {
     router.push("/");
   }
