@@ -71,9 +71,9 @@ useEffect(() => {
   };
 
   logout();
-  return;
+  return; 
 }
-
+    
 
 
   if (!providerDetails.isDeleted) {
